@@ -49,7 +49,7 @@ function $class(define){
 		$extend(clazz, base);
 	}
 
-	clazz.mixin = function(m){ return $mixin(this.prototype, m);}
+	clazz.mixinPrototype = function(m){ return $mixin(this.prototype, m);}
 
 	clazz.define = define;
 
@@ -212,6 +212,7 @@ console.info(bird.fly());
 
 var dog = new Animal("dog");
 console.info(dog.sayHello());
+/*console.info(dog.fly());*/
 
 var apoly = new Poly("poly","green");
 console.info(apoly.sayHello());
@@ -227,4 +228,9 @@ var p2 = new Poly("new poly", "red");
 console.info(p2.sayHello());
 
 console.info(Poly.reopen);
-/*console.info(dog.fly());*/
+
+
+p2.mixin({"age": 8}).mixin({"bir": "bir"}).mixin({onIncluded: function(c){ console.info("mixin" + c.name)}});
+
+Poly.mixinPrototype({"aa": 8})
+console.info(p2.aa);
