@@ -14,44 +14,42 @@
  *
  */
 function $class(define){
-	var proto;
 		
-	var constructor = define.$constructor || function(){ 
+	var clazz = define.$constructor || function(){ 
 		this.constructor.base.apply(this, $makeArray(arguments));
 	};
 
-	constructor.prototype = define.$prototype || {};
-	constructor.prototype.constructor= constructor;
+	var proto = define.$prototype || {};
+	proto.constructor = clazz;
+	clazz.prototype = proto;
 
-	$copy(define.$static, constructor);
+	$copy(define.$static, clazz);
 
-	constructor.define = define;
-
-	constructor.extend = function(base){
-		var self = this;
-
-		var proto = self.prototype;
-
-		var fn = function(){};
-		fn.prototype = base.prototype;
-		self.prototype = new fn();
-
-		$copy(proto, self.prototype);
-
-		self.prototype.constructor = self;
-
-		self.base = base;
-
-		return self;
+	var base = define.$extends;
+	if(base){
+		$extend(clazz, base);
 	}
 
+	clazz.define = define;
 
-	constructor.mixin = function(){
-		var self = this;
-		return self;
+	clazz.mixin = function(){
 	}
 
-	return constructor;
+	return clazz;
+}
+
+function $extend(clazz, base){
+	var old = clazz.prototype;
+
+	var fn = function(){};
+	fn.prototype = base.prototype;
+	clazz.prototype = new fn();
+
+	$copy(old, clazz.prototype);
+
+	clazz.prototype.constructor = clazz;
+
+	clazz.base = base;
 }
 
 $Object = $class({
@@ -123,6 +121,7 @@ function $copy(from, to){
 }
 
 Animal = $class({
+  $extends: $Object,
   $constructor: function(name){
 	  this.baseCall("constructor"); 
 	  this.name = name;
@@ -135,9 +134,10 @@ Animal = $class({
 		return "Hello, I'm " + this.name;
 	}
   }
-}).extend($Object);
+});
 
 Bird = $class({
+	$extends: Animal,
 	$constructor: function(name, color){
 		this.baseCall("constructor", name);
 		this.color = color;
@@ -153,9 +153,10 @@ Bird = $class({
 			return this.baseCall("base.sayHello") + ", and my color is " + this.color; 
 		}
 	}
-}).extend(Animal);
+});
 
 Poly = $class({
+	$extends: Bird,
 	$prototype: {
 		sayHello: function(){
 			return this.baseCall("base.base.sayHello") + ", and i'm Poly";
@@ -164,7 +165,7 @@ Poly = $class({
 	$static: {
 		className: "Poly"
 	}
-}).extend(Bird);
+});
 
 
 var bird = new Bird("bird", "red");
