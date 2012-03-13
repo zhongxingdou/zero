@@ -49,9 +49,19 @@ function $class(define){
 		$extend(clazz, base);
 	}
 
+	clazz.mixin = function(m){ return $mixin(this.prototype, m);}
+
 	clazz.define = define;
 
 	return clazz;
+}
+
+function $mixin(object, module){
+	if(typeof module.onIncluded == "function"){
+		module.onIncluded(object);
+	}
+	$copy(module, object);
+	return object;
 }
 
 function $extend(clazz, base){
@@ -123,8 +133,8 @@ $Object = $class({
 				}
 			}
 		},
-
 		mixin: function(module){
+			return $mixin(this, module);
 		}
 	}
 });
