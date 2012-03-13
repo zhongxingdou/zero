@@ -14,7 +14,26 @@
  *
  */
 function $class(define){
-		
+	//handle $reopen 
+	var origin = define.$reopen;
+	if(origin){
+		var oldDef = origin.define;
+	
+	    //copy but don't overwrite
+		var list = ["$static", "$static", "$prototype"];
+		for(var i=0,l=list.length; i<l; i++){
+			var name = list[i];
+
+			if(!define[name])define[name] = {};
+			$copy(oldDef[name], define[name], false);
+		}
+
+		//if no set, uses the old define yet.
+		if(!define.$constructor)define.$constructor = oldDef.$constructor;
+		if(!define.$extends)define.$extends = oldDef.$extends;
+	}
+
+	//if no constructor set then provide normal one.
 	var clazz = define.$constructor || function(){ 
 		this.constructor.base.apply(this, $makeArray(arguments));
 	};
@@ -31,9 +50,6 @@ function $class(define){
 	}
 
 	clazz.define = define;
-
-	clazz.mixin = function(){
-	}
 
 	return clazz;
 }
@@ -106,6 +122,9 @@ $Object = $class({
 					return member;
 				}
 			}
+		},
+
+		mixin: function(module){
 		}
 	}
 });
@@ -114,9 +133,18 @@ function $makeArray(obj, start){
 	return Array.prototype.slice.apply(obj, [start || 0]);
 }
 
-function $copy(from, to){
-	for(var p in from){
-		to[p] = from[p];
+function $copy(from, to, overwrite){
+	if(!(from && to))return;
+	if(overwrite === false){
+		for(var p in from){
+			if(!to.hasOwnProperty(p)){
+				to[p] = from[p];
+			}
+		}
+	}else{
+		for(var p in from){
+			to[p] = from[p];
+		}
 	}
 }
 
@@ -177,4 +205,16 @@ console.info(dog.sayHello());
 
 var apoly = new Poly("poly","green");
 console.info(apoly.sayHello());
+
+Poly = $class({
+	$reopen: Poly,
+	$static: {
+		reopen: "REOPEN"
+	}
+});
+
+var p2 = new Poly("new poly", "red");
+console.info(p2.sayHello());
+
+console.info(Poly.reopen);
 /*console.info(dog.fly());*/
