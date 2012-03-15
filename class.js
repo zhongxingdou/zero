@@ -35,7 +35,7 @@ function $class(define){
 
 	//if no constructor set then provide normal one.
 	var clazz = define.$constructor || function(){ 
-		this.constructor.base.apply(this, $makeArray(arguments));
+		this.constructor.baseProto.constructor.apply(this, $makeArray(arguments));
 	};
 
 	var proto = define.$prototype || {};
@@ -75,18 +75,25 @@ function $extend(clazz, base){
 
 	clazz.prototype.constructor = clazz;
 
-	clazz.base = base;
+	clazz.baseProto = base.prototype;
 }
 
 $Object = $class({
 	$constructor: function(){
-		var props = this.constructor.define.$properties || {};
-		var base = this.constructor.base;
-		while(base){
-			$copy({from:base.define.$properties, to:props});
-			base = base.base;
-		}
-		this.addProperties(props);
+			this.proto = this.constructor.prototype;
+
+			var props = {},
+				proto = this.proto;
+
+			while(proto){
+				var ps = proto.constructor.define.$properties;
+				if(ps){
+					$copy({from:ps, to:props});
+				}
+				proto = proto.constructor.baseProto;
+			}
+
+			if(props)this.addProperties(props);
 	},
 	$prototype: {
 		addProperties: function(props){
@@ -108,19 +115,19 @@ $Object = $class({
 			var args = $makeArray(arguments, 1);
 			var proto;
 			if(name === "constructor"){
-				proto = arguments.callee.caller.base.prototype;
+				/*proto = arguments.callee.caller.prototype;*/
+				proto = arguments.callee.caller.baseProto;
 			}else if(name.indexOf("base.") != -1){
 				var uplevel = name.split("base.").length - 1; 
-				var base = this.constructor.base;
-				for(var i=1; i < uplevel && base; i++){ 
-					base = base.base;
+				proto = this.proto;
+				for(var i=0; i < uplevel && proto; i++){ 
+					proto = proto.constructor.baseProto;
 				}
-				if(base){ 
-					proto = base.prototype;
+				if(proto){ 
 					name = name.slice(name.lastIndexOf(".")+1);
 				}
 			}else{
-				proto = this.constructor.base.prototype;
+				proto = this.proto;
 			}
 			if(proto){
 				var member = proto[name];
@@ -216,13 +223,14 @@ Poly = $class({
 });
 
 
-var bird = new Bird("bird", "red");
-console.info(bird.sayHello());
-console.info(bird.fly());
 
 var dog = new Animal("dog");
 console.info(dog.sayHello());
 /*console.info(dog.fly());*/
+
+var bird = new Bird("bird", "red");
+console.info(bird.sayHello());
+console.info(bird.fly());
 
 var apoly = new Poly("poly","green");
 console.info(apoly.sayHello());
