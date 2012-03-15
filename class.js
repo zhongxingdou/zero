@@ -25,7 +25,7 @@ function $class(define){
 			var name = list[i];
 
 			if(!define[name])define[name] = {};
-			$copy(oldDef[name], define[name], false);
+			$copy({from: oldDef[name], to:define[name], overwrite:false});
 		}
 
 		//if no set, uses the old define yet.
@@ -42,7 +42,7 @@ function $class(define){
 	proto.constructor = clazz;
 	clazz.prototype = proto;
 
-	$copy(define.$static, clazz);
+	$copy({from:define.$static, to:clazz});
 
 	var base = define.$extends;
 	if(base){
@@ -60,7 +60,7 @@ function $mixin(object, module){
 	if(typeof module.onIncluded == "function"){
 		module.onIncluded(object);
 	}
-	$copy(module, object);
+	$copy({from:module, to:object});
 	return object;
 }
 
@@ -71,7 +71,7 @@ function $extend(clazz, base){
 	fn.prototype = base.prototype;
 	clazz.prototype = new fn();
 
-	$copy(old, clazz.prototype);
+	$copy({from:old, to:clazz.prototype});
 
 	clazz.prototype.constructor = clazz;
 
@@ -83,7 +83,7 @@ $Object = $class({
 		var props = this.constructor.define.$properties || {};
 		var base = this.constructor.base;
 		while(base){
-			$copy(base.define.$properties, props);
+			$copy({from:base.define.$properties, to:props});
 			base = base.base;
 		}
 		this.addProperties(props);
@@ -143,11 +143,21 @@ function $makeArray(obj, start){
 	return Array.prototype.slice.apply(obj, [start || 0]);
 }
 
-function $copy(from, to, overwrite){
+/**
+ * @param {Object} from
+ * @param {Object} to
+ * @param {Boolean} overwrite = true
+ */
+function $copy(args){
+	var from = args.from, 
+		to =  args.to, 
+		overwrite = args.overwrite;
+
 	if(!(from && to))return;
+
 	if(overwrite === false){
 		for(var p in from){
-			if(!to.hasOwnProperty(p)){
+			if(!(p in to)){
 				to[p] = from[p];
 			}
 		}
@@ -229,8 +239,8 @@ console.info(p2.sayHello());
 
 console.info(Poly.reopen);
 
-
 p2.mixin({"age": 8}).mixin({"bir": "bir"}).mixin({onIncluded: function(c){ console.info("mixin" + c.name)}});
 
 Poly.mixinPrototype({"aa": 8})
-console.info(p2.aa);
+
+console.info(p2.aa); 
