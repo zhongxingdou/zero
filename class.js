@@ -13,45 +13,45 @@
  *
  *
  */
-function $class(define){
+function $class(classDefine){
 	//handle $reopen 
-	var origin = define.$reopen;
+	var origin = classDefine.$reopen;
 	if(origin){
-		var oldDef = origin.define;
+		var oldDef = origin.classDefine;
 	
 	    //copy but don't overwrite
 		var list = ["$static", "$static", "$prototype"];
 		for(var i=0,l=list.length; i<l; i++){
 			var name = list[i];
 
-			if(!define[name])define[name] = {};
-			$copy({from: oldDef[name], to:define[name], overwrite:false});
+			if(!classDefine[name])classDefine[name] = {};
+			$copy({from: oldDef[name], to:classDefine[name], overwrite:false});
 		}
 
-		//if no set, uses the old define yet.
-		if(!define.$constructor)define.$constructor = oldDef.$constructor;
-		if(!define.$extends)define.$extends = oldDef.$extends;
+		//if no set, uses the old classDefine yet.
+		if(!classDefine.$constructor)classDefine.$constructor = oldDef.$constructor;
+		if(!classDefine.$extends)classDefine.$extends = oldDef.$extends;
 	}
 
 	//if no constructor set then provide normal one.
-	var clazz = define.$constructor || function(){ 
+	var clazz = classDefine.$constructor || function(){ 
 		this.constructor.baseProto.constructor.apply(this, $makeArray(arguments));
 	};
 
-	var proto = define.$prototype || {};
+	var proto = classDefine.$prototype || {};
 	proto.constructor = clazz;
 	clazz.prototype = proto;
 
-	$copy({from:define.$static, to:clazz});
+	$copy({from:classDefine.$static, to:clazz});
 
-	var base = define.$extends;
+	var base = classDefine.$extends;
 	if(base){
 		$extend(clazz, base);
 	}
 
 	clazz.mixinPrototype = function(m){ return $mixin(this.prototype, m);}
 
-	clazz.define = define;
+	clazz.classDefine = classDefine;
 
 	return clazz;
 }
@@ -86,7 +86,7 @@ $Object = $class({
 				proto = this.proto;
 
 			while(proto){
-				var ps = proto.constructor.define.$properties;
+				var ps = proto.constructor.classDefine.$properties;
 				if(ps){
 					$copy({from:ps, to:props});
 				}
@@ -115,7 +115,6 @@ $Object = $class({
 			var args = $makeArray(arguments, 1);
 			var proto;
 			if(name === "constructor"){
-				/*proto = arguments.callee.caller.prototype;*/
 				proto = arguments.callee.caller.baseProto;
 			}else if(name.indexOf("base.") != -1){
 				var uplevel = name.split("base.").length - 1; 
@@ -127,7 +126,7 @@ $Object = $class({
 					name = name.slice(name.lastIndexOf(".")+1);
 				}
 			}else{
-				proto = this.proto;
+				proto = this.constructor.baseProto;
 			}
 			if(proto){
 				var member = proto[name];
@@ -205,12 +204,16 @@ Bird = $class({
 			return "I can fly, I'm a " + this.color + " bird";
 		},
 		sayHello: function(){
-			return this.baseCall("base.sayHello") + ", and my color is " + this.color; 
+			return this.baseCall("sayHello") + ", and my color is " + this.color; 
 		}
 	}
 });
 
 Poly = $class({
+	$constructor: function(name, color){
+		this.baseCall("constructor", name);
+		this.color = color;
+	},
 	$extends: Bird,
 	$prototype: {
 		sayHello: function(){
