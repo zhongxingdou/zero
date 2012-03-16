@@ -7,7 +7,7 @@ function $interface(interfaceName, define){
 	return interface;
 }
 
-function $Support(obj, interface){
+function $support(obj, interface){
 	var define = interface.define || interface;
 	for(var p in define){
 		if(!(p in obj))return false;
@@ -36,30 +36,30 @@ function $Support(obj, interface){
  *		$statics: {}
  * }).mixin(Module);
  */
-function $class(className, classDefine){
+function $class(className, define){
 	if(typeof className != "string"){
-		return $ReopenClass(className, classDefine);
+		return $reopenClass(className, define);
 	}
 
 	//if no constructor set then provide normal one.
-	var clazz = classDefine.$constructor || function(){ 
+	var clazz = define.$constructor || function(){ 
 		this.constructor.baseProto.constructor.apply(this, $makeArray(arguments));
 	};
 
-	var proto = classDefine.$prototype || {};
+	var proto = define.$prototype || {};
 	proto.constructor = clazz;
 	clazz.prototype = proto;
 
-	$copy({from:classDefine.$statics, to:clazz});
+	$copy({from:define.$statics, to:clazz});
 
-	var base = classDefine.$extends;
+	var base = define.$extends;
 	if(base){
 		$extend(clazz, base);
 	}
 
 	clazz.mixinPrototype = function(m){ return $mixin(this.prototype, m);}
 
-	clazz.classDefine = classDefine;
+	clazz.define = define;
 
 	clazz.name = className;
 
@@ -68,7 +68,7 @@ function $class(className, classDefine){
 	return clazz;
 }
 
-function $ReopenClass(clazz, newDef){
+function $reopenClass(clazz, newDef){
 		//$statics
 		$copy({from:newDef.$statics, to:clazz});
 		
@@ -114,7 +114,7 @@ $class("$Object", {
 				proto = this.proto;
 
 			while(proto){
-				var ps = proto.constructor.classDefine.$properties;
+				var ps = proto.constructor.define.$properties;
 				if(ps){
 					$copy({from:ps, to:props});
 				}
@@ -251,16 +251,19 @@ $class("Poly", {
 	}
 });
 
+function $log(v){
+	console.info(v);
+}
 
 var dog = new Animal("dog");
-console.info(dog.sayHello());
+$log(dog.sayHello());
 
 var bird = new Bird("bird", "red");
-console.info(bird.sayHello());
-console.info(bird.fly());
+$log(bird.sayHello());
+$log(bird.fly());
 
 var apoly = new Poly("poly","green");
-console.info(apoly.sayHello());
+$log(apoly.sayHello());
 
 $class(Poly, {
 	$statics: {
@@ -269,21 +272,21 @@ $class(Poly, {
 });
 
 var p2 = new Poly("new poly", "red");
-console.info(p2.sayHello());
+$log(p2.sayHello());
 
-console.info(Poly.reopen);
+$log(Poly.reopen);
 
-p2.mixin({"age": 8}).mixin({"bir": "bir"}).mixin({onIncluded: function(c){ console.info("mixin" + c.name)}});
+p2.mixin({"age": 8}).mixin({"bir": "bir"}).mixin({onIncluded: function(c){ $log("mixin" + c.name)}});
 
 Poly.mixinPrototype({"aa": 8})
 
-console.info(p2.aa); 
+$log(p2.aa); 
 
 $interface("IAnimal", {
 	sayHello: "function"
 });
 
-console.info("p2 support interface: " + $Support(p2, IAnimal));
+$log("p2 support interface: " + $support(p2, IAnimal));
 
 $interface("IFace",{
 	getName: "function",
@@ -299,7 +302,7 @@ $interface("IInterface", {
 	getType: IFace
 });
 
-var isSupport = $Support({
+var isSupport = $support({
 	getName: new Function(),
 	age: 8,
 	name: "name",
@@ -311,4 +314,4 @@ var isSupport = $Support({
 	}
 }, IInterface);
 
-console.info(isSupport);
+$log(isSupport);
