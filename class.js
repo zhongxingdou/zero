@@ -1,6 +1,7 @@
 /**
  * @example
  * $class({
+ *		$extends: Base
  *		$constructor: function(){
  *			this.baseCall("constructor"[,args...]);
  *		},
@@ -9,18 +10,18 @@
  *			property: "rw"
  *		},
  *		$static: {}
- * }).extends(SuperClass).mixin(Module);
+ * }).mixin(Module);
  *
  *
  */
-function $class(classDefine){
+function $class(className, classDefine){
 	//handle $reopen 
 	var origin = classDefine.$reopen;
 	if(origin){
 		var oldDef = origin.classDefine;
 	
 	    //copy but don't overwrite
-		var list = ["$static", "$static", "$prototype"];
+		var list = ["$static", "$properties", "$prototype"];
 		for(var i=0,l=list.length; i<l; i++){
 			var name = list[i];
 
@@ -53,6 +54,10 @@ function $class(classDefine){
 
 	clazz.classDefine = classDefine;
 
+	clazz.name = className;
+
+	this[className] = clazz;
+
 	return clazz;
 }
 
@@ -78,7 +83,7 @@ function $extend(clazz, base){
 	clazz.baseProto = base.prototype;
 }
 
-$Object = $class({
+$class("$Object", {
 	$constructor: function(){
 			this.proto = this.constructor.prototype;
 
@@ -114,7 +119,7 @@ $Object = $class({
 		baseCall : function(name){
 			var args = $makeArray(arguments, 1);
 			var proto;
-			if(name === "constructor"){
+			if(name === "constructor" || name === "base.constructor"){
 				proto = arguments.callee.caller.baseProto;
 			}else if(name.indexOf("base.") != -1){
 				var uplevel = name.split("base.").length - 1; 
@@ -174,7 +179,7 @@ function $copy(args){
 	}
 }
 
-Animal = $class({
+$class("Animal", {
   $extends: $Object,
   $constructor: function(name){
 	  this.baseCall("constructor"); 
@@ -190,7 +195,7 @@ Animal = $class({
   }
 });
 
-Bird = $class({
+$class("Bird", {
 	$extends: Animal,
 	$constructor: function(name, color){
 		this.baseCall("constructor", name);
@@ -209,11 +214,7 @@ Bird = $class({
 	}
 });
 
-Poly = $class({
-	$constructor: function(name, color){
-		this.baseCall("constructor", name);
-		this.color = color;
-	},
+$class("Poly", {
 	$extends: Bird,
 	$prototype: {
 		sayHello: function(){
@@ -226,10 +227,8 @@ Poly = $class({
 });
 
 
-
 var dog = new Animal("dog");
 console.info(dog.sayHello());
-/*console.info(dog.fly());*/
 
 var bird = new Bird("bird", "red");
 console.info(bird.sayHello());
@@ -238,20 +237,20 @@ console.info(bird.fly());
 var apoly = new Poly("poly","green");
 console.info(apoly.sayHello());
 
-Poly = $class({
+$class("Poly2", {
 	$reopen: Poly,
 	$static: {
 		reopen: "REOPEN"
 	}
 });
 
-var p2 = new Poly("new poly", "red");
+var p2 = new Poly2("new poly", "red");
 console.info(p2.sayHello());
 
-console.info(Poly.reopen);
+console.info(Poly2.reopen);
 
 p2.mixin({"age": 8}).mixin({"bir": "bir"}).mixin({onIncluded: function(c){ console.info("mixin" + c.name)}});
 
-Poly.mixinPrototype({"aa": 8})
+Poly2.mixinPrototype({"aa": 8})
 
 console.info(p2.aa); 
