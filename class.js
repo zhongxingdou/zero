@@ -37,23 +37,8 @@ function $Support(obj, interface){
  * }).mixin(Module);
  */
 function $class(className, classDefine){
-	//handle $reopen 
-	var origin = classDefine.$reopen;
-	if(origin){
-		var oldDef = origin.classDefine;
-	
-	    //copy but don't overwrite
-		var list = ["$static", "$properties", "$prototype"];
-		for(var i=0,l=list.length; i<l; i++){
-			var name = list[i];
-
-			if(!classDefine[name])classDefine[name] = {};
-			$copy({from: oldDef[name], to:classDefine[name], overwrite:false});
-		}
-
-		//if no set, uses the old classDefine yet.
-		if(!classDefine.$constructor)classDefine.$constructor = oldDef.$constructor;
-		if(!classDefine.$extends)classDefine.$extends = oldDef.$extends;
+	if(typeof className != "string"){
+		return $ReopenClass(className, classDefine);
 	}
 
 	//if no constructor set then provide normal one.
@@ -83,7 +68,23 @@ function $class(className, classDefine){
 	return clazz;
 }
 
+function $ReopenClass(clazz, newDef){
+		//$statics
+		$copy({from:newDef.$statics, to:clazz});
+		
+		//$prototype
+		if(newDef.$prototype){
+			clazz.mixinPrototype(newDef.$prototype);
+		}
+
+		//$properties
+		$copy({from:newDef.$properties, to:clazz.$properties});
+
+		return clazz;
+}
+
 function $mixin(object, module){
+	if(!object || !module)return;
 	if(typeof module.onIncluded == "function"){
 		module.onIncluded(object);
 	}
@@ -261,21 +262,20 @@ console.info(bird.fly());
 var apoly = new Poly("poly","green");
 console.info(apoly.sayHello());
 
-$class("Poly2", {
-	$reopen: Poly,
+$class(Poly, {
 	$statics: {
 		reopen: "REOPEN"
 	}
 });
 
-var p2 = new Poly2("new poly", "red");
+var p2 = new Poly("new poly", "red");
 console.info(p2.sayHello());
 
-console.info(Poly2.reopen);
+console.info(Poly.reopen);
 
 p2.mixin({"age": 8}).mixin({"bir": "bir"}).mixin({onIncluded: function(c){ console.info("mixin" + c.name)}});
 
-Poly2.mixinPrototype({"aa": 8})
+Poly.mixinPrototype({"aa": 8})
 
 console.info(p2.aa); 
 
