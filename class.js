@@ -1,6 +1,30 @@
+function $interface(interfaceName, define){
+	var interface = {
+		define: define,
+		name: interfaceName
+	}
+	this[interfaceName] = interface;
+	return interface;
+}
+
+function $Support(obj, interface){
+	var define = interface.define || interface;
+	for(var p in define){
+		if(!(p in obj))return false;
+		var itype = define[p];
+		if(typeof itype == "string"){
+			if(typeof(obj[p]) != itype)return false;
+		}else{// type is another interface
+			if(!arguments.callee(obj[p], itype))return false;
+		}
+	}
+	return true;
+}
+
+
 /**
  * @example
- * $class({
+ * $class(className, {
  *		$extends: Base
  *		$constructor: function(){
  *			this.baseCall("constructor"[,args...]);
@@ -9,10 +33,8 @@
  *		$properties: {
  *			property: "rw"
  *		},
- *		$static: {}
+ *		$statics: {}
  * }).mixin(Module);
- *
- *
  */
 function $class(className, classDefine){
 	//handle $reopen 
@@ -43,7 +65,7 @@ function $class(className, classDefine){
 	proto.constructor = clazz;
 	clazz.prototype = proto;
 
-	$copy({from:classDefine.$static, to:clazz});
+	$copy({from:classDefine.$statics, to:clazz});
 
 	var base = classDefine.$extends;
 	if(base){
@@ -103,15 +125,17 @@ $class("$Object", {
 	$prototype: {
 		addProperties: function(props){
 			if(props){
-				this.__fields = this.__fields || {};
+				this.__fields__ = this.__fields__ || {};
+				var fields = this.__fields__;
 				for(var p in props){
 					var rw = props[p].toUpperCase();
-					var name = p[0].toUpperCase() + p.slice(1);
+					var ap = $makeArray(p);
+					var name = ap[0].toUpperCase() + ap.slice(1).join("");
 					if(rw.indexOf("R") != -1){
-						this["get" + name] = function(){return this.__fields[name];};
+						this["get" + name] = function(){return fields[name];};
 					}
 					if(rw.indexOf("W") != -1){
-						this["set"+ name] = function(value){ this.__fields[name] = value;}
+						this["set"+ name] = function(value){ fields[name] = value;}
 					}
 				}
 			}
@@ -221,7 +245,7 @@ $class("Poly", {
 			return this.baseCall("base.base.sayHello") + ", and i'm Poly";
 		}
 	},
-	$static: {
+	$statics: {
 		className: "Poly"
 	}
 });
@@ -239,7 +263,7 @@ console.info(apoly.sayHello());
 
 $class("Poly2", {
 	$reopen: Poly,
-	$static: {
+	$statics: {
 		reopen: "REOPEN"
 	}
 });
@@ -254,3 +278,37 @@ p2.mixin({"age": 8}).mixin({"bir": "bir"}).mixin({onIncluded: function(c){ conso
 Poly2.mixinPrototype({"aa": 8})
 
 console.info(p2.aa); 
+
+$interface("IAnimal", {
+	sayHello: "function"
+});
+
+console.info("p2 support interface: " + $Support(p2, IAnimal));
+
+$interface("IFace",{
+	getName: "function",
+	setName: "function",
+	name: "string"
+});
+
+$interface("IInterface", {
+	getName: "function",
+	age: "number",
+	name: "string",
+	interest: "object",
+	getType: IFace
+});
+
+var isSupport = $Support({
+	getName: new Function(),
+	age: 8,
+	name: "name",
+	interest: ["swimming", "singing", "dancing"],
+	getType: {
+		getName: new Function(),
+		setName: new Function(),
+		name: "name"
+	}
+}, IInterface);
+
+console.info(isSupport);
