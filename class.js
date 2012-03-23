@@ -173,6 +173,14 @@ function $extend(clazz, base){
 }
 
 /**
+ * IModule
+ * @interface
+ */
+$interface("IModule", {
+	onIncluded: "function"
+});
+
+/**
  * mixin一个module到object
  * @param {Object} object
  * @param {IModule} module 
@@ -385,10 +393,13 @@ $interface("IFace",{
 	name: "string"
 });
 
-$interface("IInterface", {
-	getName: "function",
-	age: "number",
+$interface("IInterfaceBase", {
 	name: "string",
+	getName: "function"
+});
+
+$interface("IInterfaceTest", IInterfaceBase, {
+	age: "number",
 	interest: "object",
 	getType: IFace
 });
@@ -403,6 +414,6 @@ var isSupport = $support({
 		setName: new Function(),
 		name: "name"
 	}
-}, IInterface);
+}, IInterfaceTest);
 
 $log(isSupport);
