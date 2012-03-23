@@ -1,14 +1,54 @@
-function $interface(interfaceName, define){
-	var interface = {
-		define: define,
-		name: interfaceName
+/**
+ * 定义一个接口对象
+ * @param {String} interfaceName
+ * @param {Object} base 继承对象
+ * @param {define} define
+ */
+function $interface(interfaceName, base, define){
+	var interface;
+	var l = arguments.length;
+	if(l == 1 && typeof interfaceName == "object"){
+		var args = interfaceName;
+		interface = {
+			define: args.define,
+			name: args.name,
+			base: args.base
+		}
+	}else if(l == 2){
+		interface = {
+			name: interfaceName,
+			define: base
+		}
+	}else if(l == 3){
+		interface = {
+			name: interfaceName,
+			base: base，
+			define: define
+		}
 	}
 	this[interfaceName] = interface;
 	return interface;
 }
 
+/**
+ * 接口对象的接口
+ */
+$interface("IInterface", {
+	define: "object",
+	name: "string",
+	base: "object"
+});
+
+/**
+ * 判断对象是否实现某个接口
+ * @param {Object} obj
+ * @param {IInterface} interface
+ */
 function $support(obj, interface){
 	var define = interface.define || interface;
+	if(interface.base){
+		if(!$support(obj, interface.base))return false;
+	}
 	for(var p in define){
 		if(!(p in obj))return false;
 		var itype = define[p];
@@ -21,6 +61,9 @@ function $support(obj, interface){
 	return true;
 }
 
+/**
+ * 定义类定义对象接口
+ */
 $interface("IClassSpec", {
 	$extends: "object",
 	$constructor: "function",
@@ -28,25 +71,22 @@ $interface("IClassSpec", {
 	$statics: "object"
 });
 
-$interface("IInterfaceSpec", {
-	name: "string",
-	type: "string",
-	member: "object"
-});
 
-$interface({
-	name: "IClass", 
-	type: "function", 
-	member: {
+/**
+ * 定义类对象的接口
+ */
+$interface({name: "IClass",  base: "function", define:{
 		name: "string",
 		define: IClassSpec,
 		baseProto: "object",
 		mixinPrototype: "function"
-	}
-});
+}});
 
 
 /**
+ * 定义一个类
+ * @param {String|Object} className 类名或类
+ * @param {IClassSpec} define 类的定义
  * @example
  * $class(className, {
  *		$extends: Base
@@ -92,6 +132,12 @@ function $class(className, define){
 	return clazz;
 }
 
+
+/**
+ * 重新打开一个类进行定义
+ * @param {IClass} clazz
+ * @param {IClassSpec} newDef 
+ */
 function $reopenClass(clazz, newDef){
 		//$statics
 		$copy({from:newDef.$statics, to:clazz});
@@ -107,15 +153,11 @@ function $reopenClass(clazz, newDef){
 		return clazz;
 }
 
-function $mixin(object, module){
-	if(!object || !module)return;
-	if(typeof module.onIncluded == "function"){
-		module.onIncluded(object);
-	}
-	$copy({from:module, to:object});
-	return object;
-}
-
+/**
+ * 让一个类继承另一个类
+ * @param {IClass} clazz
+ * @param {IClass} base
+ */
 function $extend(clazz, base){
 	var old = clazz.prototype;
 
@@ -130,6 +172,25 @@ function $extend(clazz, base){
 	clazz.baseProto = base.prototype;
 }
 
+/**
+ * mixin一个module到object
+ * @param {Object} object
+ * @param {IModule} module 
+ */
+function $mixin(object, module){
+	if(!object || !module)return;
+	if(typeof module.onIncluded == "function"){
+		module.onIncluded(object);
+	}
+	$copy({from:module, to:object});
+	return object;
+}
+
+/**
+ * $Object
+ * @class
+ * @description 对象系统的基础类，建议所有对象都以此类作为超类
+ */
 $class("$Object", {
 	$constructor: function(){
 			this.proto = this.constructor.prototype;
@@ -199,14 +260,20 @@ $class("$Object", {
 	}
 });
 
+/**
+ * 把集合对象转换成Array
+ * @param {Object} obj 被转换的对象
+ * @param {Object} start=0 从集合对象中的第几项开始转换 
+ */
 function $makeArray(obj, start){
 	return Array.prototype.slice.apply(obj, [start || 0]);
 }
 
 /**
+ * copy对象成员到另一个对象
  * @param {Object} from
  * @param {Object} to
- * @param {Boolean} overwrite = true
+ * @param {Boolean} overwrite = true 是否覆盖目标对象已存在的成员
  */
 function $copy(args){
 	var from = args.from, 
