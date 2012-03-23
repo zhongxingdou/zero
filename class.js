@@ -21,6 +21,30 @@ function $support(obj, interface){
 	return true;
 }
 
+$interface("IClassSpec", {
+	$extends: "object",
+	$constructor: "function",
+	$prototype: "object",
+	$statics: "object"
+});
+
+$interface("IInterfaceSpec", {
+	name: "string",
+	type: "string",
+	member: "object"
+});
+
+$interface({
+	name: "IClass", 
+	type: "function", 
+	member: {
+		name: "string",
+		define: IClassSpec,
+		baseProto: "object",
+		mixinPrototype: "function"
+	}
+});
+
 
 /**
  * @example
