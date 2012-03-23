@@ -22,7 +22,7 @@ function $interface(interfaceName, base, define){
 	}else if(l == 3){
 		interface = {
 			name: interfaceName,
-			base: base，
+			base: base,
 			define: define
 		}
 	}
