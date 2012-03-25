@@ -109,15 +109,32 @@ function $class(className, define){
 	}
 
 	//if no constructor set then provide normal one.
-	var clazz = define.$constructor || function(){ 
-		if(define.$extends){
-			return define.$extends.apply(this, $makeArray(arguments));
-		}
-	};
+	
+	var clazz = define.$constructor;
+	if(!clazz){
+		var defaultClazz = function(){ 
+			var base = define.$extends;
+			while(base){
+				if(base.define && base.define.$type == "abstract"){
+					if(base.define.$constructor){//调用真实的构造函数
+						return base.define.$constructor.apply(this, $makeArray(arguments));
+					}else if(base.$extends){
+						base = base.$extends;
+					}else{//既没有构造函数，也没有继承任何类
+						clazz = function(){};
+						break;
+					}
+				}else{//非抽象类
+					return base.apply(this, $makeArray(arguments));
+				}
+			}
+		};
+		clazz = defaultClazz;
+	}
 
 	//handle define.$type
 	var type = define.$type;
-	if(type == "singleton"){
+	if(type === "singleton"){
 		var realClazz = clazz;
 		clazz = function(){
 			var instance = this.constructor.instance; 
@@ -127,6 +144,10 @@ function $class(className, define){
 				this.constructor.instance = this;
 			}
 			realClazz.apply(this, $makeArray(arguments));
+		}
+	}else if(type === "abstract"){
+		clazz = function(){
+			throw "can't instance abstract class"
 		}
 	}
 
@@ -139,6 +160,9 @@ function $class(className, define){
 
 	var base = define.$extends;
 	if(base){
+		if(define.$type === "abstract"){
+			$extend(define.$constructor || defaultClazz, base);
+		}
 		$extend(clazz, base);
 	}
 
@@ -271,7 +295,24 @@ $class("$Object", {
 			var args = $makeArray(arguments, 1);
 			var proto;
 			if(name === "constructor" || name === "base.constructor"){
-				proto = arguments.callee.caller.baseProto;
+				var proto = arguments.callee.caller.baseProto;
+				var clazz = proto.constructor;
+				while(clazz){
+					var define = clazz.define;
+					if(define.$type === "abstract"){
+						var constructor = define.$constructor;
+						if(constructor){
+							return constructor.apply(this, args);
+						}else if(define.$extends){
+							clazz = define.$extends;
+						}else{ //既没有设定构造函数也没有继承任何类
+							return;
+						}
+					}else{ //不是抽象类
+						proto = clazz.prototype
+						break;
+					}
+				}
 			}else if(name.indexOf("base.") != -1){
 				var uplevel = name.split("base.").length - 1; 
 				proto = this.constructor.prototype;
@@ -468,3 +509,52 @@ $class("SinglePoly",{
 var aSinglePoly = new SinglePoly("aSinglePoly", "blue");
 var bSinglePoly = new SinglePoly("bSinglePoly", "red");
 $log("SinglePoly instances a and b are equal: " + (aSinglePoly === bSinglePoly));
+
+
+$class("TestAbstract", {
+	$extends: $Object,
+	$type: "abstract",
+	$constructor: function(){
+		this.baseCall("constructor");
+		$log("real constructor of TestAbstract callee");
+	},
+	$prototype: {
+		abstract_p: "property from prototype of abstract class"
+	}
+});
+
+$class("TBaseAbstract", {
+	$extends: TestAbstract,
+	$constructor: function(){
+		this.baseCall("constructor");
+	}
+});
+
+var baseAbstract = new TBaseAbstract();
+$log(baseAbstract.abstract_p);
+
+try{
+	new TestAbstract();
+}catch(e){
+	console.error(e);
+}
+
+$class("TAbstract2", {
+	$type: "abstract",
+	$constructor: function(){
+		this.baseCall("constructor");
+		$log("real constructor of TAbstract2 callee");
+	},
+	$extends: TestAbstract,
+	$prototype: {
+		abstract_p2: "property from prototype of TAbstract2"
+	}
+});
+
+$class("TBaseAbstract2", {
+	$extends: TAbstract2,
+	$constructor:function(){}
+});
+
+var abstract2 = new TBaseAbstract2();
+$log(abstract2.abstract_p2);
