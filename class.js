@@ -91,7 +91,7 @@ $interface({name: "IClass",  base: "function", define:{
  * @param {IClassSpec} define 类的定义
  * @example
  * $class(className, {
- *		$extends: Base
+ *		$extends: $Object,
  *		$constructor: function(){
  *			this.baseCall("constructor"[,args...]);
  *		},
@@ -102,6 +102,12 @@ $interface({name: "IClass",  base: "function", define:{
  *		$statics: {}
  *		$type: "regular:abstract:singleton"
  * }).mixin(Module);
+ *
+ * @description
+ * 如果超类中不包含$Object，
+ * 1.$Object的实例方法baseCall用来调用超类的构造函数
+ * 2.继承原型链，但所有超类的构造函数需要手动执行，因为需要
+ * 3.属性声明也得不到支持
  */
 function $class(className, define){
 	if(typeof className != "string"){
