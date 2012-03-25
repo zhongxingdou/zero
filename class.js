@@ -1,5 +1,6 @@
 /**
  * 定义一个接口对象
+ * @todo 增加是否出现的选项
  * @param {String} interfaceName
  * @param {Object} base 继承对象
  * @param {define} define
@@ -68,7 +69,8 @@ $interface("IClassSpec", {
 	$extends: "object",
 	$constructor: "function",
 	$prototype: "object",
-	$statics: "object"
+	$statics: "object",
+	$type: "string"
 });
 
 
@@ -98,6 +100,7 @@ $interface({name: "IClass",  base: "function", define:{
  *			property: "rw"
  *		},
  *		$statics: {}
+ *		$type: "regular:abstract:singleton"
  * }).mixin(Module);
  */
 function $class(className, define){
@@ -107,8 +110,26 @@ function $class(className, define){
 
 	//if no constructor set then provide normal one.
 	var clazz = define.$constructor || function(){ 
-		this.constructor.baseProto.constructor.apply(this, $makeArray(arguments));
+		if(define.$extends){
+			return define.$extends.apply(this, $makeArray(arguments));
+		}
 	};
+
+	//handle define.$type
+	var type = define.$type;
+	if(type == "singleton"){
+		var realClazz = clazz;
+		clazz = function(){
+			var instance = this.constructor.instance; 
+			if(instance){
+				return instance;
+			}else{
+				this.constructor.instance = this;
+			}
+			realClazz.apply(this, $makeArray(arguments));
+		}
+	}
+
 
 	var proto = define.$prototype || {};
 	proto.constructor = clazz;
@@ -130,6 +151,20 @@ function $class(className, define){
 	this[className] = clazz;
 
 	return clazz;
+}
+
+/**
+ * 连接两个对象的属性，当其中一个改变时，更新另一个
+ */
+function $bindProperty(obj, name, obj2, name2, bidirectional){
+	if($support(obj, IEvent)){
+		if(!name2)name2 = name;
+		var upName2 = name2[0].toUpperCase() + name2.slice(1);
+		obj.on(name + "Changed").then($call(obj2, "set" + upName2));
+		if(bidirectional){
+			$syncProperty(obj2, name2, obj, name);
+		}
+	}
 }
 
 
@@ -201,20 +236,18 @@ function $mixin(object, module){
  */
 $class("$Object", {
 	$constructor: function(){
-			this.proto = this.constructor.prototype;
+		var props = {},
+			proto = this.constructor.prototype;
 
-			var props = {},
-				proto = this.proto;
-
-			while(proto){
-				var ps = proto.constructor.define.$properties;
-				if(ps){
-					$copy({from:ps, to:props});
-				}
-				proto = proto.constructor.baseProto;
+		while(proto){
+			var ps = proto.constructor.define.$properties;
+			if(ps){
+				$copy({from:ps, to:props});
 			}
+			proto = proto.constructor.baseProto;
+		}
 
-			if(props)this.addProperties(props);
+		if(props)this.addProperties(props);
 	},
 	$prototype: {
 		addProperties: function(props){
@@ -241,7 +274,7 @@ $class("$Object", {
 				proto = arguments.callee.caller.baseProto;
 			}else if(name.indexOf("base.") != -1){
 				var uplevel = name.split("base.").length - 1; 
-				proto = this.proto;
+				proto = this.constructor.prototype;
 				for(var i=0; i < uplevel && proto; i++){ 
 					proto = proto.constructor.baseProto;
 				}
@@ -417,3 +450,21 @@ var isSupport = $support({
 }, IInterfaceTest);
 
 $log(isSupport);
+
+$class("TestSingleton", {
+	$type: "singleton", 
+	$extends: $Object
+});
+
+var aTestSingletonInstance = new TestSingleton();
+var bTestSingletonInstance = new TestSingleton();
+$log("TestSingleton instances a and b are equal: " + (aTestSingletonInstance === bTestSingletonInstance));
+
+$class("SinglePoly",{
+	$extends: Poly,
+	$type: "singleton"
+});
+
+var aSinglePoly = new SinglePoly("aSinglePoly", "blue");
+var bSinglePoly = new SinglePoly("bSinglePoly", "red");
+$log("SinglePoly instances a and b are equal: " + (aSinglePoly === bSinglePoly));
