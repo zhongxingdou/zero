@@ -189,7 +189,7 @@ function $class(className, define){
 	clazz.define = define;
 
 	clazz.name = className;
-
+	
 	this[className] = clazz;
 
 	return clazz;
@@ -278,19 +278,30 @@ function $mixin(object, module){
  */
 $class("$Object", {
 	$constructor: function(){
-		var props = {},
-			proto = this.constructor.prototype;
+		var props = {}, 
+			ps,
+			plugins =[],
+			plugin;
 
-		while(proto){
-			var ps = proto.constructor.define.$properties;
+		this.eachBase(this, function(proto){
+			ps = proto.constructor.define.$properties;
+			plugin = proto.constructor.define.$plugins;
 			if(ps){
 				$copy({from:ps, to:props});
 			}
-			proto = proto.constructor.baseProto;
-		}
+			if(plugin){
+				Array.prototype.push.apply(plugins, plugin);
+			}
+		});
 
 		if(props)this.addProperties(props);
+		while(plugin=plugins.pop()){
+			plugin.call(this);
+		}
 	},
+	$plugins: [function(self){
+		console.info("i'm a plugin from $Object");
+	}],
 	$prototype: {
 		addProperties: function(props){
 			if(props){
@@ -307,6 +318,13 @@ $class("$Object", {
 						this["set"+ name] = function(value){ fields[name] = value;}
 					}
 				}
+			}
+		},
+		eachBase: function(self, fn){
+			var proto = self.constructor.prototype;
+			while(proto){
+				fn(proto);
+				proto = proto.constructor.baseProto;
 			}
 		},
 		baseCall : function(name){
@@ -401,6 +419,9 @@ $class("Animal", {
 	  this.baseCall("constructor"); 
 	  this.name = name;
   },
+  $plugins: [function(self){
+	console.info("i'm a plugin from $Animal");
+  }],
   $properties: {
 	footNumbers: "RW"
   },
