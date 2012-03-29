@@ -51,11 +51,23 @@ function $support(obj, interface){
 		if(!$support(obj, interface.base))return false;
 	}
 	for(var p in define){
-		if(!(p in obj))return false;
-		var itype = define[p];
-		if(typeof itype == "string"){
-			if(typeof(obj[p]) != itype)return false;
-		}else{// type is another interface
+		var itype = define[p],
+			itt = typeof itype,
+			exists = p in obj,
+			optional = false;
+
+		if(itt == "string" && itype.indexOf("[") == 0){
+			optional = true;
+			itype = itype.slice(1,-1); //remove []
+		}
+
+		if(optional && !exists)continue;
+
+		if(!exists)return false;
+
+		if(itt == "string" && typeof(obj[p]) != itype)return false;
+
+		if(itt == "object"){// type is another interface
 			if(!arguments.callee(obj[p], itype))return false;
 		}
 	}
@@ -479,14 +491,14 @@ $interface("IInterfaceBase", {
 });
 
 $interface("IInterfaceTest", IInterfaceBase, {
-	age: "number",
+	age: "[number]",
 	interest: "object",
 	getType: IFace
 });
 
 var isSupport = $support({
 	getName: new Function(),
-	age: 8,
+	age: "string",
 	name: "name",
 	interest: ["swimming", "singing", "dancing"],
 	getType: {
