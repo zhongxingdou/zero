@@ -1,7 +1,71 @@
 describe("$class", function(){
-	it("返回一个构造函数", function(){
+	it("定义一个类其类定义参数为空", function(){
+		expect(typeof $class("TestClass", {})).toBe("function");
+		expect($support($class("TestClass", {}), IClass)).toBeTruthy();
+	});
+
+	it("定义一个类无类定义参数", function(){
+		expect(typeof $class("TestClass")).toBe("function");
+	});
+
+	it("定义一个匿名类且类定义参数为空", function(){
+		expect(typeof $class({})).toBe("function");
+	});
+
+	it("定义一个匿名空类不带类定义参数", function(){
 		expect(typeof $class()).toBe("function");
 	});
+
+	it("定义一个匿名类", function(){
+		var cls = $class({$constructor: function(){}});
+		expect(typeof cls).toBe("function");
+		expect(cls.className).toBe(undefined);
+	});
+
+	it("定义类", function(){
+		var define = {
+			$constructor: function(){},
+			$properties: {
+				name: "RW"
+			},
+			$prototype: {
+				sayHello: function(){}
+			}
+		};
+		expect(typeof $class("TestClass", define)).toBe("function");
+		expect(TestClass).toNotBe(undefined);
+		expect(TestClass.className).toBe("TestClass");
+	});
+});
+/*
+   $class("Animal", {
+   $extends: $Object,
+   $constructor: function(name){
+   this.baseCall("constructor"); 
+   this.name = name;
+   },
+   $plugins: [function(self){
+   console.info("i'm a plugin from $Animal");
+   }],
+   $properties: {
+   footNumbers: "RW"
+   },
+   $prototype: {
+   sayHello: function(){
+   return "Hello, I'm " + this.name;
+   }
+   }
+   });
+
+   $class("Bird", {
+   $extends: Animal,
+   $constructor: function(name, color){
+   this.baseCall("constructor", name);
+   this.color = color;
+   },
+   $properties: {
+   gender: "RW"
+   },
 });
 /*
    $class("Animal", {

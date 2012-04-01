@@ -5,7 +5,7 @@
  * @param {Object} base 继承对象
  * @param {define} define
  */
-function $interface(interfaceName, base, define){
+function $interface(interfaceName, base, define, type){
 	var interface;
 	var l = arguments.length;
 	if(l == 1 && typeof interfaceName == "object"){
@@ -13,21 +13,23 @@ function $interface(interfaceName, base, define){
 		interface = {
 			define: args.define,
 			name: args.name,
-			base: args.base
+			base: args.base,
+			type: args.type
 		}
 	}else if(l == 2){
 		interface = {
 			name: interfaceName,
 			define: base
 		}
-	}else if(l == 3){
+	}else if(l > 3){
 		interface = {
 			name: interfaceName,
 			base: base,
-			define: define
+			define: define,
+			type: type
 		}
 	}
-	this[interfaceName] = interface;
+	this[interface.name] = interface;
 	return interface;
 }
 
@@ -37,7 +39,8 @@ function $interface(interfaceName, base, define){
 $interface("IInterface", {
 	define: "object",
 	name: "string",
-	base: "object"
+	base: "object",
+	type: "string"
 });
 
 /**
@@ -47,6 +50,9 @@ $interface("IInterface", {
  */
 function $support(obj, interface){
 	var define = interface.define || interface;
+	if(interface.type){
+		if(typeof obj != interface.type)return false;
+	}
 	if(interface.base){
 		if(!$support(obj, interface.base))return false;
 	}
@@ -78,22 +84,21 @@ function $support(obj, interface){
  * 定义类定义对象接口
  */
 $interface("IClassSpec", {
-	$extends: "object",
-	$constructor: "function",
-	$prototype: "object",
-	$statics: "object",
-	$type: "string"
+	$extends: "[object]",
+	$constructor: "[function]",
+	$prototype: "[object]",
+	$statics: "[object]"
 });
 
 
 /**
  * 定义类对象的接口
  */
-$interface({name: "IClass",  base: "function", define:{
-		name: "string",
+$interface({name: "IClass", type: "function", define:{
+		className: "string",
 		define: IClassSpec,
-		baseProto: "object",
-		mixinPrototype: "function"
+		baseProto: "[object]",
+		mixinPrototype: "function",
 }});
 
 
@@ -122,7 +127,14 @@ $interface({name: "IClass",  base: "function", define:{
  * 3.属性声明也得不到支持
  */
 function $class(className, define){
-	if(typeof className != "string"){
+	var argc = arguments.length;
+	if(argc == 1 && typeof className != "string"){ 
+		define = className;
+		className = undefined;
+	}
+	if(!define)define = {};
+
+	if(argc == 2 && typeof className != "string"){
 		return $reopenClass(className, define);
 	}
 
@@ -146,9 +158,11 @@ function $class(className, define){
 
 	clazz.define = define;
 
-	clazz.name = className;
-	
-	this[className] = clazz;
+	clazz.className = className;
+
+	if(className){
+		this[className] = clazz;
+	}
 
 	return clazz;
 }
@@ -353,189 +367,4 @@ function $copy(args){
 		}
 	}
 }
-
-$class("Animal", {
-  $extends: $Object,
-  $constructor: function(name){
-	  this.baseCall("constructor"); 
-	  this.name = name;
-  },
-  $plugins: [function(self){
-	console.info("i'm a plugin from $Animal");
-  }],
-  $properties: {
-	footNumbers: "RW"
-  },
-  $prototype: {
-	sayHello: function(){
-		return "Hello, I'm " + this.name;
-	}
-  }
-});
-
-$class("Bird", {
-	$extends: Animal,
-	$constructor: function(name, color){
-		this.baseCall("constructor", name);
-		this.color = color;
-	},
-	$properties: {
-		gender: "RW"
-	},
-	$prototype: {
-		fly: function(){
-			return "I can fly, I'm a " + this.color + " bird";
-		},
-		sayHello: function(){
-			return this.baseCall("sayHello") + ", and my color is " + this.color; 
-		}
-	}
-});
-
-$class("Poly", {
-	$extends: Bird,
-	$prototype: {
-		sayHello: function(){
-			return this.baseCall("base.base.sayHello") + ", and i'm Poly";
-		}
-	},
-	$statics: {
-		className: "Poly"
-	}
-});
-
-function $log(v){
-	console.info(v);
-}
-
-var dog = new Animal("dog");
-$log(dog.sayHello());
-
-var bird = new Bird("bird", "red");
-$log(bird.sayHello());
-$log(bird.fly());
-
-var apoly = new Poly("poly","green");
-$log(apoly.sayHello());
-
-$class(Poly, {
-	$statics: {
-		reopen: "REOPEN"
-	}
-});
-
-var p2 = new Poly("new poly", "red");
-$log(p2.sayHello());
-
-$log(Poly.reopen);
-
-p2.mixin({"age": 8}).mixin({"bir": "bir"}).mixin({onIncluded: function(c){ $log("mixin" + c.name)}});
-
-Poly.mixinPrototype({"aa": 8})
-
-$log(p2.aa); 
-
-$interface("IAnimal", {
-	sayHello: "function"
-});
-
-$log("p2 support interface: " + $support(p2, IAnimal));
-
-$interface("IFace",{
-	getName: "function",
-	setName: "function",
-	name: "string"
-});
-
-$interface("IInterfaceBase", {
-	name: "string",
-	getName: "function"
-});
-
-$interface("IInterfaceTest", IInterfaceBase, {
-	age: "[number]",
-	interest: "object",
-	getType: IFace
-});
-
-var isSupport = $support({
-	getName: new Function(),
-	age: "string",
-	name: "name",
-	interest: ["swimming", "singing", "dancing"],
-	getType: {
-		getName: new Function(),
-		setName: new Function(),
-		name: "name"
-	}
-}, IInterfaceTest);
-
-$log(isSupport);
-
-$class("TestSingleton", {
-	$type: "singleton", 
-	$extends: $Object
-});
-
-var aTestSingletonInstance = new TestSingleton();
-var bTestSingletonInstance = new TestSingleton();
-$log("TestSingleton instances a and b are equal: " + (aTestSingletonInstance === bTestSingletonInstance));
-
-$class("SinglePoly",{
-	$extends: Poly,
-	$type: "singleton"
-});
-
-var aSinglePoly = new SinglePoly("aSinglePoly", "blue");
-var bSinglePoly = new SinglePoly("bSinglePoly", "red");
-$log("SinglePoly instances a and b are equal: " + (aSinglePoly === bSinglePoly));
-
-
-$class("TestAbstract", {
-	$extends: $Object,
-	$type: "abstract",
-	$constructor: function(){
-		this.baseCall("constructor");
-		$log("real constructor of TestAbstract callee");
-	},
-	$prototype: {
-		abstract_p: "property from prototype of abstract class"
-	}
-});
-
-$class("TBaseAbstract", {
-	$extends: TestAbstract,
-	$constructor: function(){
-		this.baseCall("constructor");
-	}
-});
-
-var baseAbstract = new TBaseAbstract();
-$log(baseAbstract.abstract_p);
-
-try{
-	new TestAbstract();
-}catch(e){
-	console.error(e);
-}
-
-$class("TAbstract2", {
-	$type: "abstract",
-	$constructor: function(){
-		this.baseCall("constructor");
-		$log("real constructor of TAbstract2 callee");
-	},
-	$extends: TestAbstract,
-	$prototype: {
-		abstract_p2: "property from prototype of TAbstract2"
-	}
-});
-
-$class("TBaseAbstract2", {
-	$extends: TAbstract2,
-	$constructor:function(){}
-});
-
-var abstract2 = new TBaseAbstract2();
-$log(abstract2.abstract_p2);
 
