@@ -1,31 +1,32 @@
 /**
  * 定义一个接口对象
  * @todo 增加是否出现的选项
- * @param {String} interfaceName
+ * @param {String} name 接口的名称
  * @param {Object} base 继承对象
- * @param {define} define
+ * @param {Object} member 成员 
+ * @param {string} type typeof操作目标对象的结果
  */
-function $interface(interfaceName, base, define, type){
+function $interface(name, base, member, type){
 	var interface;
 	var l = arguments.length;
-	if(l == 1 && typeof interfaceName == "object"){
-		var args = interfaceName;
+	if(l == 1 && typeof name == "object"){
+		var args = name;
 		interface = {
-			define: args.define,
+			member: args.member,
 			name: args.name,
 			base: args.base,
 			type: args.type
 		}
 	}else if(l == 2){
 		interface = {
-			name: interfaceName,
-			define: base
+			name: name,
+			member: base
 		}
 	}else if(l > 3){
 		interface = {
-			name: interfaceName,
+			name: name,
 			base: base,
-			define: define,
+			member: member,
 			type: type
 		}
 	}
@@ -37,7 +38,7 @@ function $interface(interfaceName, base, define, type){
  * 接口对象的接口
  */
 $interface("IInterface", {
-	define: "object",
+	member: "object",
 	name: "string",
 	base: "object",
 	type: "string"
@@ -49,15 +50,15 @@ $interface("IInterface", {
  * @param {IInterface} interface
  */
 function $support(obj, interface){
-	var define = interface.define || interface;
+	var member = interface.member || interface;
 	if(interface.type){
 		if(typeof obj != interface.type)return false;
 	}
 	if(interface.base){
 		if(!$support(obj, interface.base))return false;
 	}
-	for(var p in define){
-		var itype = define[p],
+	for(var p in member){
+		var itype = member[p],
 			itt = typeof itype,
 			exists = p in obj,
 			optional = false;
@@ -94,7 +95,7 @@ $interface("IClassSpec", {
 /**
  * 定义类对象的接口
  */
-$interface({name: "IClass", type: "function", define:{
+$interface({name: "IClass", type: "function", member:{
 		className: "string",
 		define: IClassSpec,
 		baseProto: "[object]",
