@@ -1,24 +1,23 @@
 describe("$class", function(){
-	it("定义一个类其类定义参数为空", function(){
-		expect(typeof $class("TestClass", {})).toBe("function");
+	it("定义一个类define参数为空", function(){
 		expect($support($class("TestClass", {}), IClass)).toBeTruthy();
 	});
 
-	it("定义一个类无类定义参数", function(){
-		expect(typeof $class("TestClass")).toBe("function");
+	it("定义一个类无define参数", function(){
+		expect($support($class("TestClass"), IClass)).toBeTruthy();
 	});
 
-	it("定义一个匿名类且类定义参数为空", function(){
-		expect(typeof $class({})).toBe("function");
+	it("定义一个匿名类且define参数为空", function(){
+		expect($support($class({}), IClass)).toBeTruthy();
 	});
 
-	it("定义一个匿名空类不带类定义参数", function(){
-		expect(typeof $class()).toBe("function");
+	it("定义一个类,name和define都未指定", function(){
+		expect($support($class(), IClass)).toBeTruthy();
 	});
 
 	it("定义一个匿名类", function(){
 		var cls = $class({$constructor: function(){}});
-		expect(typeof cls).toBe("function");
+		expect($support(cls, IClass)).toBeTruthy();
 		expect(cls.className).toBe(undefined);
 	});
 
@@ -32,8 +31,8 @@ describe("$class", function(){
 				sayHello: function(){}
 			}
 		};
-		expect(typeof $class("TestClass", define)).toBe("function");
-		expect(TestClass).toNotBe(undefined);
+		expect($support($class("TestClass", define), IClass)).toBeTruthy();
+		expect($support(TestClass, IClass)).toBeTruthy();
 		expect(TestClass.className).toBe("TestClass");
 	});
 });

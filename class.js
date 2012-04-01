@@ -68,7 +68,7 @@ function $support(obj, interface){
 			itype = itype.slice(1,-1); //remove []
 		}
 
-		if(optional && !exists)continue;
+		if(optional && (!exists || obj[p] == undefined))continue;
 
 		if(!exists)return false;
 
@@ -96,7 +96,7 @@ $interface("IClassSpec", {
  * 定义类对象的接口
  */
 $interface({name: "IClass", type: "function", member:{
-		className: "string",
+		className: "[string]",
 		define: IClassSpec,
 		baseProto: "[object]",
 		mixinPrototype: "function",
