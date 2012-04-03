@@ -9,13 +9,7 @@ function $interface(sName, oMember, oBase, sType){
 	var interface;
 	var l = arguments.length;
 	if(l == 1 && typeof sName == "object"){
-		var args = sName;
-		interface = {
-			name: args.name,
-			member: args.member,
-			base: args.base,
-			type: args.type
-		}
+		interface = sName;
 	}else{
 		interface = {
 			name: sName,
