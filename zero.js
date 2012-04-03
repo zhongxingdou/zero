@@ -1,33 +1,27 @@
 /**
- * 定义一个接口对象
- * @todo 增加是否出现的选项
- * @param {String} name 接口的名称
- * @param {Object} base 继承对象
- * @param {Object} member 成员 
- * @param {string} type typeof操作目标对象的结果
+ * 定义一个接口
+ * @param {String} sName 接口名称
+ * @param {Object} oMember 实现对象应包含的成员
+ * @param {Object} oBase 父接口
+ * @param {string} sType 实现对象typeof的结果
  */
-function $interface(name, base, member, type){
+function $interface(sName, oMember, oBase, sType){
 	var interface;
 	var l = arguments.length;
-	if(l == 1 && typeof name == "object"){
-		var args = name;
+	if(l == 1 && typeof sName == "object"){
+		var args = sName;
 		interface = {
-			member: args.member,
 			name: args.name,
+			member: args.member,
 			base: args.base,
 			type: args.type
 		}
-	}else if(l == 2){
+	}else{
 		interface = {
-			name: name,
-			member: base
-		}
-	}else if(l > 3){
-		interface = {
-			name: name,
-			base: base,
-			member: member,
-			type: type
+			name: sName,
+			member: oMember,
+			base: oBase,
+			type: sType
 		}
 	}
 	this[interface.name] = interface;
