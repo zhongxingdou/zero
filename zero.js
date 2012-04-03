@@ -1,11 +1,11 @@
 /**
  * 定义一个接口
- * @param {String} sName 接口名称
- * @param {Object} oMember 实现对象应包含的成员
- * @param {Object} oBase 父接口
- * @param {string} sType 实现对象typeof的结果
+ * @param {String|Object} sName, .name 接口名称
+ * @param {Object} oMember, .member 实现对象应包含的成员
+ * @param {Object} .base 父接口
+ * @param {string} .type 实现对象typeof的结果
  */
-function $interface(sName, oMember, oBase, sType){
+function $interface(sName, oMember){
 	var interface;
 	var l = arguments.length;
 	if(l == 1 && typeof sName == "object"){
@@ -13,9 +13,7 @@ function $interface(sName, oMember, oBase, sType){
 	}else{
 		interface = {
 			name: sName,
-			member: oMember,
-			base: oBase,
-			type: sType
+			member: oMember
 		}
 	}
 	this[interface.name] = interface;
