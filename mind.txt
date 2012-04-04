@@ -1,0 +1,12 @@
+//注册扩展
+$.registExpander(Array, {"delete": function(){}});
+
+//使用扩展
+$([a, b, c]).delete(a);
+
+$(8).times(function(i){});
+
+$(new Date()).nextWeek();
+
+$(queryElement("#id")).remove();
+

@@ -66,4 +66,34 @@ describe("$support()", function(){
 		var face = {member: {name: "string", score: "number", birthday: {instanceOf: Date}}};
 		expect($support(obj, face)).toBeTruthy();
 	});
+
+	it("支持以[]的形式表示可选的成员", function(){
+		var face = {member: {gender: "[boolean]", name: "string"}};
+		expect($support({name: "Lily"}, face)).toBeTruthy();
+	});
+
+	it("验证可选的成员不符合类型声明", function(){
+		var face = {member: {gender: "[boolean]", name: "string"}};
+		expect($support({name: "Lily", gender: "female"}, face)).toBeFalsy();
+	});
+
+	it("验证instanceOf声明", function(){
+		var face = {instanceOf: Function};
+		expect($support(function(){}, face)).toBeTruthy();
+	});
+
+	it("忽略父接口的instanceOf声明", function(){
+		var face = {base: {instanceOf: Array}, instanceOf: Function};
+		expect($support(function(){}, face)).toBeTruthy();
+	});
+
+	it("直接忽略instanceOf声明", function(){
+		var face = {instanceOf: Function};
+		expect($support([], face, "passCheckConsturctor")).toBeTruthy();
+	});
+
+	it("直接忽略instanceOf声明", function(){
+		var face = {instanceOf: Function};
+		expect($support([], face, "passCheckConsturctor")).toBeTruthy();
+	});
 });
