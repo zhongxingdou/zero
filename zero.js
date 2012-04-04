@@ -36,7 +36,6 @@ $interface("IInterface", {
 
 function $each(obj, fn){
 	if(!obj)return true;
-	if(obj && !(obj instanceof Array))return fn(obj);
 	for(var i=0,l=obj.length; i<l; i++){
 		if(!fn(obj[i]))return false;
 	}
@@ -61,12 +60,12 @@ function $support(obj, interface, passCheckConstructor){
 	}
 
 	var prototype = interface.prototype;
-	if(prototype && !$each(prototype, function(proto){
+	if(prototype && !$each(prototype instanceof Array ? prototype : [prototype], function(proto){
 		return proto.isPrototypeOf(obj);
 	}))return false;
 
 	var props = interface.ownProperties;
-	if(props && !$each(props, function(prop){
+	if(props && !$each(props instanceof Array ? props : [props], function(prop){
 		return obj.hasOwnProperty(prop);
 	}))return false;
 
