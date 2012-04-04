@@ -1,9 +1,13 @@
 /**
  * 定义一个接口
+ * @todo .type 支持数组和多种类型表示
  * @param {String|Object} sName, .name 接口名称
  * @param {Object} oMember, .member 实现对象应包含的成员
  * @param {Object} .base 父接口
- * @param {string} .type 实现对象typeof的结果
+ * @param {string} .type typeof操作结果
+ * @param {Object|Object[]} .prototype
+ * @param {String|String[]} .ownProperties
+ * @param {Object} .instanceOf
  */
 function $interface(sName, oMember){
 	var interface;
@@ -30,19 +34,43 @@ $interface("IInterface", {
 	type: "string"
 });
 
+function $each(obj, fn){
+	if(!obj)return true;
+	if(obj && !(obj instanceof Array))return fn(obj);
+	for(var i=0,l=obj.length; i<l; i++){
+		if(!fn(obj[i]))return false;
+	}
+	return true;
+}
+
 /**
  * 判断对象是否实现某个接口
  * @param {Object} obj
  * @param {IInterface} interface
  */
-function $support(obj, interface){
-	var member = interface.member || interface;
-	if(interface.type){
-		if(typeof obj != interface.type)return false;
+function $support(obj, interface, passCheckConstructor){
+	var base = interface.base;
+	if(base && !$support(obj, base, "passCheckConstructor"))return false;
+
+	var type = interface.type;
+	if(type && typeof(obj) != type)return false;
+
+	if(!passCheckConstructor){
+		var constructor = interface.instanceOf;
+		if(constructor && !(obj instanceof constructor))return false;
 	}
-	if(interface.base){
-		if(!$support(obj, interface.base))return false;
-	}
+
+	var prototype = interface.prototype;
+	if(prototype && !$each(prototype, function(proto){
+		return proto.isPrototypeOf(obj);
+	}))return false;
+
+	var props = interface.ownProperties;
+	if(props && !$each(props, function(prop){
+		return obj.hasOwnProperty(prop);
+	}))return false;
+
+	var member = interface.member;
 	for(var p in member){
 		var itype = member[p],
 			itt = typeof itype,

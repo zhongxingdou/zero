@@ -1,4 +1,4 @@
-describe("$class", function(){
+describe("$class()", function(){
 	it("定义一个类define参数为空", function(){
 		expect($support($class("TestClass", {}), IClass)).toBeTruthy();
 	});
