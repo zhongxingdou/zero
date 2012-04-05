@@ -71,38 +71,47 @@ function $support(obj, interface, passCheckConstructor){
 
 	var member = interface.member;
 	for(var p in member){
-		var itype = member[p],
-			itt = typeof itype,
-			exists = p in obj,
-			optional = false,
-			o = obj[p];
-
-		if(itt == "string" && itype.indexOf("[") == 0){
-			optional = true;
-			itype = itype.slice(1,-1); //remove []
+		var typeExp = member[p];
+		switch(typeof typeExp){
+			case "string":
+				fn = $matchType;
+				break;
+			case "object": //typeExp is another interface
+				fn = arguments.callee;
+				break;
+			default: 
+				throw "Expression type error"
 		}
+		if(!fn(obj[p], typeExp))return false;
+	}
 
+	return true;
+}
 
-		if(optional && (!exists || o == undefined))continue;
+/**
+ * 对象的类型是否匹配类型表达式
+ * @param {Object} o
+ * @param {String} sTypeExp
+ */
+function $matchType(o, sTypeExp){
+		var optional = sTypeExp.indexOf("[") == 0;
 
-		if(!exists)return false;
+		if(optional && o === undefined) return true;
+
+		if(optional) sTypeExp = sTypeExp.slice(1,-1); //remove []
 
 		var otype = typeof o;
-		if(itt == "string"){
-			if(itype.indexOf("|") != -1){
-				var itypeList = itype.split("|");
-				for (var i = 0, l=itypeList.length; i < l; i++) {
-					if(otype == itypeList[i])return true;
-				}
-				return false;
-			}else if(otype != itype){
-				return false;	
+		if(sTypeExp.indexOf("|") != -1){
+			var typeList = sTypeExp.split("|");
+			for (var i = 0, l=typeList.length; i < l; i++) {
+				if(otype == typeList[i])return true;
 			}
-		}else if(itt == "object"){// type is another interface
-			if(!arguments.callee(o, itype))return false;
+			return false;
+		}else if(otype != sTypeExp){
+			return false;	
 		}
-	}
-	return true;
+
+		return true;
 }
 
 /**
