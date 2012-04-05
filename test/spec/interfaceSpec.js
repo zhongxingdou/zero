@@ -92,8 +92,24 @@ describe("$support()", function(){
 		expect($support([], face, "passCheckConsturctor")).toBeTruthy();
 	});
 
-	it("直接忽略instanceOf声明", function(){
-		var face = {instanceOf: Function};
-		expect($support([], face, "passCheckConsturctor")).toBeTruthy();
+	it("验证type声明用|分隔多个类型", function(){
+		var face = {member: {score: "number|string"}};
+
+		expect($support({score: 85}, face)).toBeTruthy();
+		expect($support({score: "A"}, face)).toBeTruthy();
+
+		expect($support({score: true}, face)).toBeFalsy();
+	});
+
+
+	it("验证type声明同时用|表多类型和[]表可选", function(){
+		var face = {member: {score: "[number|string]"}};
+
+		expect($support({score: 85}, face)).toBeTruthy();
+		expect($support({score: "A"}, face)).toBeTruthy();
+
+		expect($support({score: true}, face)).toBeFalsy();
+
+		expect($support({}, face)).toBeTruthy();
 	});
 });

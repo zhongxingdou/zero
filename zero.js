@@ -4,7 +4,7 @@
  * @param {String|Object} sName, .name 接口名称
  * @param {Object} oMember, .member 实现对象应包含的成员
  * @param {Object} .base 父接口
- * @param {string} .type typeof操作结果
+ * @param {string} .type typeof操作结果, 可用type1|type2分隔多种类型，可用[type]表可选项
  * @param {Object|Object[]} .prototype
  * @param {String|String[]} .ownProperties
  * @param {Object} .instanceOf
@@ -74,21 +74,32 @@ function $support(obj, interface, passCheckConstructor){
 		var itype = member[p],
 			itt = typeof itype,
 			exists = p in obj,
-			optional = false;
+			optional = false,
+			o = obj[p];
 
 		if(itt == "string" && itype.indexOf("[") == 0){
 			optional = true;
 			itype = itype.slice(1,-1); //remove []
 		}
 
-		if(optional && (!exists || obj[p] == undefined))continue;
+
+		if(optional && (!exists || o == undefined))continue;
 
 		if(!exists)return false;
 
-		if(itt == "string" && typeof(obj[p]) != itype)return false;
-
-		if(itt == "object"){// type is another interface
-			if(!arguments.callee(obj[p], itype))return false;
+		var otype = typeof o;
+		if(itt == "string"){
+			if(itype.indexOf("|") != -1){
+				var itypeList = itype.split("|");
+				for (var i = 0, l=itypeList.length; i < l; i++) {
+					if(otype == itypeList[i])return true;
+				}
+				return false;
+			}else if(otype != itype){
+				return false;	
+			}
+		}else if(itt == "object"){// type is another interface
+			if(!arguments.callee(o, itype))return false;
 		}
 	}
 	return true;

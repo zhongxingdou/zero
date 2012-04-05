@@ -1,12 +1,35 @@
-//注册扩展
-$.registExpander(Array, {"delete": function(){}});
+# 想法集中营
 
-//使用扩展
-$([a, b, c]).delete(a);
+### 不侵入的扩展机制
 
-$(8).times(function(i){});
+* 注册扩展
+  
+  $.registExpander(Array, reopenArgs)
 
-$(new Date()).nextWeek();
+* 注销扩展
 
-$(queryElement("#id")).remove();
+  $.unRegistExpander(Array, expanderName); 
+
+* 使用扩展
+  
+  $([a, b, c]).delete(a);
+
+  $(8).times(function(i){});
+
+  $(new Date()).nextWeek();
+
+  $(queryElement("#id")).remove();
+  
+### 信息分类的API设计
+   
+   * ajax请求示例
+   		* request("get", "http://www.domain.com/resource").withData({}).set({async: false}).send();
+   
+   * 事件绑定示例
+   		* on(button, "click").then(sayHello).then(sayByebye)
+   		* button.on("click").then(sayHello).then(…)
+		* button.on("click", sayHello).on("dbclick", sayByebye) 
+		* on(button, "click").then([sayHello, sayByebye])
+
+### 利用配置来生成对象的结构
 
