@@ -27,16 +27,56 @@ describe("$interface()", function(){
 	});
 });
 
-
-describe("$support()", function(){
-	it("验证对象的type通过", function(){
-		expect($support(function(){}, {type: "function"})).toBeTruthy();
-		expect($support("abc", {type: "string"})).toBeTruthy();
-		expect($support([], {type: "object"})).toBeTruthy();
+describe("$matchType()", function(){
+	it("验证通过", function(){
+		expect($matchType(function(){}, "function")).toBeTruthy();
+		expect($matchType("abc", "string")).toBeTruthy();
+		expect($matchType([], "object")).toBeTruthy();
 	});
 
-	it("验证对象的type失败！", function(){
-		expect($support(function(){}, {type: "object"})).toBeFalsy();
+	it("验证失败！", function(){
+		expect($matchType(function(){}, "object")).toBeFalsy();
+	});
+
+	it("验证|分隔多个类型", function(){
+		var type = "number|string";
+
+		expect($matchType(85, type)).toBeTruthy();
+		expect($matchType("A", type)).toBeTruthy();
+
+		expect($matchType(true, type)).toBeFalsy();
+	});
+
+	it("验证[type]的形式表示typeof(对象)等于type或undefined", function(){
+		var type = "[string]";
+		expect($matchType("Lily", type)).toBeTruthy();
+	});
+
+	it("验证undefined通过[type]声明", function(){
+		var type = "[string]";
+		expect($matchType(undefined, type)).toBeTruthy();
+	});
+
+	it("验证对象不符合[type]形式的类型声明!", function(){
+		var type = "[string]";
+		expect($matchType(8, type)).toBeFalsy();
+	});
+
+	it("验证类型表达式同时包含|和[]", function(){
+		var face = "[number|string]";
+
+		expect($matchType(85, face)).toBeTruthy();
+		expect($matchType("A", face)).toBeTruthy();
+
+		expect($matchType(true, face)).toBeFalsy();
+
+		expect($matchType(undefined, face)).toBeTruthy();
+	});
+});
+
+describe("$support()", function(){
+	it("验证对象成员的type声明", function(){
+		expect($support(function(){}, {type: "function"})).toBeTruthy();
 	});
 
 	it("验证对象拥有ownProperties声明的成员", function(){
@@ -90,26 +130,5 @@ describe("$support()", function(){
 	it("直接忽略instanceOf声明", function(){
 		var face = {instanceOf: Function};
 		expect($support([], face, "passCheckConsturctor")).toBeTruthy();
-	});
-
-	it("验证type声明用|分隔多个类型", function(){
-		var face = {member: {score: "number|string"}};
-
-		expect($support({score: 85}, face)).toBeTruthy();
-		expect($support({score: "A"}, face)).toBeTruthy();
-
-		expect($support({score: true}, face)).toBeFalsy();
-	});
-
-
-	it("验证type声明同时用|表多类型和[]表可选", function(){
-		var face = {member: {score: "[number|string]"}};
-
-		expect($support({score: 85}, face)).toBeTruthy();
-		expect($support({score: "A"}, face)).toBeTruthy();
-
-		expect($support({score: true}, face)).toBeFalsy();
-
-		expect($support({}, face)).toBeTruthy();
 	});
 });
