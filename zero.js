@@ -148,7 +148,7 @@ $interface({name: "IClass", type: "function", member:{
  *		},
  *		$prototype: {},
  *		$properties: {
- *			property: "rw"
+ *			property: "@rw"
  *		},
  *		$statics: {}
  *		$type: "regular:abstract:singleton"
@@ -207,7 +207,7 @@ function $class(className, define){
 function $bindProperty(obj, name, obj2, name2, bidirectional){
 	if($support(obj, IEvent)){
 		if(!name2)name2 = name;
-		var upName2 = name2[0].toUpperCase() + name2.slice(1);
+		var upName2 = name2.slice(0,1).toUpperCase() + name2.slice(1);
 		obj.on(name + "Changed").then($call(obj2, "set" + upName2));
 		if(bidirectional){
 			$syncProperty(obj2, name2, obj, name);
@@ -314,9 +314,8 @@ $class("$Object", {
 				this.__fields__ = this.__fields__ || {};
 				var fields = this.__fields__;
 				for(var p in props){
-					var rw = props[p].toUpperCase();
-					var ap = $makeArray(p);
-					var name = ap[0].toUpperCase() + ap.slice(1).join("");
+					var rw = props[p].toUpperCase().slice(1,-1);
+					var name = p.slice(0,1).toUpperCase() + p.slice(1);
 					if(rw.indexOf("R") != -1){
 						this["get" + name] = function(){return fields[name];};
 					}
@@ -401,4 +400,3 @@ function $copy(args){
 		}
 	}
 }
-

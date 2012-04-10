@@ -31,5 +31,41 @@
 		* button.on("click", sayHello).on("dbclick", sayByebye) 
 		* on(button, "click").then([sayHello, sayByebye])
 
-### 利用配置来生成对象的结构
+### 集中的类型转换
 
+	//转换一个对象
+	$covert(123456, {from: Number, to: Array});
+
+	//转换一个对象,并优先使用给出的转换器
+	$covert(123456, {from: Number, to: Array, convertor: conv});
+
+	//添加一个转换器
+	$convert.add({convert: fnConv, name: "", from: Number, to: String});
+
+	//询问是否支持某种类型转换
+	$convert.support({from: Number, to: Array});
+
+	//将转换器设为默认的(它所支持的类型转换)
+	$convert.setDefault(conv)
+
+### 全局变量管理
+
+	//声明全局变量
+	$global("$convert");
+
+	//删除全局变量
+	$global.delete("$convert");
+
+	//查询是否已经定义
+	$global.hasDefined("$convert");
+
+	//查询冲突
+	$global.??
+
+	//列出所有注册的全局变量
+	$global.list();
+
+	//安全使用已注册的全局变量
+	$global.$var
+
+### 利用配置来生成对象的结构
