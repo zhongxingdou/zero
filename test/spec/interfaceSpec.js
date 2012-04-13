@@ -6,7 +6,7 @@ describe("$interface()", function(){
 			base: null
 		
 		}
-		$interface(hArgs);
+		var IFace = $interface(hArgs);
 
 		expect(IFace).toBeDefined();
 		expect(IFace).toEqual(hArgs);
@@ -15,7 +15,7 @@ describe("$interface()", function(){
 
 	it("按方法签名创建接口", function(){
 		var member = {};
-		$interface("IFace", member);
+		var IFace = $interface("IFace", member);
 
 		expect(IFace).toBeDefined();
 		expect(IFace.name).toBe("IFace");

@@ -31,7 +31,8 @@ describe("$class()", function(){
 				sayHello: function(){}
 			}
 		};
-		expect($support($class("TestClass", define), IClass)).toBeTruthy();
+		var TestClass = $class("TestClass", define)
+		expect($support(TestClass, IClass)).toBeTruthy();
 		expect($support(TestClass, IClass)).toBeTruthy();
 		expect(TestClass.className).toBe("TestClass");
 	});

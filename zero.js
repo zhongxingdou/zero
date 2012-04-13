@@ -20,14 +20,13 @@ function $interface(sName, oMember){
 			member: oMember
 		}
 	}
-	this[interface.name] = interface;
 	return interface;
 }
 
 /**
  * 接口对象的接口
  */
-$interface("IInterface", {
+var IInterface = $interface("IInterface", {
 	member: "object",
 	name: "string",
 	base: "object",
@@ -117,7 +116,7 @@ function $matchType(o, sTypeExp){
 /**
  * 定义类定义对象接口
  */
-$interface("IClassSpec", {
+var IClassSpec = $interface("IClassSpec", {
 	$extends: "[object]",
 	$constructor: "[function]",
 	$prototype: "[object]",
@@ -128,7 +127,7 @@ $interface("IClassSpec", {
 /**
  * 定义类对象的接口
  */
-$interface({name: "IClass", type: "function", member:{
+var IClass = $interface({name: "IClass", type: "function", member:{
 		className: "[string]",
 		define: IClassSpec,
 		baseProto: "[object]",
@@ -194,10 +193,6 @@ function $class(className, define){
 
 	clazz.className = className;
 
-	if(className){
-		this[className] = clazz;
-	}
-
 	return clazz;
 }
 
@@ -259,7 +254,7 @@ function $extend(clazz, base){
  * IModule
  * @interface
  */
-$interface("IModule", {
+var IModule = $interface("IModule", {
 	onIncluded: "function"
 });
 
