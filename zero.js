@@ -41,6 +41,7 @@ function $each(obj, fn){
 	return true;
 }
 
+
 /**
  * 判断对象是否实现某个接口
  * @param {Object} obj
@@ -117,10 +118,9 @@ function $matchType(o, sTypeExp){
  * 定义类定义对象接口
  */
 var IClassSpec = $interface("IClassSpec", {
-	$extends: "[object]",
-	$constructor: "[function]",
-	$prototype: "[object]",
-	$statics: "[object]"
+	base: "[object]",
+	prototype: "[object]",
+	statics: "[object]"
 });
 
 
@@ -137,21 +137,21 @@ var IClass = $interface({name: "IClass", type: "function", member:{
 
 /**
  * 定义一个类
- * @param {String|Object} className 类名或类
- * @param {IClassSpec} define 类的定义
+ * @param {Function|String} fnConstructor 构造函数或构造函数的名称
+ * @param {IClassSpec} oDefine 类的定义
  * @example
- * $class(className, {
- *		base: $Object,
- *		constructor: function(){
+ * $class(function Class(){
  *			this.baseCall("constructor"[,args...]);
- *		},
- *		prototype: {},
- *		properties: {
- *			property: "@rw"
- *		},
- *		statics: {}
- *		type: "regular:abstract:singleton"
- * }).mixin(Module);
+ *		}, {
+ *		     base: $Object,
+ *		     prototype: {},
+ *		     properties: {
+ *			     property: "@rw"
+ *		     },
+ *		     statics: {}
+ *		     type: "regular:abstract:singleton"
+ *      }
+ *  ).mixin(Module);
  *
  * @description
  * 如果超类中不包含$Object，
@@ -159,39 +159,42 @@ var IClass = $interface({name: "IClass", type: "function", member:{
  * 2.继承原型链，但所有超类的构造函数需要手动执行，因为需要
  * 3.属性声明也得不到支持
  */
-function $class(className, define){
+function $class(fnConstructor, oDefine){
 	var argc = arguments.length;
-	if(argc == 1 && typeof className != "string"){ 
-		define = className;
-		className = undefined;
-	}
-	if(!define)define = {};
-
-	if(argc == 2 && typeof className != "string"){
-		return $reopenClass(className, define);
-	}
+	var clazz = fnConstructor;
 
 	//if no constructor set then provide normal one.
-	var clazz = define.constructor || function(){ 
-		if(define.base){
-			return define.base.apply(this, $makeArray(arguments));
+	var t = typeof fnConstructor; 
+	if(t != "function"){
+		if(t == "string"){
+			var fnName = fnConstructor;
+			var code = "function " + fnName + "(){var base = oDefine.base;if(base)return  base.apply(this, $makeArray(arguments));}";
+			eval(code);
+			clazz = eval(fnName);
+		}else if(t == "object" || argc == 0){
+			clazz = function(){ 
+				if(oDefine.base){
+					return oDefine.base.apply(this, $makeArray(arguments));
+				}
+			}
+			oDefine = fnConstructor;
 		}
-	};
-     	
-	var proto = define.prototype || {};
+	}
+
+	if(!oDefine)oDefine = {};
+	
+	var proto = oDefine.prototype || {};
 	proto.constructor = clazz;
 	clazz.prototype = proto;
 
-	$copy({from:define.statics, to:clazz});
+	$copy({from:oDefine.statics, to:clazz});
 
-	var base = define.base;
+	var base = oDefine.base;
 	if(base)$extend(clazz, base);
 
 	clazz.mixinPrototype = function(m){ return $mixin(this.prototype, m);}
 
-	clazz.define = define;
-
-	clazz.className = className;
+	clazz.define = oDefine;
 
 	return clazz;
 }
@@ -394,4 +397,10 @@ function $copy(args){
 			to[p] = from[p];
 		}
 	}
+}
+
+/**
+ * clone对象
+ */
+function $clone(o){
 }

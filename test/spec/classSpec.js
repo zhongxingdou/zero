@@ -1,40 +1,41 @@
 describe("$class()", function(){
-	it("定义一个类define参数为空", function(){
-		expect($support($class("TestClass", {}), IClass)).toBeTruthy();
-	});
-
-	it("定义一个类无define参数", function(){
-		expect($support($class("TestClass"), IClass)).toBeTruthy();
-	});
-
-	it("定义一个匿名类且define参数为空", function(){
-		expect($support($class({}), IClass)).toBeTruthy();
-	});
-
-	it("定义一个类,name和define都未指定", function(){
+	it("未给定任何参数", function(){
 		expect($support($class(), IClass)).toBeTruthy();
 	});
 
-	it("定义一个匿名类", function(){
-		var cls = $class({$constructor: function(){}});
+	it("define参数为{}", function(){
+		expect($support($class("TestClass", {}), IClass)).toBeTruthy();
+	});
+
+	it("未给定define参数", function(){
+		expect($support($class("TestClass"), IClass)).toBeTruthy();
+	});
+
+	it("只给定了define参数", function(){
+		expect($support($class({}), IClass)).toBeTruthy();
+	});
+
+	it("匿名类", function(){
+		var cls = $class(function(){});
 		expect($support(cls, IClass)).toBeTruthy();
 		expect(cls.className).toBe(undefined);
 	});
 
 	it("定义类", function(){
+		function TestClass(){};
 		var define = {
-			$constructor: function(){},
-			$properties: {
+			properties: {
 				name: "RW"
 			},
-			$prototype: {
+			prototype: {
 				sayHello: function(){}
 			}
 		};
-		var TestClass = $class("TestClass", define)
+		var TestClass = $class(TestClass, define)
 		expect($support(TestClass, IClass)).toBeTruthy();
 		expect($support(TestClass, IClass)).toBeTruthy();
-		expect(TestClass.className).toBe("TestClass");
+
+		expect(TestClass.name).toBe("TestClass");
 	});
 });
 /*
