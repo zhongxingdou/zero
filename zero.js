@@ -1,6 +1,6 @@
 /**
  * 定义一个接口
- * @todo .type 支持数组和多种类型表示
+ * @todo .type 支持数组？
  * @param {String|Object} sName, .name 接口名称
  * @param {Object} oMember, .member 实现对象应包含的成员
  * @param {Object} .base 父接口
@@ -141,16 +141,16 @@ var IClass = $interface({name: "IClass", type: "function", member:{
  * @param {IClassSpec} define 类的定义
  * @example
  * $class(className, {
- *		$extends: $Object,
- *		$constructor: function(){
+ *		base: $Object,
+ *		constructor: function(){
  *			this.baseCall("constructor"[,args...]);
  *		},
- *		$prototype: {},
- *		$properties: {
+ *		prototype: {},
+ *		properties: {
  *			property: "@rw"
  *		},
- *		$statics: {}
- *		$type: "regular:abstract:singleton"
+ *		statics: {}
+ *		type: "regular:abstract:singleton"
  * }).mixin(Module);
  *
  * @description
@@ -172,19 +172,19 @@ function $class(className, define){
 	}
 
 	//if no constructor set then provide normal one.
-	var clazz = define.$constructor || function(){ 
-		if(define.$extends){
-			return define.$extends.apply(this, $makeArray(arguments));
+	var clazz = define.constructor || function(){ 
+		if(define.base){
+			return define.base.apply(this, $makeArray(arguments));
 		}
 	};
      	
-	var proto = define.$prototype || {};
+	var proto = define.prototype || {};
 	proto.constructor = clazz;
 	clazz.prototype = proto;
 
-	$copy({from:define.$statics, to:clazz});
+	$copy({from:define.statics, to:clazz});
 
-	var base = define.$extends;
+	var base = define.base;
 	if(base)$extend(clazz, base);
 
 	clazz.mixinPrototype = function(m){ return $mixin(this.prototype, m);}
@@ -217,16 +217,16 @@ function $bindProperty(obj, name, obj2, name2, bidirectional){
  * @param {IClassSpec} newDef 
  */
 function $reopenClass(clazz, newDef){
-		//$statics
-		$copy({from:newDef.$statics, to:clazz});
+		//statics
+		$copy({from:newDef.statics, to:clazz});
 		
-		//$prototype
-		if(newDef.$prototype){
-			clazz.mixinPrototype(newDef.$prototype);
+		//prototype
+		if(newDef.prototype){
+			clazz.mixinPrototype(newDef.prototype);
 		}
 
-		//$properties
-		$copy({from:newDef.$properties, to:clazz.$properties});
+		//properties
+		$copy({from:newDef.properties, to:clazz.properties});
 
 		return clazz;
 }
