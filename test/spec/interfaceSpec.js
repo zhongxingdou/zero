@@ -1,29 +1,11 @@
 describe("$interface()", function(){
-	it("参数为配置对象创建接口", function(){
+	it("创建interface符合IInterface接口", function(){
 		var hArgs = {
-			name: "IFace",
 			member: {},
 			base: null
-		
 		}
 		var IFace = $interface(hArgs);
-
-		expect(IFace).toBeDefined();
-		expect(IFace).toEqual(hArgs);
-	});
-
-
-	it("按方法签名创建接口", function(){
-		var member = {};
-		var IFace = $interface("IFace", member);
-
-		expect(IFace).toBeDefined();
-		expect(IFace.name).toBe("IFace");
-		expect(IFace.member).toBe(member);
-	});
-
-	afterEach(function(){
-		delete IFace;
+		expect($support(IFace, IInterface)).toBeTruthy();
 	});
 });
 
