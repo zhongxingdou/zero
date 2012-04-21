@@ -1,16 +1,14 @@
-/*
-require("./global.js");
+/*require("./global.js");*/
 
-require("util");
+/*require("util");*/
 
-require("./interface.js");
+/*require("./interface.js");*/
 
-require("module");
+/*require("module");*/
 
-require("class");
+/*require("class");*/
 
-require("object");
-*/
+/*require("object");*/
 
 
 /**
