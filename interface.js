@@ -57,6 +57,8 @@ $global.run(function($each){
 		if(base && !$support(obj, base, "passCheckConstructor"))return false;
 
 		var type = interface.type;
+		if(type && type.match(/^function/))type= "function";
+
 		if(type && typeof(obj) != type)return false;
 
 		//未定义或定义了type为值类型或function（即不为object），则忽略instanceOf验证
@@ -111,7 +113,9 @@ $global.run(function($each){
 		if(sTypeExp.indexOf("|") != -1){
 			var typeList = sTypeExp.split("|");
 			for (var i = 0, l=typeList.length; i < l; i++) {
-				if(otype == typeList[i])return true;
+				var ti = typeList[i];
+				if(ti.match(/^function/))ti= "function";
+				if(otype == ti)return true;
 			}
 			return false;
 		}else if(otype != sTypeExp){

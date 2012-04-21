@@ -114,5 +114,10 @@ $global.run(function($support, $interface, $matchType){
 			var face = {instanceOf: Function};
 			expect($support([], face, "passCheckConsturctor")).toBeTruthy();
 		});
+
+		it("支持签名形式的function", function(){
+			var face = {type: "function(p1, p2)"};
+			expect($support(function(){}, face)).toBeTruthy();
+		});
 	});
 });
