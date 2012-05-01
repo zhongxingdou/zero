@@ -1,4 +1,4 @@
-$global.run(function($each){
+
 	function $each(obj, fn){
 		if(!obj)return true;
 		for(var i=0,l=obj.length; i<l; i++){
@@ -52,4 +52,3 @@ $global.run(function($each){
 	$each(["$each", "$copy", "$makeArray", "$clone"], function(sName){
 		$global.set(sName, eval(sName));
 	});
-});
