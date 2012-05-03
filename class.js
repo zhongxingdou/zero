@@ -7,7 +7,8 @@ $global.run(function($each, $copy, $makeArray) {
 			base: "[object]",
 			prototype: "[object]",
 			statics: "[object]",
-			properties: "[object]"
+			properties: "[object]",
+			implements: {instanceof: Array}
 		},
 		optional: true
 	});
@@ -108,6 +109,8 @@ $global.run(function($each, $copy, $makeArray) {
 
 		var base = oDefine.base;
 		if (base && base.prototype) $extendProto(clazz, base.prototype);
+
+		clazz.implements = oDefine.implements || [];
 
 		return clazz;
 	}
