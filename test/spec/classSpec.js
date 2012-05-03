@@ -24,19 +24,22 @@ $global.run(function($support, $interface, $matchType){
 
 		it("定义类", function(){
 			function TestClass(){};
+
 			var define = {
 				properties: {
-					name: "RW"
+					name: "@RW"
 				},
-			prototype: {
-				sayHello: function(){}
-			}
+				prototype: {
+					sayHello: function(){}
+				}
 			};
-			var TestClass = $class(TestClass, define)
-			expect($support(TestClass, IClass)).toBeTruthy();
-		expect($support(TestClass, IClass)).toBeTruthy();
 
-		expect(TestClass.name).toBe("TestClass");
+			$class(TestClass, define)
+
+			expect($support(TestClass, IClass)).toBeTruthy();
+			expect($support(TestClass, IClass)).toBeTruthy();
+
+			expect(TestClass.name).toBe("TestClass");
 		});
 	});
 	/*
