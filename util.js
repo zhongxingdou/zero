@@ -1,4 +1,4 @@
-
+(function(){
 	function $each(obj, fn){
 		if(!obj)return true;
 		for(var i=0,l=obj.length; i<l; i++){
@@ -48,7 +48,9 @@
 	 * clone对象
 	 */
 	function $clone(o){}
-	
-	$each(["$each", "$copy", "$makeArray", "$clone"], function(sName){
-		$global.set(sName, eval(sName));
-	});
+
+	$global("$each", $each);
+	$global("$copy", $copy);
+	$global("$makeArray", $makeArray);
+	$global("$clone", $clone);
+})();
