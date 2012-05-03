@@ -2,15 +2,34 @@
 	var IGlobal = {
 		type: "function(sNames, o)",
 		member: {
+			//注册一个变量为全局变量
 			set: "function(sName, o)", 
+
+			//返回一个全局变量
 			get: "function(sName)",
-			list: "function",
-			delete: "function",
+
+			//列举所有的全局变量
+			getAll: "function",
+
+			//反注册一个全局变量
+			unset: "function",
+
+			//返回所有被覆盖的变量
 			getOverwrites: "function",
-			restore: "function",
+
+			//恢复覆盖的变量到原来拥有它的对象上
+			restore: "function(sName)",
+
+			//复制指定全局变量到某个对象上
 			"export": "function(saNames, oTarget)",
+
+			//提供一个沙箱运行环境，确保引用到的是被管理的全局变量
 			run: "function(fn)",
+
+			//全局变量的默认的复制到目标
 			defaultTarget: "object",
+
+			//是否在注册一个全局变量时自动export到defaultTarget
 			autoExport: "boolean"
 		}
 	};
