@@ -44,6 +44,34 @@ $global.run(function($each){
 		optional: "[boolean]"
 	}});
 
+	/**
+	 * 对象的类型是否匹配类型表达式
+	 * @param {Object} o
+	 * @param {String} sTypeExp
+	 */
+	function $matchType(o, sTypeExp){
+		var optional = sTypeExp.indexOf("[") == 0;
+
+		if(optional && o === undefined) return true;
+
+		if(optional) sTypeExp = sTypeExp.slice(1,-1); //remove []
+
+		var otype = typeof o;
+		if(sTypeExp.indexOf("|") != -1){
+			var typeList = sTypeExp.split("|");
+			for (var i = 0, l=typeList.length; i < l; i++) {
+				var ti = typeList[i];
+				if(ti.match(/^function/))ti= "function";
+				if(otype == ti)return true;
+			}
+			return false;
+		}else if(otype != sTypeExp){
+			return false;	
+		}
+
+		return true;
+	}
+
 
 	/**
 	 * 判断对象是否实现某个接口
@@ -97,35 +125,9 @@ $global.run(function($each){
 		return true;
 	}
 
-	/**
-	 * 对象的类型是否匹配类型表达式
-	 * @param {Object} o
-	 * @param {String} sTypeExp
-	 */
-	function $matchType(o, sTypeExp){
-		var optional = sTypeExp.indexOf("[") == 0;
 
-		if(optional && o === undefined) return true;
-
-		if(optional) sTypeExp = sTypeExp.slice(1,-1); //remove []
-
-		var otype = typeof o;
-		if(sTypeExp.indexOf("|") != -1){
-			var typeList = sTypeExp.split("|");
-			for (var i = 0, l=typeList.length; i < l; i++) {
-				var ti = typeList[i];
-				if(ti.match(/^function/))ti= "function";
-				if(otype == ti)return true;
-			}
-			return false;
-		}else if(otype != sTypeExp){
-			return false;	
-		}
-
-		return true;
-	}
-
-	$each(["$interface", "$matchType", "$support", "IInterface"], function(sName){
-		$global.set(sName, eval(sName));
-	});
+	$global("$interface", $interface);
+	$global("IInterface", IInterface);
+	$global("$matchType", $matchType);
+	$global("$support", $support);
 });

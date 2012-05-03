@@ -9,9 +9,7 @@
 			getOverwrites: "function",
 			restore: "function",
 			"export": "function(saNames, oTarget)",
-			run: "function(fn)"
-		},
-		$statics: {
+			run: "function(fn)",
 			defaultTarget: "object",
 			autoExport: "boolean"
 		}

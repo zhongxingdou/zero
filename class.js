@@ -18,7 +18,6 @@ $global.run(function($each, $copy, $makeArray) {
 	var IClass = $interface({
 		type: "function",
 		member: {
-			define: IClassSpec,
 			baseProto: "[object]"
 		}
 	});
@@ -29,6 +28,7 @@ $global.run(function($each, $copy, $makeArray) {
 	 * @param {IClass} base
 	 */
 	function $extend(clazz, base) {
+
 		var old = clazz.prototype;
 
 		var fn = function() {};
@@ -105,8 +105,6 @@ $global.run(function($each, $copy, $makeArray) {
 		var base = oDefine.base;
 		if (base) $extend(clazz, base);
 
-		clazz.define = oDefine;
-
 		return clazz;
 	}
 
@@ -142,4 +140,3 @@ $global.run(function($each, $copy, $makeArray) {
 	$global("$extend", $extend);
 	$global("$reopenClass", $reopenClass);
 });
-
