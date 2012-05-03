@@ -107,7 +107,7 @@ $global.run(function($each, $copy, $makeArray) {
 		});
 
 		var base = oDefine.base;
-		if (base) $extendProto(clazz, base);
+		if (base && base.prototype) $extendProto(clazz, base.prototype);
 
 		return clazz;
 	}

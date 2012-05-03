@@ -15,8 +15,7 @@
  */
 function $bindProperty(obj, name, obj2, name2, bidirectional){
 	if($support(obj, IEvent)){
-		if(!name2)name2 = name;
-		var upName2 = name2.slice(0,1).toUpperCase() + name2.slice(1);
+		if(!name2)name2 = nameo		var upName2 = name2.slice(0,1).toUpperCase() + name2.slice(1);
 		obj.on(name + "Changed").then($call(obj2, "set" + upName2));
 		if(bidirectional){
 			$syncProperty(obj2, name2, obj, name);
