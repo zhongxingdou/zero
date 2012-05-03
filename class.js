@@ -23,26 +23,30 @@ $global.run(function($each, $copy, $makeArray) {
 	});
 
 	/**
-	 * 让一个类继承另一个类
-	 * @param {IClass} clazz
-	 * @param {IClass} base
+	 * 原型继承
+	 * @param {IClass} fnClazz
+	 * @param {Object} prototype
+	 * @description 
+	 * 让function的prototype与另一个prototype合并，并设置成员baseProto来引用它。
 	 */
-	function $extend(clazz, base) {
+	function $extendProto(fnClazz, prototype) {
 
 		var old = clazz.prototype;
 
 		var fn = function() {};
-		fn.prototype = base.prototype;
+		fn.prototype = prototype;
 		clazz.prototype = new fn();
 
-		$copy({
-			from: old,
-			to: clazz.prototype
-		});
+		if(old){
+			$copy({
+				from: old,
+				to: clazz.prototype
+			});
+		}
 
 		clazz.prototype.constructor = clazz;
 
-		clazz.baseProto = base.prototype;
+		clazz.baseProto = prototype;
 	}
 
 	/**
@@ -103,7 +107,7 @@ $global.run(function($each, $copy, $makeArray) {
 		});
 
 		var base = oDefine.base;
-		if (base) $extend(clazz, base);
+		if (base) $extendProto(clazz, base);
 
 		return clazz;
 	}
@@ -137,6 +141,6 @@ $global.run(function($each, $copy, $makeArray) {
 	$global("IClass", IClass);
 	$global("IClassSpec", IClass);
 	$global("$class", $class);
-	$global("$extend", $extend);
+	$global("$extendProto", $extendProto);
 	$global("$reopenClass", $reopenClass);
 });
