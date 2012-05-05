@@ -7,10 +7,13 @@
 		member: {
 			//注册一个wrapper
 			regist: "function(wrapper, interface)",
+
 			//反注册一个wrapper
 			unregist: "function(wraper, interface)",
+
 			//根据interface获取一个wrapper
 			getWrapper: "function(interface)",
+
 			//查找对象的wrapper
 			findWrappers: "function(o)"
 		}
