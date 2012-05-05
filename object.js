@@ -3,7 +3,9 @@
 		base: IClass,
 		member: {
 			//在constructor的主体执行完后执行
-			plugins: {instanceOf: Array},
+			plugins: {
+				instanceOf: Array
+			},
 			prototype: {
 				//遍历原型链
 				eachBase: "function(self, fn)",
@@ -20,36 +22,37 @@
 		}
 	});
 
+	function $Object() {
+		var props = {},
+		ps, plugins = [],
+		plugin;
+
+		this.eachBase(this, function(proto) {
+			ps = proto.constructor.define.$properties;
+			plugin = proto.constructor.define.$plugins;
+			if (ps) {
+				$copy({
+					from: ps,
+					to: props
+				});
+			}
+			if (plugin) {
+				Array.prototype.push.apply(plugins, plugin);
+			}
+		});
+
+		if (props) this.addProperties(props);
+		while (plugin = plugins.pop()) {
+			plugin.call(this);
+		}
+	}
+
 	/**
 	 * $Object
 	 * @class
 	 * @description 对象系统的基础类，建议所有对象都以此类作为超类
 	 */
-	$class("$Object", {
-		constructor: function() {
-			var props = {},
-			ps, plugins = [],
-			plugin;
-
-			this.eachBase(this, function(proto) {
-				ps = proto.constructor.define.$properties;
-				plugin = proto.constructor.define.$plugins;
-				if (ps) {
-					$copy({
-						from: ps,
-						to: props
-					});
-				}
-				if (plugin) {
-					Array.prototype.push.apply(plugins, plugin);
-				}
-			});
-
-			if (props) this.addProperties(props);
-			while (plugin = plugins.pop()) {
-				plugin.call(this);
-			}
-		},
+	$class($Object, {
 		plugins: [function(self) {
 			console.info("i'm a plugin from $Object");
 		}],
@@ -117,3 +120,4 @@
 
 	$global("$Object", $Object);
 })();
+
