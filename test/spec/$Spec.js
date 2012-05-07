@@ -1,13 +1,13 @@
 describe("$()", function() {
 	it("注册和获取wrapper", function() {
-		var w = function(){};
+		var w = function() {};
 		$.regist("number", w);
 
 		expect($.getWrapper("number")).toBe(w);
 	});
 
 	it("反注册wrapper", function() {
-		var w = function(){};
+		var w = function() {};
 		$.regist("number", w);
 
 		$.unregist("number");
@@ -23,11 +23,11 @@ describe("$()", function() {
 		expect(aw).toHaveBeenCalledWith(8);
 	});
 
-	it("包装引用类型", function(){
+	it("包装引用类型", function() {
 		var aw = jasmine.createSpy("aw");
 
 		$.regist(Array, aw);
-		var a= [];
+		var a = [];
 		$(a);
 
 		expect(aw).toHaveBeenCalled();
