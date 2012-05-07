@@ -127,7 +127,12 @@
 	$global.run = function(fn){
 		var aNameList = fn.__args;
 		if(!aNameList){
-			aNameList = fn.toString().match(/\((.*)?\)/)[1].replace(/ /g, '').split(",");
+			var ms = fn.toString().match(/\((.*)?\)/);
+			if(ms && ms[1]){
+				aNameList = ms[1].replace(/ /g, '').split(",");
+			}else{
+				return fn();
+			}
 			fn.__args = aNameList; //cache args
 		}
 
@@ -136,7 +141,7 @@
 			oList.push(this.get(aNameList[i]));
 		}
 
-		fn.apply({}, oList);
+		fn.apply(host, oList);
 	}
 
 	var __host__ = null;
