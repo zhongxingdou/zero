@@ -1,4 +1,5 @@
-(function() {
+	$global.run(function() {
+		/*(function(){*/
 	/**
 	 * 将源对象包装成另一个对象，并且不污染源对象
 	 */
