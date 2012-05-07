@@ -39,10 +39,7 @@ $global.run(function($each, $copy, $makeArray) {
 		clazz.prototype = new fn();
 
 		if(old){
-			$copy({
-				from: old,
-				to: clazz.prototype
-			});
+			$copy(old, clazz.prototype);
 		}
 
 		clazz.prototype.constructor = clazz;
@@ -102,10 +99,7 @@ $global.run(function($each, $copy, $makeArray) {
 		proto.constructor = clazz;
 		clazz.prototype = proto;
 
-		$copy({
-			from: oDefine.statics,
-			to: clazz
-		});
+		$copy(oDefine.statics, clazz);
 
 		var base = oDefine.base;
 		if (base && base.prototype) $extendProto(clazz, base.prototype);
@@ -121,22 +115,13 @@ $global.run(function($each, $copy, $makeArray) {
 	 */
 	function $reopenClass(clazz, define) {
 		//statics
-		$copy({
-			from: define.statics,
-			to: clazz
-		});
+		$copy(define.statics, clazz);
 
 		//prototype
-		$copy({
-			from: define.prototype,
-			to: clazz.prototype
-		});
+		$copy(define.prototype, clazz.prototype);
 
 		//properties
-		$copy({
-			from: define.properties,
-			to: clazz.properties
-		});
+		$copy(define.properties, clazz.properties);
 
 		return clazz;
 	}
