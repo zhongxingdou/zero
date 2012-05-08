@@ -1,133 +1,97 @@
-$global.run(function($each){
+$global.run(function() {
 	/**
-	 * 定义一个接口
-	 * @todo .type 支持数组？
-	 * @param {String|Object} sName, .name 接口名称
-	 * @param {Object} oMember, .member 实现对象应包含的成员
-	 * @param {Object} .base 父接口
-	 * @param {string} .type typeof操作结果, 可用type1|type2分隔多种类型，可用[type]表可选项
-	 * @param {Object|Object[]} .prototype
-	 * @param {String|String[]} .ownProperties
-	 * @param {Object} .instanceOf
+	 * @todo 
+	 *   1.验证对象的所有成员都符合成员规格
+	 *   2.验证数组的所有项都符合成员规格
+	 *   3.验证对象是否可以拥有规格以外的成员
 	 */
-	/*
-	   function $interface(sName, oMember){
-	   var interface;
-	   var l = arguments.length;
-	   if(l == 1 && typeof sName == "object"){
-	   interface = sName;
-	   }else{
-	   interface = {
-	   name: sName,
-	   member: oMember
-	   }
-	   }
-	   return interface;
-	   }*/
 
-	function $interface(oDefine){
-		return oDefine;
+	function $Interface(o) {
+		var self = arguments.callee;
+		var option = $merge(self.option, o);
+		$copy(option, this);
 	}
 
+	$Interface.option = {
+		base: null,
+		member: {},
+		type: null,
+		freeze: false
+	}
+
+	/**
+	 * 定义一个接口
+	 * @param {Object} member 实现对象应包含的成员
+	 * @param {string} type 对象本身的类型
+	 * @param {Object} .base 父接口
+	 * @param {Boolean} .freeze = false 是否可以拥有member定义以外的成员
+	 */
+	function $interface(member, type) {
+		var option = $option($Interface.option);
+
+		if (option.type === undefined) {
+			option.type = {instanceof: Object};
+		}
+
+		var p, ms = option.member;
+		for(p in ms){
+			var m = ms[p];
+			if(!$is($Type, m)){
+				ms[p] = $typedef(m);
+			}
+		}
+
+		return new $Interface(option);
+	}
 
 	/**
 	 * 接口对象的接口
 	 * 定义了instanceOf的时候
 	 */
-	var IInterface = $interface({member: {
-		member: "[object]",
-		base: "[object]",
-		type: "[string]",
-		instanceOf: "[object]",
-		prototype: "[object]",
-		ownProperties: {type: "string", instanceOf: Array, optional: true},
-		optional: "[boolean]"
-	}});
+	var IInterface = $interface({
+		member: {
+			base: "[object]",
+			member: "[object]",
+			type: "[object]",
+			freeze: "[boolean]"
+		},
+		freeze: true,
+		type: "object"
+	});
 
-	/**
-	 * 对象的类型是否匹配类型表达式
-	 * @param {Object} o
-	 * @param {String} sTypeExp
-	 */
-	function $matchType(o, sTypeExp){
-		var optional = sTypeExp.indexOf("[") == 0;
+	function $support(spec, o) {
+		if (!$is($Interface, spec))spec = $interface(spec);
 
-		if(optional && o === undefined) return true;
+		if (spec.base && !$support(spec.base, o))return false;
 
-		if(optional) sTypeExp = sTypeExp.slice(1,-1); //remove []
+		if (spec.type && ! $is(spec.type, o)) return false;
 
-		var otype = typeof o;
-		if(sTypeExp.indexOf("|") != -1){
-			var typeList = sTypeExp.split("|");
-			for (var i = 0, l=typeList.length; i < l; i++) {
-				var ti = typeList[i];
-				if(ti.match(/^function/))ti= "function";
-				if(otype == ti)return true;
+		if (spec.member) {
+			var k, ms = spec.member;
+			for (k in ms) {
+				var mspec = new $MemberSpec(ms[k], k);
+				if (!mspec.check(o, k)) return false;
 			}
-			return false;
-		}else if(otype != sTypeExp){
-			return false;	
+
+			//验证是否拥有声明以外的成员，只能验证对象拥有的成员，而不能验证原型继承到的成员，因为不好枚举到
+			if (spec.freeze) {
+				for (k in o) {
+					if (! (k in ms)) return false;
+				}
+			}
 		}
 
 		return true;
 	}
 
+	//这两个接口定义在interface定义之前的依赖文件中，在这里成为正式的接口
+	$interface(IType);
+	$interface(IMemberSpec);
 
-	/**
-	 * 判断对象是否实现某个接口
-	 * @param {Object} obj
-	 * @param {IInterface} interface
-	 */
-	function $support(obj, interface, passCheckConstructor){
-		if(interface.optional && obj === undefined)return true;
-
-		var base = interface.base;
-		if(base && !$support(obj, base, "passCheckConstructor"))return false;
-
-		var type = interface.type;
-		if(type && type.match(/^function/))type= "function";
-
-		if(type && typeof(obj) != type)return false;
-
-		//未定义或定义了type为值类型或function（即不为object），则忽略instanceOf验证
-		//这表示该对象可为值类型或者引用类型
-		if(!passCheckConstructor  &&  (!type || type === "object" )){
-			var constructor = interface.instanceOf;
-			if(constructor && !(obj instanceof constructor))return false;
-		}
-
-		var prototype = interface.prototype;
-		if(prototype && !$each(prototype instanceof Array ? prototype : [prototype], function(proto){
-			return proto.isPrototypeOf(obj);
-		}))return false;
-
-		var props = interface.ownProperties;
-		if(props && !$each(props instanceof Array ? props : [props], function(prop){
-			return obj.hasOwnProperty(prop);
-		}))return false;
-
-		var member = interface.member;
-		for(var p in member){
-			var typeExp = member[p];
-			switch(typeof typeExp){
-				case "string":
-					fn = $matchType;
-					break;
-				case "object": //typeExp is another interface
-					fn = arguments.callee;
-					break;
-				default: 
-					throw "Expression type error"
-			}
-			if(!fn(obj[p], typeExp))return false;
-		}
-
-		return true;
-	}
-
+	$global("IInterface", IInterface);
 
 	$global("$interface", $interface);
-	$global("IInterface", IInterface);
-	$global("$matchType", $matchType);
+
 	$global("$support", $support);
 });
+
