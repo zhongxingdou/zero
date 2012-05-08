@@ -72,3 +72,28 @@
 ### 学习ext的配置参数
 
 ### 给IE或其它不支持function.name的浏览器增加该属性，以让$global在声明方法时更简单？！，不需要！！！，因为$global在声明其它的对象时还得这样写
+
+### 我们的代码在干嘛
+	
+	声明设置变量 global
+
+	查找数据 sql
+	收集数据
+
+	转换数据 convert
+
+	调用功能
+	
+	关联对象 link on
+
+	流程控制 $each $eachKey 
+
+	对象方法的调用总是让this等于对象本身
+	function.scope = scope;
+	function(){
+		var self = $self(this);
+	}
+
+	function $self(scope){
+		return $self.caller.scope || scope;
+	}
