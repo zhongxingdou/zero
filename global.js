@@ -131,9 +131,16 @@
 			if(ms && ms[1]){
 				aNameList = ms[1].replace(/ /g, '').split(",");
 			}else{
-				return fn();
+				aNameList = [];
 			}
 			fn.__args = aNameList; //cache args
+		}
+
+		if(aNameList.length === 0){
+			aNameList = this.list();
+			var code = fn.toString();
+			var body = code.substr(code.indexOf("{"));
+			fn = eval("(function(" + aNameList.join(",") + ")" + body + ")");
 		}
 
 		var oList = [];
