@@ -1,9 +1,8 @@
-	$global.run(function() {
-		/*(function(){*/
+$global.run(function(){
 	/**
 	 * 将源对象包装成另一个对象，并且不污染源对象
 	 */
-	I$ = $interface({
+	var I$ = $interface({
 		type: "function",
 		member: {
 			//注册一个wrapper
@@ -20,15 +19,17 @@
 		}
 	});
 
+
 	function $(o) {
 		var wps = $.findWrappers(o);
 
 		//clone对象确保对象不会被污染
-		var so = typeof o == "object" ? $clone(o) : o;
+		//var so = typeof o == "object" ? $clone(o) : o;
+		var so = o;
 
 		var w;
 
-		while(w = wps.shift()){
+		while (w = wps.shift()) {
 			so = w(so);
 		}
 
@@ -37,8 +38,17 @@
 
 	$.__wrapper = {};
 
-	$.regist = function(interface, wrapper) {
-		this.__wrapper[interface] = wrapper;
+	$.regist = function(wrapper, interface) {
+		if (interface instanceof Array) {
+			var i = 0,
+			l = interface.length;
+			while (i < l) {
+				this.__wrapper[interface[i]] = wrapper;
+				i++;
+			}
+		} else {
+			this.__wrapper[interface] = wrapper;
+		}
 	}
 
 	$.unregist = function(interface) {
@@ -56,8 +66,8 @@
 		if (w) wps.push(w);
 
 		if (typeof o === "object") {
-			if(o.eachBase){
-				o.eachBase(o, function(base){
+			if (o.eachBase) {
+				o.eachBase(o, function(base) {
 					wps = $.findWrappers(base).concat(wps);
 				});
 			}
@@ -68,9 +78,9 @@
 
 			//处理实现的接口
 			var faces = fn.implements;
-			if(faces && faces.length){
+			if (faces && faces.length) {
 				var f;
-				while(f = faces.shift()){
+				while (f = faces.shift()) {
 					var w = this.getWrapper(f);
 					w && wps.push(w);
 				}
@@ -79,7 +89,5 @@
 		return wps;
 	}
 
-
 	$global("$", $);
-})();
-
+});
