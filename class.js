@@ -30,8 +30,7 @@ $global.run(function($each, $copy, $makeArray) {
 	 * @description 
 	 * 让function的prototype与另一个prototype合并，并设置成员baseProto来引用它。
 	 */
-	function $extendProto(fnClazz, prototype) {
-
+	function $extendProto(clazz, prototype) {
 		var old = clazz.prototype;
 
 		var fn = function() {};
@@ -105,6 +104,7 @@ $global.run(function($each, $copy, $makeArray) {
 		if (base && base.prototype) $extendProto(clazz, base.prototype);
 
 		clazz.implements = oDefine.implements || [];
+		clazz.define= oDefine;
 
 		return clazz;
 	}

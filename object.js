@@ -28,13 +28,10 @@
 		plugin;
 
 		this.eachBase(this, function(proto) {
-			ps = proto.constructor.define.$properties;
-			plugin = proto.constructor.define.$plugins;
+			ps = proto.constructor.define.properties;
+			plugin = proto.constructor.define.plugins;
 			if (ps) {
-				$copy({
-					from: ps,
-					to: props
-				});
+				$copy(ps, props);
 			}
 			if (plugin) {
 				Array.prototype.push.apply(plugins, plugin);
@@ -53,16 +50,14 @@
 	 * @description 对象系统的基础类，建议所有对象都以此类作为超类
 	 */
 	$class($Object, {
-		plugins: [function(self) {
-			console.info("i'm a plugin from $Object");
-		}],
+		plugins: [],
 		prototype: {
 			addProperties: function(aProps) {
 				if (aProps) {
 					this.__fields__ = this.__fields__ || {};
 					var fields = this.__fields__;
 					for (var p in aProps) {
-						var rw = aProps[p].toUpperCase().slice(1, - 1);
+						var rw = aProps[p].toUpperCase();
 						var name = p.slice(0, 1).toUpperCase() + p.slice(1);
 						if (rw.indexOf("R") != - 1) {
 							this["get" + name] = function() {
