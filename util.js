@@ -73,8 +73,13 @@
 			option = {},
 			args = fn.arguments,
 			l = args.length;
+		
+		var count = 0;
+		$each(args, function(p){
+			if(p != undefined) count++;
+		});
 
-		if (l == 1) { //参数只有一个时，认为它是参数对象，而不是参数数组中的第一个
+		if (count == 1 && args[0] != undefined) { //参数只有一个时，认为它是参数对象，而不是参数数组中的第一个
 			return $merge(deft, args[0]);
 		}else{
 			var k, i = 0;
@@ -203,7 +208,7 @@
 	/**
 	 * 调用父原型的方法
 	 */
-	function $base(o, name, args) {
+	function $callBase(o, name, args) {
 		if(arguments.length == 1 || $is(Array, name)){
 			args = name;
 			return $getProtoMember(o, "proto.proto.constructor").apply(o, args);
@@ -244,6 +249,15 @@
 		}
 	}
 
+	function $upEach(o, name, fn){
+		var p = o[name];
+		while(p){
+			fn(p);
+			p = p[name];
+		}
+	}
+
+
 	$property.option = {
 		scope: undefined,
 		name: undefined, //lowercase
@@ -260,7 +274,8 @@
 	$global("$getAllMembers", $getAllMembers);
 	$global("$eachMember", $eachMember);
 	$global("$getProtoMember", $getProtoMember);
-	$global("$base", $base);
+	$global("$callBase", $callBase);
 	$global("$property", $property);
+	$global("$upEach", $upEach);
 })();
 
