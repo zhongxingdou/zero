@@ -1,46 +1,18 @@
 (function() {
-	var IObject = $interface({
-		base: IClass,
+	var IObject = {
 		member: {
-			//在constructor的主体执行完后执行
-			plugins: {
-				instanceOf: Array
-			},
-			prototype: {
-				//遍历原型链
-				eachBase: "function(self, fn)",
-
-				//添加属性
-				addProperties: "function(aProps)",
-
-				//调用原型链上的方法
-				baseCall: "function(sName)",
-
-				//mixin a module
-				mixin: "function(module)"
-			}
+			//调用父原型(o.__proto__.__proto__)的方法
+			callBase: "function(sName)",
+			//mixin a module
+			mixin: "function(module)",
+			//是否支持某个接口
+			isSupported: "function(interface)"
 		}
-	});
+	};
 
 	function $Object() {
-		var props = {},
-		ps, plugins = [],
-		plugin;
-
-		this.eachBase(this, function(proto) {
-			ps = proto.constructor.define.properties;
-			plugin = proto.constructor.define.plugins;
-			if (ps) {
-				$copy(ps, props);
-			}
-			if (plugin) {
-				Array.prototype.push.apply(plugins, plugin);
-			}
-		});
-
-		if (props) this.addProperties(props);
-		while (plugin = plugins.pop()) {
-			plugin.call(this);
+		if(!this.__proto__){
+			this.__proto__ = arguments.callee.prototype;
 		}
 	}
 
@@ -52,67 +24,19 @@
 	$class($Object, {
 		plugins: [],
 		prototype: {
-			addProperties: function(aProps) {
-				if (aProps) {
-					this.__fields__ = this.__fields__ || {};
-					var fields = this.__fields__;
-					for (var p in aProps) {
-						var rw = aProps[p].toUpperCase();
-						var name = p.slice(0, 1).toUpperCase() + p.slice(1);
-						if (rw.indexOf("R") != - 1) {
-							this["get" + name] = function() {
-								return fields[name];
-							};
-						}
-						if (rw.indexOf("W") != - 1) {
-							this["set" + name] = function(value) {
-								fields[name] = value;
-							}
-						}
-					}
-				}
-			},
-			eachBase: function(self, fn) {
-				var proto = self.constructor.prototype;
-				while (proto) {
-					fn(proto);
-					proto = proto.constructor.baseProto;
-				}
-			},
-			baseCall: function(name) {
-				var args = $makeArray(arguments, 1);
-				var proto;
-				if (name === "constructor" || name === "base.constructor") {
-					proto = arguments.callee.caller.baseProto;
-				} else if (name.indexOf("base.") != - 1) {
-					var uplevel = name.split("base.").length - 1;
-					proto = this.constructor.prototype;
-					for (var i = 0; i < uplevel && proto; i++) {
-						proto = proto.constructor.baseProto;
-					}
-					if (proto) {
-						name = name.slice(name.lastIndexOf(".") + 1);
-					}
-				} else {
-					proto = this.constructor.baseProto;
-				}
-				if (proto) {
-					var member = proto[name];
-					if (!member) throw "can't respond to " + '"' + method + '"';
-
-					if (typeof member == "function") {
-						return member.apply(this, args)
-					} else {
-						return member;
-					}
-				}
+			callBase: function(name, args) {
+				return $callBase(this, name, args);
 			},
 			mixin: function(module) {
 				return $mixin(this, module);
-			}
+			},
+			isSupported: function(interface){
+				return $support(interface, this);
+			} 
 		}
 	});
 
+	$global("IObject", IObject);
 	$global("$Object", $Object);
 })();
 
