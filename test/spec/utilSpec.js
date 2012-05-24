@@ -144,7 +144,7 @@ describe("util.js", function() {
 		expect(o.getName()).toBe(name);
 	});
 
-	it("$base(this)将调用父原型的构造函数", function(){
+	it("$callBase(this)将调用父原型的构造函数", function(){
 		var i = 0;
 		function A(){
 			i++;
@@ -152,7 +152,7 @@ describe("util.js", function() {
 		A.prototype.constructor = A;
 
 		function B(){
-			$base(this);
+			$callBase(this);
 		};
 		B.prototype = new A();
 		B.prototype.constructor = B;
@@ -161,7 +161,7 @@ describe("util.js", function() {
 		expect(i).toBe(2);
 	});
 
-	it("$base(this, action)将调用父原型的方法", function(){
+	it("$callBase(this, action)将调用父原型的方法", function(){
 		var i = 0;
 		function A(){
 		};
@@ -169,8 +169,8 @@ describe("util.js", function() {
 		A.prototype.constructor = A;
 
 		function B(){
-			$base(this);
-			$base(this,'action');
+			$callBase(this);
+			$callBase(this,'action');
 		};
 		B.prototype = new A();
 		B.prototype.constructor = B;
