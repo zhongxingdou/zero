@@ -1,24 +1,24 @@
 $global.run(function($support, $interface, $matchType){
 	describe("$class()", function(){
 		it("未给定任何参数", function(){
-			expect($support($class(), IClass)).toBeTruthy();
+			expect($support(IClass, $class())).toBeTruthy();
 		});
 
 		it("define参数为{}", function(){
-			expect($support($class("TestClass", {}), IClass)).toBeTruthy();
+			expect($support(IClass, $class("TestClass", {}))).toBeTruthy();
 		});
 
 		it("未给定define参数", function(){
-			expect($support($class("TestClass"), IClass)).toBeTruthy();
+			expect($support(IClass, $class("TestClass"))).toBeTruthy();
 		});
 
 		it("只给定了define参数", function(){
-			expect($support($class({}), IClass)).toBeTruthy();
+			expect($support(IClass, $class({}))).toBeTruthy();
 		});
 
 		it("匿名类", function(){
 			var cls = $class(function(){});
-			expect($support(cls, IClass)).toBeTruthy();
+			expect($support(IClass, cls)).toBeTruthy();
 			expect(cls.className).toBe(undefined);
 		});
 
@@ -36,8 +36,8 @@ $global.run(function($support, $interface, $matchType){
 
 			$class(TestClass, define)
 
-			expect($support(TestClass, IClass)).toBeTruthy();
-			expect($support(TestClass, IClass)).toBeTruthy();
+			expect($support(IClass, TestClass)).toBeTruthy();
+			expect($support(IClass, TestClass)).toBeTruthy();
 
 			expect(TestClass.name).toBe("TestClass");
 		});
