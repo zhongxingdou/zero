@@ -1,27 +1,28 @@
 $global.run(function($each, $copy, $makeArray) {
 	/**
-	 * $class()的oDefine参数的接口
+	 * $class()的define参数的接口
 	 */
-	var IClassSpec = $interface({
+	var IClassSpec = {
 		member: {
 			base: "[object]",
 			prototype: "[object]",
 			statics: "[object]",
 			properties: "[object]",
-			implements: {instanceof: Array}
+			implements: Array
 		},
-		optional: true
-	});
+		freeze: true
+	};
 
 	/**
 	 * 定义类对象的接口
 	 */
-	var IClass = $interface({
+	var IClass = {
 		type: "function",
 		member: {
-			baseProto: "[object]"
+			define: "object",
+			implements: Array
 		}
-	});
+	};
 
 	/**
 	 * 原型继承
@@ -30,39 +31,42 @@ $global.run(function($each, $copy, $makeArray) {
 	 * @description 
 	 * 让function的prototype与另一个prototype合并，并设置成员baseProto来引用它。
 	 */
-	function $extendProto(clazz, prototype) {
+	function $extendProto(clazz, baseProto) {
 		var old = clazz.prototype;
 
 		var fn = function() {};
-		fn.prototype = prototype;
+		fn.prototype = baseProto;
 		clazz.prototype = new fn();
 
+		var proto = clazz.prototype;
 		if(old){
-			$copy(old, clazz.prototype);
+			$copy(old, proto);
 		}
 
-		clazz.prototype.constructor = clazz;
-
-		clazz.baseProto = prototype;
+		proto.constructor = clazz;
+		if(!('__proto__' in proto)){
+			proto['__proto__'] = baseProto;
+		}
 	}
 
 	/**
 	 * 定义一个类
 	 * @param {Function|String} fnConstructor 构造函数或构造函数的名称
-	 * @param {IClassSpec} oDefine 类的定义
+	 * @param {IClassSpec} define 类的定义
 	 * @example
-	 * $class(function Class(){
-	 *			this.baseCall("constructor"[,args...]);
-	 *		}, {
+	 * function Class(){
+	 * 			$callBase(this, [args...]);
+	 * 			$initProperties(this);
+	 * }
+	 *
+	 * $class(Class, {
 	 *		     base: $Object,
 	 *		     prototype: {},
 	 *		     properties: {
 	 *			     property: "@rw"
 	 *		     },
 	 *		     statics: {}
-	 *		     type: "regular:abstract:singleton"
-	 *      }
-	 *  ).mixin(Module);
+	 * })
 	 *
 	 * @description
 	 * 如果超类中不包含$Object，
@@ -70,7 +74,7 @@ $global.run(function($each, $copy, $makeArray) {
 	 * 2.继承原型链，但所有超类的构造函数需要手动执行，因为需要
 	 * 3.属性声明也得不到支持
 	 */
-	function $class(fnConstructor, oDefine) {
+	function $class(fnConstructor, define) {
 		var argc = arguments.length;
 		var clazz = fnConstructor;
 
@@ -79,32 +83,34 @@ $global.run(function($each, $copy, $makeArray) {
 		if (t != "function") {
 			if (t == "string") {
 				var fnName = fnConstructor;
-				var code = "function " + fnName + "(){var base = oDefine.base;if(base)return  base.apply(this, $makeArray(arguments));}";
+				var code = "function " + fnName + "(){var base = define.base;if(base)return  base.apply(this, $makeArray(arguments));}";
 				eval(code);
 				clazz = eval(fnName);
 			} else if (t == "object" || argc == 0) {
 				clazz = function() {
-					if (oDefine.base) {
-						return oDefine.base.apply(this, $makeArray(arguments));
+					if (define.base) {
+						return define.base.apply(this, $makeArray(arguments));
 					}
 				}
-				oDefine = fnConstructor;
+				define = fnConstructor;
 			}
 		}
 
-		if (!oDefine) oDefine = {};
+		if (!define) define = {};
 
-		var proto = oDefine.prototype || {};
+		var proto = define.prototype || {};
 		proto.constructor = clazz;
 		clazz.prototype = proto;
 
-		$copy(oDefine.statics, clazz);
+		$copy(define.statics, clazz);
 
-		var base = oDefine.base;
-		if (base && base.prototype) $extendProto(clazz, base.prototype);
+		var base = define.base;
+		if (base && base.prototype){ 
+			$extendProto(clazz, base.prototype);
+		}
 
-		clazz.implements = oDefine.implements || [];
-		clazz.define= oDefine;
+		clazz.implements = define.implements || [];
+		clazz.define = define;
 
 		return clazz;
 	}
@@ -116,19 +122,40 @@ $global.run(function($each, $copy, $makeArray) {
 	function $reopenClass(clazz, define) {
 		//statics
 		$copy(define.statics, clazz);
+		$copy(define.statics, clazz.define.statics);
 
 		//prototype
 		$copy(define.prototype, clazz.prototype);
+		$copy(define.prototype, clazz.define.prototype);
 
 		//properties
 		$copy(define.properties, clazz.properties);
+		$copy(define.properties, clazz.define.properties);
 
 		return clazz;
 	}
+
+	/**
+	 * 初始化类定义中声明的属性
+	 */
+	function $initProperties(o){
+		var define = o.constructor.define;
+		if(define){
+			var props = define.properties;
+			if(props){
+				var name;
+				for(name in props){
+					$property(o, name, props[name]); 
+				}
+			}
+		}
+	}
+
 
 	$global("IClass", IClass);
 	$global("IClassSpec", IClass);
 	$global("$class", $class);
 	$global("$extendProto", $extendProto);
 	$global("$reopenClass", $reopenClass);
+	$global("$initProperties", $initProperties);
 });
