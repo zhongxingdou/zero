@@ -85,8 +85,8 @@ $global.run(function($each, $copy, $makeArray) {
 				var fnName = fnConstructor;
 				var code;
 
-				if(define.base){
-					code = "function " + fnName + "(){var base = define.base;if(base)return  base.apply(this, $makeArray(arguments));}";
+				if(define && define.base){
+					code = "function " + fnName + "(){ define.base.apply(this, $makeArray(arguments));}";
 				}else{
 					code = "function " + fnName + "(){}";
 				}
