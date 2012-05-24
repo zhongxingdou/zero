@@ -83,8 +83,15 @@ $global.run(function($each, $copy, $makeArray) {
 		if (t != "function") {
 			if (t == "string") {
 				var fnName = fnConstructor;
-				var code = "function " + fnName + "(){var base = define.base;if(base)return  base.apply(this, $makeArray(arguments));}";
+				var code;
+
+				if(define.base){
+					code = "function " + fnName + "(){var base = define.base;if(base)return  base.apply(this, $makeArray(arguments));}";
+				}else{
+					code = "function " + fnName + "(){}";
+				}
 				eval(code);
+
 				clazz = eval(fnName);
 			} else if (t == "object" || argc == 0) {
 				clazz = function() {
