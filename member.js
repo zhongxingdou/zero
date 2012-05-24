@@ -47,7 +47,7 @@ $global.run(function() {
 	$MemberSpec.prototype = {
 		check: function(o, name) {
 			var v = o[name];
-			if (this.optional && ! (name in o)) return true;
+			if (this.optional && !(name in o)) return true;
 
 			if (this.type) {
 				var t = this.type;
