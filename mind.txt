@@ -23,7 +23,7 @@
 ### 信息分类的API设计
    
    * ajax请求示例
-   		* request("get", "http://www.domain.com/resource").withData({}).set({async: false}).send();
+   		 * request("get", "http://www.domain.com/resource").withData({}).set({async: false}).send();
    
    * 事件绑定示例
    		* on(button, "click").then(sayHello).then(sayByebye)
@@ -97,3 +97,22 @@
 	function $self(scope){
 		return $self.caller.scope || scope;
 	}
+
+	
+	self.owner || this
+
+	object.delegate("method")
+
+	beautiful
+	btn.on("click").then(fn);
+
+	btn.on("click").let(obj).changeColor("args");
+	notice(ojb)包装它的方法成员变成被委托形态
+
+	$(obj).mix(obj);
+	$(obj).merge(obj); 如果成员已经存在,则不覆盖
+	$(obj).prototype.mix(abc);
+
+
+
+
