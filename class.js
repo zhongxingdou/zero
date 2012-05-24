@@ -51,7 +51,7 @@ $global.run(function($each, $copy, $makeArray) {
 
 	/**
 	 * 定义一个类
-	 * @param {Function|String} fnConstructor 构造函数或构造函数的名称
+	 * @param {Function|String} constructor 构造函数或构造函数的名称
 	 * @param {IClassSpec} define 类的定义
 	 * @example
 	 * function Class(){
@@ -74,15 +74,14 @@ $global.run(function($each, $copy, $makeArray) {
 	 * 2.继承原型链，但所有超类的构造函数需要手动执行，因为需要
 	 * 3.属性声明也得不到支持
 	 */
-	function $class(fnConstructor, define) {
-		var argc = arguments.length;
-		var clazz = fnConstructor;
+	function $class(constructor, define) {
+		var clazz;
 
 		//if no constructor set then provide normal one.
-		var t = typeof fnConstructor;
+		var t = typeof constructor;
 		if (t != "function") {
 			if (t == "string") {
-				var fnName = fnConstructor;
+				var fnName = constructor;
 				var code;
 
 				if(define && define.base){
@@ -93,17 +92,18 @@ $global.run(function($each, $copy, $makeArray) {
 				eval(code);
 
 				clazz = eval(fnName);
-			} else if (t == "object" || argc == 0) {
-				clazz = function() {
-					if (define.base) {
-						return define.base.apply(this, $makeArray(arguments));
+			} else if (t == "object") {
+				define = constructor
+				if(define.base){
+					clazz = function() {
+						define.base.apply(this, $makeArray(arguments));
 					}
 				}
-				define = fnConstructor;
-			}
+			} 
 		}
 
-		if (!define) define = {};
+		if(!clazz)clazz = function(){};
+		if(!define)define = {};
 
 		var proto = define.prototype || {};
 		proto.constructor = clazz;
