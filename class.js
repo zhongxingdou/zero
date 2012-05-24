@@ -74,32 +74,42 @@ $global.run(function($each, $copy, $makeArray) {
 	 * 2.继承原型链，但所有超类的构造函数需要手动执行，因为需要
 	 * 3.属性声明也得不到支持
 	 */
+
+	function __makeDefaultConstructor(name, define){
+		var fn;
+		var t = typeof name;
+		if (t == "string") {
+			var code;
+			if(define && define.base){
+				code = "function " + name + "(){ define.base.apply(this, $makeArray(arguments));}";
+			}else{
+				code = "function " + name + "(){}";
+			}
+			eval(code);
+
+			fn = eval(name);
+		} else if (t == "object") {
+			define = name;
+			if(define.base){
+				fn = function() {
+					define.base.apply(this, $makeArray(arguments));
+				}
+			}
+		} 
+		return fn;
+	}
+
 	function $class(constructor, define) {
 		var clazz;
 
 		//if no constructor set then provide normal one.
 		var t = typeof constructor;
 		if (t != "function") {
-			if (t == "string") {
-				var fnName = constructor;
-				var code;
-
-				if(define && define.base){
-					code = "function " + fnName + "(){ define.base.apply(this, $makeArray(arguments));}";
-				}else{
-					code = "function " + fnName + "(){}";
-				}
-				eval(code);
-
-				clazz = eval(fnName);
-			} else if (t == "object") {
-				define = constructor;
-				if(define.base){
-					clazz = function() {
-						define.base.apply(this, $makeArray(arguments));
-					}
-				}
-			} 
+			clazz = __makeDefaultConstructor(constructor, define);
+		}
+		
+		if(t == "object"){
+			define = constructor;
 		}
 
 		if(!clazz)clazz = function(){};
