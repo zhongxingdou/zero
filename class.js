@@ -93,7 +93,7 @@ $global.run(function($each, $copy, $makeArray) {
 
 				clazz = eval(fnName);
 			} else if (t == "object") {
-				define = constructor
+				define = constructor;
 				if(define.base){
 					clazz = function() {
 						define.base.apply(this, $makeArray(arguments));
