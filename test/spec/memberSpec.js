@@ -38,11 +38,19 @@ describe("$MemberSpec(string)", function() {
 describe("$MemberSpec(object)", function() {
 	it("声明optional可选项", function() {
 		var spec = new $MemberSpec({
+			type: String,
 			optional: true
 		});
 
-		var pass = spec.check({}, "name");
+		var pass = spec.check([], "push");
 
+		expect(pass).toBeFalsy();
+
+		var spec = new $MemberSpec({
+			optional: true
+		});
+
+		var pass = spec.check({}, "key");
 		expect(pass).toBeTruthy();
 	});
 
@@ -68,6 +76,5 @@ describe("$MemberSpec(object)", function() {
 
 		expect(spec.check(new String(""), "split")).toBeFalsy();
 	});
-
 });
 
