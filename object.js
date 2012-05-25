@@ -22,7 +22,6 @@
 	 * @description 对象系统的基础类，建议所有对象都以此类作为超类
 	 */
 	$class($Object, {
-		plugins: [],
 		prototype: {
 			callBase: function(name, args) {
 				return $callBase(this, name, args);
