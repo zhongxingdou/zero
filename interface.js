@@ -92,7 +92,7 @@ $global.run(function() {
 
 	//这两个接口定义在interface定义之前的依赖文件中，在这里成为正式的接口
 	$interface(IClass);
-	$interface(IClassSpec);
+	$interface(IClassDefine);
 
 	$interface(IObject);
 

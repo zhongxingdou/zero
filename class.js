@@ -2,7 +2,7 @@ $global.run(function($each, $copy, $makeArray) {
 	/**
 	 * $class()的define参数的接口
 	 */
-	var IClassSpec = {
+	var IClassDefine = {
 		member: {
 			base: "[object]",
 			prototype: "[object]",
@@ -52,7 +52,7 @@ $global.run(function($each, $copy, $makeArray) {
 	/**
 	 * 定义一个类
 	 * @param {Function|String} constructor 构造函数或构造函数的名称
-	 * @param {IClassSpec} define 类的定义
+	 * @param {IClassDefine} define 类的定义
 	 * @example
 	 * function Class(){
 	 * 			$callBase(this, [args...]);
@@ -133,7 +133,7 @@ $global.run(function($each, $copy, $makeArray) {
 
 	/**
 	 * 重新打开类
-	 * @param {IClassSpec} define 
+	 * @param {IClassDefine} define 
 	 */
 	function $reopenClass(clazz, define) {
 		//statics
@@ -169,7 +169,7 @@ $global.run(function($each, $copy, $makeArray) {
 
 
 	$global("IClass", IClass);
-	$global("IClassSpec", IClass);
+	$global("IClassDefine", IClassDefine);
 	$global("$class", $class);
 	$global("$extendProto", $extendProto);
 	$global("$reopenClass", $reopenClass);
