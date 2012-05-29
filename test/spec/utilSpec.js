@@ -186,6 +186,10 @@ describe("util.js", function() {
 	it("$eachProto", function(){
 	
 	});
+
+	it("$upEach", function(){
+	
+	});
 });
 
 
