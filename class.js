@@ -31,7 +31,7 @@ $global.run(function($each, $copy, $makeArray) {
 	 * @description 
 	 * 让function的prototype与另一个prototype合并，并设置成员baseProto来引用它。
 	 */
-	function $extendProto(clazz, baseProto) {
+	function $extend(clazz, baseProto) {
 		var old = clazz.prototype;
 
 		var fn = function() {};
@@ -98,7 +98,7 @@ $global.run(function($each, $copy, $makeArray) {
 
 		var base = define.base;
 		if (base && base.prototype){ 
-			$extendProto(clazz, base.prototype);
+			$extend(clazz, base.prototype);
 		}
 
 		clazz.implements = define.implements || [];
@@ -171,7 +171,7 @@ $global.run(function($each, $copy, $makeArray) {
 	$global("IClass", IClass);
 	$global("IClassDefine", IClassDefine);
 	$global("$class", $class);
-	$global("$extendProto", $extendProto);
+	$global("$extend", $extend);
 	$global("$reopenClass", $reopenClass);
 	$global("$initProperties", $initProperties);
 });

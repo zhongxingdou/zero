@@ -250,7 +250,7 @@
 	}
 
 	function $upEach(o, name, fn){
-		var p = o[name];
+		var p = o;
 		while(p){
 			fn(p);
 			p = p[name];

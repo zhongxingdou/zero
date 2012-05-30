@@ -76,7 +76,7 @@ $global.run(function() {
 			}
 
 			if (spec.freeze) {
-				var allms = $clone(ms);
+				var allms = {};
 				$upEach(spec, 'base', function(base){
 					$merge(base.member, allms);
 				});

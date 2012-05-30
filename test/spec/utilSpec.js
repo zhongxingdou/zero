@@ -188,7 +188,18 @@ describe("util.js", function() {
 	});
 
 	it("$upEach", function(){
-	
+		var a = {name: 'a'};
+		var b = {name: 'b', parent: a};
+		var c = {name: 'c', parent: b};
+		var names = [];
+		$upEach(c, 'parent', function(item){
+			names.push(item.name);
+		});
+
+		var exp = expect(names);
+		exp.toContain('a');
+		exp.toContain('b');
+		exp.toContain('c');
 	});
 });
 
