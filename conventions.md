@@ -3,7 +3,7 @@
   * 可用性
   * 经常用
   * 实事求是的态度来解决问题
-* 简单自然
+* 简单
   * 简单且优美
   	 * 表里如一，接口与源码都简单易理解，
   	 * 源码不使用一句话解释不清的技巧
@@ -24,18 +24,40 @@
 ## JavaScript编码约定
 
 ### 类型暗示约定
-* 基本类型取类型名称小写首字母
+* 基本类型（除Object,Function外）取类型名称小写首字母作为前缀
 	
-	sName,nAge,dBirthday,bIsFunction…
+	sString,
+	nNumber,
+	dDate,
+	bBoolean,
+	rRegExp,
+	aArray
+	
+* 用户创建的对象不加前缀
 
-### 方法签名约定
+### 可见性暗示约定
+	
+	__private
+	_protected
+	public
+	
+### 特殊的变量
+* @CONST 常量以@开头
+* $global 全局变量以$开头
+* Class 类名（首字母大写）
+* MModule 模块以M＋模块名（首字母大写）
+* IInterface 接口以I+接口名（首字母大写）
+* DAY.MONDAY 枚举全部为大写
+* action 方法名为动词或动词＋名词
+* $class 类关键字方法以$开头，名称全部小写（$interface, $property, $class）
+
+
+### 方法参数约定
 * 最多两个参数
-* 超过两个参数,使用配置对象
-* 方法参数注释,如果是配置对象参数,名称前加一'.'号
-	
-	@param {Object} .member 注释内容
+* 超过两个参数,使用$Option对象
 
-### 签名注释约定 
+
+### 方法参数注释约定 
 * [param]表示可选参数
 * param[]表示参数为集合对象
 * String|Object中划线分隔不同类型 
