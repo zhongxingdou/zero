@@ -55,7 +55,23 @@ describe("util.js", function() {
 
 
 	it("$traceProto", function(){
-	
+		function A(){};
+		A.prototype = {a1: {}};
+		A.prototype.constructor = A;
+
+		function B(){};
+		B.prototype = new A();
+		B.prototype.b1 = {};
+		B.prototype.constructor = B;
+
+		var b = new B();
+		var ms = [];
+		$traceProto(b, function(proto){
+			ms.push(proto);
+		});
+
+		expect(ms[0]).toBeDefined("a1");
+		expect(ms[1]).toBeDefined("b1");
 	});
 
 	it("$trace", function(){
