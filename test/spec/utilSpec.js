@@ -179,8 +179,43 @@ describe("util.js", function() {
 		expect(i).toBe(1);
 	});
 
-	it("$eachMember", function(){
-	
+	it("$eachKey", function(){
+		var o = {
+			key1: "key1",
+			key2: "key2",
+		}
+
+		var keys = [];
+		var values = [];
+		$eachKey(o, function(key, v){
+			keys.push(key);
+			values.push(v);
+		});
+
+		expect(keys).toContain("key1");
+		expect(keys).toContain("key2");
+
+		expect(values).toContain("key1");
+		expect(values).toContain("key2");
+	});
+
+	it("$eachKey()如果处理函数返回false将中断遍历", function(){
+		var o = {
+			key1: "key1",
+			key2: "key2",
+			key3: "key3"
+		}
+
+		var keys = [];
+		var values = [];
+		$eachKey(o, function(key, v){
+			keys.push(key);
+			values.push(v);
+			if(key === "key2")return false;
+		});
+
+		expect(keys).toNotContain("key3");
+		expect(values).toNotContain("key3");
 	});
 
 	it("$eachProto", function(){
@@ -200,6 +235,15 @@ describe("util.js", function() {
 		exp.toContain('a');
 		exp.toContain('b');
 		exp.toContain('c');
+	});
+
+	it("$fnCall", function(){
+		var fn = undefined;
+		$fnCall(fn);
+
+		var fn2 = jasmine.createSpy();
+		$fnCall(fn2);
+		expect(fn2).toHaveBeenCalled();
 	});
 });
 

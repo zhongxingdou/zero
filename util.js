@@ -174,12 +174,14 @@
 	/**
 	 * 遍历对象的所有成员 
 	 */
-	function $eachMember(o, fn){
-		var ar = [];
+	function $eachKey(o, fn){
+		if(typeof fn != "function")return false;
+
 		for(p in o){ 
-			ar.push(o[p]);
+			if(fn(p, o[p])=== false)return false;
 		}
-		return $each(ar);
+
+		return true;
 	}
 
 	/**
@@ -284,7 +286,7 @@
 	 */
 	function $fnCall(fn, args, scope){
 		if($is(Function, fn)){
-			scope.apply(scope | this, args);
+			fn.apply(scope | this, args);
 		}
 	}
 
@@ -296,7 +298,7 @@
 	$global("$merge", $merge);
 	$global("$option", $option);
 	$global("$getAllMembers", $getAllMembers);
-	$global("$eachMember", $eachMember);
+	$global("$eachKey", $eachKey);
 	$global("$getProtoMember", $getProtoMember);
 	$global("$callBase", $callBase);
 	$global("$property", $property);
