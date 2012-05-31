@@ -26,8 +26,13 @@
 			callBase: function(name, args) {
 				return $callBase(this, name, args);
 			},
-			mixin: function(module) {
-				return $mixin(this, module);
+			mix: function(obj) {
+				if($is(Module, obj)){
+					$include(this, obj);
+				}else{
+					$copy(obj, this);
+				}
+				return this;
 			},
 			isSupported: function(interface){
 				return $support(interface, this);
