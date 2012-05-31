@@ -31,12 +31,17 @@ describe("$support()", function() {
 
 	it("验证freeze声明", function() {
 		var face = $interface({
+			member: {a1: "[string]"},
 			freeze: true
 		});
 
 		expect($support(face, {
 			key: ""
 		})).toBeFalsy();
+
+		expect($support(face, {
+			a1: "hello"
+		})).toBeTruthy();
 	});
 
 	it("验证[]是Array和Object的实例", function() {
