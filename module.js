@@ -4,7 +4,8 @@
 	 * @interface
 	 */
 	var IModule = $interface({
-		onIncluded: "function"
+		onIncluded: "function",
+		includes: "object"
 	});
 
 	/**
@@ -18,13 +19,18 @@
 			module.onIncluded(object);
 		}
 		$copy({
-			from: module,
+			from: module.includes,
 			to: object
 		});
 		return object;
 	}
 
+	function $module(o){
+		return o;
+	}
+
 	$global("IModule", IModule);
+	$global("$module", $module);
 	$global("$mixin", $mixin);
 })();
 
