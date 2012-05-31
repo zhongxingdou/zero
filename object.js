@@ -3,8 +3,8 @@
 		member: {
 			//调用父原型(o.__proto__.__proto__)的方法
 			callBase: "function(sName)",
-			//mixin a module
-			mixin: "function(module)",
+			//mix a module or object
+			mix: "function(module)",
 			//是否支持某个接口
 			isSupported: "function(interface)"
 		}
