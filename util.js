@@ -13,6 +13,38 @@
 	}
 
 	/**
+	 * 遍历对象的原型链，从下向上
+	 */
+	function $traceProto(o, fn) {
+		var proto = o.__proto__ || o.constructor.prototype;
+		$trace(proto, '__proto__', fn);
+	}
+
+	/**
+	 * 根据指定属性来追溯
+	 */
+	function $trace(o, name, fn){
+		var p = o;
+		while(p){
+			fn(p);
+			p = p[name];
+		}
+	}
+
+	/**
+	 * 遍历对象的所有成员 
+	 */
+	function $eachKey(o, fn){
+		if(typeof fn != "function")return false;
+
+		for(p in o){ 
+			if(fn(p, o[p])=== false)return false;
+		}
+
+		return true;
+	}
+
+	/**
 	 * 把集合对象转换成Array
 	 * @param {Object} obj 被转换的对象
 	 * @param {Object} start=0 从集合对象中的第几项开始转换 
@@ -148,18 +180,6 @@
 		return true;
 	}
 
-
-	/**
-	 * 遍历对象的原型链，从下向上
-	 */
-	function $eachProto(o, fn) {
-		var proto = o.__proto__ || o.constructor.prototype;
-		while (proto) {
-			fn(proto);
-			proto = proto.__proto__;
-		}
-	}
-
 	/**
 	 * 返回对象的所有成员，但不包括原型链中原生原型所包含的成员
 	 */
@@ -169,19 +189,6 @@
 			members.push(p);
 		}
 		return members;
-	}
-
-	/**
-	 * 遍历对象的所有成员 
-	 */
-	function $eachKey(o, fn){
-		if(typeof fn != "function")return false;
-
-		for(p in o){ 
-			if(fn(p, o[p])=== false)return false;
-		}
-
-		return true;
 	}
 
 	/**
@@ -265,14 +272,6 @@
 		return o[privateName];
 	}
 
-	function $upEach(o, name, fn){
-		var p = o;
-		while(p){
-			fn(p);
-			p = p[name];
-		}
-	}
-
 
 	$property.option = {
 		scope: undefined,
@@ -299,10 +298,11 @@
 	$global("$option", $option);
 	$global("$getAllMembers", $getAllMembers);
 	$global("$eachKey", $eachKey);
+	$global("$traceProto", $traceProto);
 	$global("$getProtoMember", $getProtoMember);
 	$global("$callBase", $callBase);
 	$global("$property", $property);
-	$global("$upEach", $upEach);
+	$global("$trace", $trace);
 	$global("$fnCall", $fnCall);
 })();
 

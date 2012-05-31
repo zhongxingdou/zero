@@ -13,6 +13,66 @@ describe("util.js", function() {
 		expect(b).toBe(true);
 	});
 
+	it("$eachKey", function(){
+		var o = {
+			key1: "key1",
+			key2: "key2",
+		}
+
+		var keys = [];
+		var values = [];
+		$eachKey(o, function(key, v){
+			keys.push(key);
+			values.push(v);
+		});
+
+		expect(keys).toContain("key1");
+		expect(keys).toContain("key2");
+
+		expect(values).toContain("key1");
+		expect(values).toContain("key2");
+	});
+
+
+	it("$eachKey()如果处理函数返回false将中断遍历", function(){
+		var o = {
+			key1: "key1",
+			key2: "key2",
+			key3: "key3"
+		}
+
+		var keys = [];
+		var values = [];
+		$eachKey(o, function(key, v){
+			keys.push(key);
+			values.push(v);
+			if(key === "key2")return false;
+		});
+
+		expect(keys).toNotContain("key3");
+		expect(values).toNotContain("key3");
+	});
+
+
+	it("$traceProto", function(){
+	
+	});
+
+	it("$trace", function(){
+		var a = {name: 'a'};
+		var b = {name: 'b', parent: a};
+		var c = {name: 'c', parent: b};
+		var names = [];
+		$trace(c, 'parent', function(item){
+			names.push(item.name);
+		});
+
+		var exp = expect(names);
+		exp.toContain('a');
+		exp.toContain('b');
+		exp.toContain('c');
+	});
+
 	it("$makeArray将fn.arguments转换成Array", function(){
 		function fn (a1,a2) {
 			var args = $makeArray(fn.arguments);
@@ -33,27 +93,6 @@ describe("util.js", function() {
 		expect(args.length).toBe(2);
 		expect(args[0]).toBe(2);
 		expect(args[1]).toBe(3);
-	});
-
-	it("$option", function() {
-		function fn(p1, p2) {
-			var option = $option();
-			return option;
-
-		}
-		fn.option = {
-			key1: "key1",
-			key2: "key2",
-			key3: "key3"
-		}
-
-		var option = fn("k1", "k2");
-
-		expect(option).toBeDefined();
-
-		expect(option.key1).toBe("k1");
-		expect(option.key2).toBe("k2");
-		expect(option.key3).toBe("key3");
 	});
 
 	it("$copy会复制不存在成员", function(){
@@ -92,6 +131,44 @@ describe("util.js", function() {
 		expect(b.p1).toBe("pb");
 	});
 
+	it("$option", function() {
+		function fn(p1, p2) {
+			var option = $option();
+			return option;
+
+		}
+		fn.option = {
+			key1: "key1",
+			key2: "key2",
+			key3: "key3"
+		}
+
+		var option = fn("k1", "k2");
+
+		expect(option).toBeDefined();
+
+		expect(option.key1).toBe("k1");
+		expect(option.key2).toBe("k2");
+		expect(option.key3).toBe("key3");
+	});
+
+	it("$clone", function(){
+		var obj = {key1: {}, key2: {
+			key21: {},
+			key22: "key22"
+		}, key3: "key3"}
+
+		var obj2 = $clone(obj);
+		expect(obj).toEqual(obj2);
+		expect(obj).toNotBe(obj2);
+	});
+
+	it("$like", function(){
+		var a = {a: 'a', b:'b'};
+		var b = {a: 'a', b:'b'};
+		expect($like(a,b)).toBeTruthy();
+	});
+
 	it("$getAllMember", function() {
 		var o = {a: 'a', b: 'b'}
 		var ms = $getAllMembers(o)
@@ -127,11 +204,6 @@ describe("util.js", function() {
 		expect($getProtoMember(ac, 'proto.proto.proto.a1')).toBe(A.prototype.a1);
 	});
 
-	it("$like", function(){
-		var a = {a: 'a', b:'b'};
-		var b = {a: 'a', b:'b'};
-		expect($like(a,b)).toBeTruthy();
-	});
 
 	it("$property", function(){
 		var o = {};
@@ -177,64 +249,6 @@ describe("util.js", function() {
 
 		var ab = new B();
 		expect(i).toBe(1);
-	});
-
-	it("$eachKey", function(){
-		var o = {
-			key1: "key1",
-			key2: "key2",
-		}
-
-		var keys = [];
-		var values = [];
-		$eachKey(o, function(key, v){
-			keys.push(key);
-			values.push(v);
-		});
-
-		expect(keys).toContain("key1");
-		expect(keys).toContain("key2");
-
-		expect(values).toContain("key1");
-		expect(values).toContain("key2");
-	});
-
-	it("$eachKey()如果处理函数返回false将中断遍历", function(){
-		var o = {
-			key1: "key1",
-			key2: "key2",
-			key3: "key3"
-		}
-
-		var keys = [];
-		var values = [];
-		$eachKey(o, function(key, v){
-			keys.push(key);
-			values.push(v);
-			if(key === "key2")return false;
-		});
-
-		expect(keys).toNotContain("key3");
-		expect(values).toNotContain("key3");
-	});
-
-	it("$eachProto", function(){
-	
-	});
-
-	it("$upEach", function(){
-		var a = {name: 'a'};
-		var b = {name: 'b', parent: a};
-		var c = {name: 'c', parent: b};
-		var names = [];
-		$upEach(c, 'parent', function(item){
-			names.push(item.name);
-		});
-
-		var exp = expect(names);
-		exp.toContain('a');
-		exp.toContain('b');
-		exp.toContain('c');
 	});
 
 	it("$fnCall", function(){
