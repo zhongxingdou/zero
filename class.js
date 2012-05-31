@@ -19,8 +19,8 @@ $global.run(function($each, $copy, $makeArray) {
 	var IClass = {
 		type: "function",
 		member: {
-			define: "object",
-			implements: Array
+			//define: "object",
+			//implements: Array
 		}
 	};
 
@@ -81,6 +81,8 @@ $global.run(function($each, $copy, $makeArray) {
 		var t = typeof constructor;
 		if (t != "function") {
 			clazz = __makeDefaultConstructor(constructor, define);
+		}else{
+			clazz = constructor;
 		}
 		
 		if(t == "object"){
@@ -101,8 +103,8 @@ $global.run(function($each, $copy, $makeArray) {
 			$extend(clazz, base.prototype);
 		}
 
-		clazz.implements = define.implements || [];
-		clazz.define = define;
+		//clazz.implements = define.implements || [];
+		//clazz.define = define;
 
 		return clazz;
 	}
@@ -138,15 +140,15 @@ $global.run(function($each, $copy, $makeArray) {
 	function $reopenClass(clazz, define) {
 		//statics
 		$copy(define.statics, clazz);
-		$copy(define.statics, clazz.define.statics);
+		//$copy(define.statics, clazz.define.statics);
 
 		//prototype
 		$copy(define.prototype, clazz.prototype);
-		$copy(define.prototype, clazz.define.prototype);
+		//$copy(define.prototype, clazz.define.prototype);
 
 		//properties
 		$copy(define.properties, clazz.properties);
-		$copy(define.properties, clazz.define.properties);
+		//$copy(define.properties, clazz.define.properties);
 
 		return clazz;
 	}
