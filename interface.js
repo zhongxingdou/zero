@@ -31,7 +31,16 @@ $global.run(function() {
 	}
 
 	$class(Interface, {
-		base: $Object
+		base: $Object,
+		prototype: {
+			addMember: function(name, spec){
+				this.member[name] = new $MemberSpec(spec);
+				return this;
+			},
+			removeMember: function(name){
+				delete this.member[name];
+			}
+		}
 	});
 
 	/**
@@ -55,7 +64,9 @@ $global.run(function() {
 			base: "[object]",
 			member: "[object]",
 			type: "[object]",
-			freeze: "[boolean]"
+			freeze: "[boolean]",
+			addMember: "function",
+			removeMember: "function"
 		},
 		freeze: true,
 		type: "object"
