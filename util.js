@@ -232,9 +232,8 @@
 			name = args.name, 
 			o = args.scope, 
 			rw = args.accessor;
-
 		var upName = name.slice(0, 1).toUpperCase() + name.slice(1);
-		var privateName = "__" + name;
+		var privateName = arguments.callee.getPrivateName(name);
 		var rw = rw.toUpperCase();
 
 		if (rw.indexOf("R") != - 1) {
@@ -247,6 +246,21 @@
 				o[privateName] = value;
 			}
 		}
+	}
+
+	$property.getPrivateName = function(name){
+		return "__" + name.slice(0, 1).toUpperCase() + name.slice(1);
+	}
+
+	$property.set = function(o, name, value){
+		var privateName = this.getPrivateName(name);
+		o[privateName] = value;
+		return o;
+	}
+
+	$property.get = function(o, name){
+		var privateName = this.getPrivateName(name);
+		return o[privateName];
 	}
 
 	function $upEach(o, name, fn){
@@ -264,6 +278,16 @@
 		accessor: "@RW" //upcase @RW
 	}
 
+
+	/**
+	 * 调用一个方法，调用之前先判断是否为方法
+	 */
+	function $fnCall(fn, args, scope){
+		if($is(Function, fn)){
+			scope.apply(scope | this, args);
+		}
+	}
+
 	$global("$each", $each);
 	$global("$copy", $copy);
 	$global("$makeArray", $makeArray);
@@ -277,5 +301,6 @@
 	$global("$callBase", $callBase);
 	$global("$property", $property);
 	$global("$upEach", $upEach);
+	$global("$fnCall", $fnCall);
 })();
 
