@@ -74,13 +74,12 @@ $global.run(function() {
 
 		var proto = type.prototypeOf;
 		if (proto) {
-			if (proto instanceof Array) {
-				for (var i = 0, l = proto.length; i < l; i++) {
-					if (!proto[i].isPrototypeOf(o)) return false;
-				}
-			} else {
+			var b = $callWithArray(function(proto){
 				if (!proto.isPrototypeOf(o)) return false;
-			}
+				return true;
+			}, proto);
+
+			if(!b)return false;
 		}
 
 		return true;

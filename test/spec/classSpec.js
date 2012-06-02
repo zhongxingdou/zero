@@ -18,7 +18,6 @@ describe("$class()", function(){
 	it("匿名类", function(){
 		var cls = $class(function(){});
 		expect($support(IClass, cls)).toBeTruthy();
-		expect(cls.className).toBe(undefined);
 	});
 
 	it("定义类", function(){
@@ -53,7 +52,7 @@ describe("$class()", function(){
 		expect(Clazz.prototype.m1).toBe(proto.m1);
 	});
 
-	it("继承", function(){
+	it("子类的实例包含父类原型中的成员", function(){
 		function Base(){};
 		$class(Base, {
 			prototype: {

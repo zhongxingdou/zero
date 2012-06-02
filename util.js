@@ -4,10 +4,10 @@
 	 * @param {Array|Object} obj 
 	 * @param {Function} fn(item) 如果fn返回false，将中止遍历
 	 */
-	function $each(obj, fn) {
+	function $each(obj, fn, scope) {
 		if (!obj) return true;
 		for (var i = 0, l = obj.length; i < l; i++) {
-			if ($call(fn, [obj[i]]) === false) return false;
+			if ($call(fn, [obj[i]], scope) === false) return false;
 		}
 		return true;
 	}
@@ -15,11 +15,11 @@
 	/**
 	 * 遍历对象的所有成员 
 	 */
-	function $eachKey(o, fn){
+	function $eachKey(o, fn, scope){
 		if(typeof fn != "function")return false;
 
 		for(p in o){ 
-			if($call(fn, [p, o[p]])=== false)return false;
+			if($call(fn, [p, o[p]], scope)=== false)return false;
 		}
 
 		return true;
@@ -28,20 +28,21 @@
 	/**
 	 * 根据指定属性来追溯
 	 */
-	function $trace(o, name, fn){
+	function $trace(o, name, fn, scope){
 		var p = o;
 		while(p){
-			$call(fn,[p]);
+			if($call(fn,[p], scope) === false)return false;
 			p = p[name];
 		}
+		return true;
 	}
 
 	/**
 	 * 遍历对象的原型链，从下向上
 	 */
-	function $traceProto(o, fn) {
+	function $traceProto(o, fn, scope) {
 		var proto = o.__proto__ || o.constructor.prototype;
-		$trace(proto, '__proto__', fn);
+		return $trace(proto, '__proto__', fn, scope);
 	}
 
 	/**
@@ -286,10 +287,18 @@
 	 */
 	function $call(fn, args, scope){
 		if(typeof fn  === "function"){
-			if(arguments.length < 3 && "this" in fn){
+			if(scope === undefined && "this" in fn){
 				scope = fn['this'];
 			}
 			return fn.apply(scope, args);
+		}
+	}
+
+	function $callWithArray(fn, args, scope){
+		if(args instanceof Array){
+			return $each(args, fn, scope);
+		}else{
+			return $call(fn, [args], scope);
 		}
 	}
 
@@ -308,5 +317,6 @@
 	$global("$property", $property);
 	$global("$trace", $trace);
 	$global("$call", $call);
+	$global("$callWithArray", $callWithArray);
 })();
 

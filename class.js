@@ -1,4 +1,4 @@
-$global.run(function($each, $copy, $makeArray) {
+$global.run(function($each, $copy, $array) {
 	/**
 	 * $class()的define参数的接口
 	 */
@@ -115,7 +115,7 @@ $global.run(function($each, $copy, $makeArray) {
 		if (t == "string") {
 			var code;
 			if(define && define.base){
-				code = "function " + name + "(){ define.base.apply(this, $makeArray(arguments));}";
+				code = "function " + name + "(){ define.base.apply(this, $array(arguments));}";
 			}else{
 				code = "function " + name + "(){}";
 			}
@@ -126,7 +126,7 @@ $global.run(function($each, $copy, $makeArray) {
 			define = name;
 			if(define.base){
 				fn = function() {
-					define.base.apply(this, $makeArray(arguments));
+					define.base.apply(this, $array(arguments));
 				}
 			}
 		} 

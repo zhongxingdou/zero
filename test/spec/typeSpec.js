@@ -1,4 +1,4 @@
-describe("type.js", function(){
+describe("typeSpec.js", function(){
 	it("$typedef(string)", function(){
 		var string = "object";
 		var type = $typedef(string);
