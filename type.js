@@ -2,13 +2,13 @@ $global.run(function() {
 	var IType = {
 		member: {
 			//是值类型还是引用类型，是哪种值类型
-			typeof: "[string]",
+			typeOf: "[string]",
 
 			//是哪个构造函数创建的
-			instanceof: "[object]",
+			instanceOf: "[object]",
 
 			//原型链中包含哪些原型
-			base: "[object]" 
+			prototypeOf: "[object]" 
 		},
 		freeze: true
 	};
@@ -35,11 +35,11 @@ $global.run(function() {
 				}
 			}
 		}else if(t == "string"){
-			this.typeof = spec;
+			this.typeOf = spec;
 		}else if(t == "function"){
-			this.instanceof = spec;
+			this.instanceOf = spec;
 		}else if(t === "undefined"){
-			this.typeof = t;
+			this.typeOf = t;
 		}
 	}
 
@@ -50,6 +50,11 @@ $global.run(function() {
 		return (new $Type(typeSpec));
 	}
 
+	/**
+	 * 检测对象是否为某种类型
+	 * @param{$Type} type 类型
+	 * @param{Object} o 要检验的对象
+	 */
 	function $is(type, o) {
 		if(type === null)return type === o;
 
@@ -57,7 +62,7 @@ $global.run(function() {
 			type = $typedef(type);
 		}
 
-		var t = type.typeof;
+		var t = type.typeOf;
 		if(t){
 			if(t.indexOf("function") != -1){
 				t = "function";
@@ -65,9 +70,9 @@ $global.run(function() {
 			if(!(typeof(o) === t))return false;
 		}
 
-		if (type.instanceof && !(o instanceof type.instanceof)) return false;
+		if (type.instanceOf && !(o instanceof type.instanceOf)) return false;
 
-		var proto = type.base;
+		var proto = type.prototypeOf;
 		if (proto) {
 			if (proto instanceof Array) {
 				for (var i = 0, l = proto.length; i < l; i++) {

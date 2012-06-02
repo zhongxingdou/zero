@@ -102,5 +102,8 @@
 	aObj.__delegateObj = bObj 
 	aObj.setDelegate(bObj);
 	this.getCellData.call();
+### other
+
+	增加Option类，它应该是一个接口对象，option.validate为true时，检查参数
 
 

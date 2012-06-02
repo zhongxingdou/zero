@@ -2,23 +2,23 @@ describe("type.js", function(){
 	it("$typedef(string)", function(){
 		var string = "object";
 		var type = $typedef(string);
-		expect(type.typeof).toBeDefined();
-		expect(type.typeof).toBe(string);
+		expect(type.typeOf).toBeDefined();
+		expect(type.typeOf).toBe(string);
 	});
 
 	it("$typedef(fn)", function(){
 		var fn = function(){};
 		var type = $typedef(fn);
-		expect(type.instanceof).toBeDefined();
-		expect(type.instanceof).toBe(fn);
+		expect(type.instanceOf).toBeDefined();
+		expect(type.instanceOf).toBe(fn);
 	});
 
 	it("$typdef(o)", function(){
-		var o = {name: 'hello', typeof: 'string'};
+		var o = {name: 'hello', typeOf: 'string'};
 		var type = $typedef(o);
 		expect($support(IType, type));
 		expect(type.name).toBeUndefined();
-		expect(type.typeof).toBe('string');
+		expect(type.typeOf).toBe('string');
 	});
 
 	it("$is()检验值类型", function(){
@@ -78,4 +78,20 @@ describe("type.js", function(){
 		}
 		t(8);
 	});
+
+	it("$is()检验带base的type", function(){
+		function A(){};
+
+		function B(){};
+		B.prototype = new A();
+		B.prototype.constructor = B();
+
+		var t = $typedef({
+			"instanceOf": B,
+			"prototypeOf": Object.prototype
+		});
+
+		expect($is(t, new B)).toBeTruthy();
+	});
+	
 });
