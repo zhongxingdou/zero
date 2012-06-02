@@ -13,34 +13,43 @@ $global.run(function() {
 		freeze: true
 	};
 
-	function $Type(typeSpec) {
-		return typeSpec
-	}
-
-	$Type.parse = function(spec){
+	/**
+	 * @class
+	 * 类型
+	 */
+	function $Type(spec) {
 		var t = typeof spec;
 
 		if(t == "object"){
 			if(spec instanceof $Type){
 				return spec
 			}else{
-				return new $Type(spec);
+				var handle = function(key, value){
+					if(key in spec){
+						this[key] = spec[key];
+					}
+				}
+				handle.this = this;
+				$eachKey(IType.member, handle);
 			}
 		}else if(t == "string"){
-			spec = {typeof: spec};
+			this.typeof = spec;
 		}else if(t == "function"){
-			spec = {instanceof: spec};
+			this.instanceof = spec;
 		}
-
-		return new $Type(spec);
 	}
 
+	/**
+	 * new $Type()的别名
+	 */
 	function $typedef(typeSpec) {
-		return $Type.parse(typeSpec);
+		return (new $Type(typeSpec));
 	}
 
 	function $is(type, o) {
-		var type = $typedef(type);
+		if(!(type instanceof $Type)){
+			type = $typedef(type);
+		}
 
 		var t = type.typeof;
 		if(t){

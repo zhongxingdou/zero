@@ -1,42 +1,23 @@
-describe("$is()", function() {
-	it("验证typeof声明", function() {
-		expect($is("string", "abc")).toBeTruthy();
-		expect($is({typeof: "string"}, "abc")).toBeTruthy();
-
-		expect($is("object", {})).toBeTruthy();
-
-		expect($is("function", function() {})).toBeTruthy();
+describe("type.js", function(){
+	it("$typedef(string)", function(){
+		var string = "object";
+		var type = $typedef(string);
+		expect(type.typeof).toBeDefined();
+		expect(type.typeof).toBe(string);
 	});
 
-	it("验证签名形式的function声明", function() {
-		expect($is("function(p1, p2)", function() {})).toBeTruthy();
-	});
-
-	it("验证instanceof声明", function() {
-		var fn = function() {};
-		expect($is(Function, fn)).toBeTruthy();
-
-		expect($is(Array, [])).toBeTruthy();
-	});
-
-	it("验证base声明", function() {
-		expect($is({
-			base: Object.prototype
-		},
-		[])).toBeTruthy();
-	});
-
-	it("验证多个base声明", function() {
-		expect($is({
-			base: [Object.prototype, Array.prototype]
-		},
-		[])).toBeTruthy();
-	});
-
-	it("验证function不是'object'而是Object", function() {
+	it("$typedef(fn)", function(){
 		var fn = function(){};
-		expect($is("object", fn)).toBeFalsy();
-		expect($is(Object, fn)).toBeTruthy();
+		var type = $typedef(fn);
+		expect(type.instanceof).toBeDefined();
+		expect(type.instanceof).toBe(fn);
+	});
+
+	it("$typdef(o)", function(){
+		var o = {name: 'hello', typeof: 'string'};
+		var type = $typedef(o);
+		expect($support(IType, type));
+		expect(type.name).toBeUndefined();
+		expect(type.typeof).toBe('string');
 	});
 });
-

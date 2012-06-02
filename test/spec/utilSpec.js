@@ -242,7 +242,7 @@ describe("util.js", function() {
 		expect(o.__name).toBe('jim');
 	});
 
-	it("$property.set()", function(){
+	it("$property.get()", function(){
 		var o = {};
 		$property(o, 'name');
 		$property.set(o, 'name', 'jim');
