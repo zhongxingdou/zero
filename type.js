@@ -24,18 +24,22 @@ $global.run(function() {
 			if(spec instanceof $Type){
 				return spec
 			}else{
-				var handle = function(key, value){
-					if(key in spec){
-						this[key] = spec[key];
+				if(spec !== null){
+					var handle = function(key, value){
+						if(key in spec){
+							this[key] = spec[key];
+						}
 					}
+					handle.this = this;
+					$eachKey(IType.member, handle);
 				}
-				handle.this = this;
-				$eachKey(IType.member, handle);
 			}
 		}else if(t == "string"){
 			this.typeof = spec;
 		}else if(t == "function"){
 			this.instanceof = spec;
+		}else if(t === "undefined"){
+			this.typeof = t;
 		}
 	}
 
@@ -47,6 +51,8 @@ $global.run(function() {
 	}
 
 	function $is(type, o) {
+		if(type === null)return type === o;
+
 		if(!(type instanceof $Type)){
 			type = $typedef(type);
 		}
