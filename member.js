@@ -11,8 +11,11 @@ $global.run(function() {
 	function $MemberSpec(spec) {
 		var self = arguments.callee;
 
-		if (typeof spec == "string") {
+		var t = typeof spec;
+		if (t == "string") {
 			spec = self.parse(spec);
+		}else if($is($Type, spec)){
+			spec = {type: spec};
 		}
 
 		$merge(arguments.callee.option, spec);
@@ -47,7 +50,11 @@ $global.run(function() {
 	$MemberSpec.prototype = {
 		check: function(o, name) {
 			var v = o[name];
-			if (this.optional && !(name in o)) return true;
+
+			if(v == null){
+				return this.optional;
+			}
+
 
 			if (this.type) {
 				var t = this.type;
@@ -65,7 +72,6 @@ $global.run(function() {
 					if (!$is(this.type, v)) return false;
 				}
 			}
-			if (this.type && ! $is(this.type, v)) return false;
 
 			if (this.ownProperty && ! o.hasOwnProperty(name)) return false;
 

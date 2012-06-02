@@ -8,15 +8,17 @@ $global.run(function() {
 	function Interface(member, type) {
 		var option = $option();
 
-		if (option.type === undefined) {
-			option.type = {instanceof: Object};
+		if (option.type == undefined) {
+			option.type = $typedef(Object);
+		}else if(!(option.type instanceof $Type)){
+			option.type = $typedef(option.type);
 		}
 
 		var p, ms = option.member;
 		for(p in ms){
 			var m = ms[p];
-			if(!$is($Type, m)){
-				ms[p] = $typedef(m);
+			if(!$is($MemberSpec, m)){
+				ms[p] = new $MemberSpec(m);
 			}
 		}
 
@@ -54,6 +56,9 @@ $global.run(function() {
 		return new Interface(member, type);
 	}
 
+
+	IObject = $interface(IObject);
+
 	/**
 	 * 接口对象的接口
 	 * 定义了instanceOf的时候
@@ -63,7 +68,7 @@ $global.run(function() {
 		member: {
 			base: "[object]",
 			member: "[object]",
-			type: "[object]",
+			type: IType,
 			freeze: "[boolean]",
 			addMember: "function",
 			removeMember: "function"
@@ -82,8 +87,7 @@ $global.run(function() {
 		if (spec.member) {
 			var k, ms = spec.member;
 			for (k in ms) {
-				var mspec = new $MemberSpec(ms[k], k);
-				if (!mspec.check(o, k)) return false;
+				if (!ms[k].check(o, k)) return false;
 			}
 
 			if (spec.freeze) {
@@ -102,14 +106,19 @@ $global.run(function() {
 	}
 
 	//这两个接口定义在interface定义之前的依赖文件中，在这里成为正式的接口
-	$interface(IClass);
-	$interface(IClassDefine);
+	IClass = $interface(IClass);
+	IClassDefine = $interface(IClassDefine);
 
-	$interface(IObject);
 
-	$interface(IType);
+	IType = $interface(IType);
 
-	$interface(IMemberSpec);
+	IMemberSpec = $interface(IMemberSpec);
+
+	$global("IClass", IClass);
+	$global("IClassDefine", IClassDefine);
+	$global("IObject", IObject);
+	$global("IType", IType);
+	$global("IMemberSpec", IMemberSpec);
 
 
 	//发布全局对象

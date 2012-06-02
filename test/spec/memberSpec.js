@@ -54,6 +54,14 @@ describe("$MemberSpec(object)", function() {
 		expect(pass).toBeTruthy();
 	});
 
+	it("optional为非", function(){
+		var spec = new $MemberSpec({
+			type: String,
+			optional: false
+		});
+		expect(spec.check({})).toBeFalsy();
+	});
+
 	it("声明type", function() {
 		var spec = new $MemberSpec({
 			type: ["string", "number"]
