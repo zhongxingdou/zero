@@ -53,6 +53,20 @@ describe("util.js", function() {
 		expect(values).toNotContain("key3");
 	});
 
+	it("$trace", function(){
+		var a = {name: 'a'};
+		var b = {name: 'b', parent: a};
+		var c = {name: 'c', parent: b};
+		var names = [];
+		$trace(c, 'parent', function(item){
+			names.push(item.name);
+		});
+
+		var exp = expect(names);
+		exp.toContain('a');
+		exp.toContain('b');
+		exp.toContain('c');
+	});
 
 	it("$traceProto", function(){
 		function A(){};
@@ -74,24 +88,9 @@ describe("util.js", function() {
 		expect(ms[1]).toBeDefined("b1");
 	});
 
-	it("$trace", function(){
-		var a = {name: 'a'};
-		var b = {name: 'b', parent: a};
-		var c = {name: 'c', parent: b};
-		var names = [];
-		$trace(c, 'parent', function(item){
-			names.push(item.name);
-		});
-
-		var exp = expect(names);
-		exp.toContain('a');
-		exp.toContain('b');
-		exp.toContain('c');
-	});
-
-	it("$makeArray将fn.arguments转换成Array", function(){
+	it("$array将fn.arguments转换成Array", function(){
 		function fn (a1,a2) {
-			var args = $makeArray(fn.arguments);
+			var args = $array(fn.arguments);
 			return args;
 		}
 
@@ -99,9 +98,9 @@ describe("util.js", function() {
 		expect(args.constructor).toBe(Array);
 	});
 
-	it("$makeArray从指定位置开始转换", function(){
+	it("$array从指定位置开始转换", function(){
 		function fn (a1,a2,a3) {
-			var args = $makeArray(fn.arguments, 1);
+			var args = $array(fn.arguments, 1);
 			return args;
 		}
 
@@ -232,6 +231,24 @@ describe("util.js", function() {
 		expect(o.getName()).toBe(name);
 	});
 
+	it("$property.getPrivateName()", function(){
+		expect($property.getPrivateName("name")).toBe("__name");
+	});
+
+	it("$property.set()", function(){
+		var o = {};
+		$property(o, 'name');
+		$property.set(o, 'name', 'jim');
+		expect(o.__name).toBe('jim');
+	});
+
+	it("$property.set()", function(){
+		var o = {};
+		$property(o, 'name');
+		$property.set(o, 'name', 'jim');
+		expect($property.get(o,'name')).toBe('jim');
+	});
+
 	it("$callBase(this)将调用父原型的构造函数", function(){
 		var i = 0;
 		function A(){
@@ -251,8 +268,7 @@ describe("util.js", function() {
 
 	it("$callBase(this, action)将调用父原型的方法", function(){
 		var i = 0;
-		function A(){
-		};
+		function A(){};
 		A.prototype = {action: function(){i++}};
 		A.prototype.constructor = A;
 
@@ -267,13 +283,23 @@ describe("util.js", function() {
 		expect(i).toBe(1);
 	});
 
-	it("$fnCall", function(){
+	it("$call()", function(){
 		var fn = undefined;
-		$fnCall(fn);
+		$call(fn);
 
 		var fn2 = jasmine.createSpy();
-		$fnCall(fn2);
+		$call(fn2);
 		expect(fn2).toHaveBeenCalled();
+
+		var o = {};
+		var fn3 = function(name){
+			this.name = name;
+		}
+		fn3.this = o;
+
+		$call(fn3, ['jim']);
+
+		expect(o.name).toBe('jim');
 	});
 });
 

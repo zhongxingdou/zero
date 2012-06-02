@@ -7,9 +7,33 @@
 	function $each(obj, fn) {
 		if (!obj) return true;
 		for (var i = 0, l = obj.length; i < l; i++) {
-			if (fn(obj[i]) === false) return false;
+			if ($call(fn, [obj[i]]) === false) return false;
 		}
 		return true;
+	}
+
+	/**
+	 * 遍历对象的所有成员 
+	 */
+	function $eachKey(o, fn){
+		if(typeof fn != "function")return false;
+
+		for(p in o){ 
+			if($call(fn, [p, o[p]])=== false)return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * 根据指定属性来追溯
+	 */
+	function $trace(o, name, fn){
+		var p = o;
+		while(p){
+			$call(fn,[p]);
+			p = p[name];
+		}
 	}
 
 	/**
@@ -21,35 +45,12 @@
 	}
 
 	/**
-	 * 根据指定属性来追溯
-	 */
-	function $trace(o, name, fn){
-		var p = o;
-		while(p){
-			fn(p);
-			p = p[name];
-		}
-	}
-
-	/**
-	 * 遍历对象的所有成员 
-	 */
-	function $eachKey(o, fn){
-		if(typeof fn != "function")return false;
-
-		for(p in o){ 
-			if(fn(p, o[p])=== false)return false;
-		}
-
-		return true;
-	}
-
-	/**
 	 * 把集合对象转换成Array
 	 * @param {Object} obj 被转换的对象
 	 * @param {Object} start=0 从集合对象中的第几项开始转换 
 	 */
-	function $makeArray(obj, start) {
+	function $array(obj, start) {
+		if(obj instanceof Array)return obj;
 		return Array.prototype.slice.apply(obj, [start || 0]);
 	}
 
@@ -215,22 +216,6 @@
 	}
 
 	/**
-	 * 调用父原型的方法
-	 */
-	function $callBase(o, name, args) {
-		if(arguments.length == 1 || $is(Array, name)){
-			args = name;
-			return $getProtoMember(o, "proto.proto.constructor").apply(o, args);
-		}
-
-		var p = $getProtoMember(o, "proto.proto."+name);
-		if (typeof p != "function") {
-			throw "can't respond to " + '"' + name + '"';
-		}
-		return p.apply(o, args)
-	}
-
-	/**
 	 * 生成属性方法的工厂函数
 	 * @description
 	 * $property(o, 'name', '@RW')
@@ -258,7 +243,7 @@
 	}
 
 	$property.getPrivateName = function(name){
-		return "__" + name.slice(0, 1).toUpperCase() + name.slice(1);
+		return "__" + name;
 	}
 
 	$property.set = function(o, name, value){
@@ -279,19 +264,38 @@
 		accessor: "@RW" //upcase @RW
 	}
 
+	/**
+	 * 调用父原型的方法
+	 */
+	function $callBase(o, name, args) {
+		if(arguments.length == 1 || $is(Array, name)){
+			args = name;
+			return $getProtoMember(o, "proto.proto.constructor").apply(o, args);
+		}
+
+		var p = $getProtoMember(o, "proto.proto."+name);
+		if (typeof p != "function") {
+			throw "can't respond to " + '"' + name + '"';
+		}
+		return p.apply(o, args)
+	}
+
 
 	/**
 	 * 调用一个方法，调用之前先判断是否为方法
 	 */
-	function $fnCall(fn, args, scope){
-		if($is(Function, fn)){
-			fn.apply(scope | this, args);
+	function $call(fn, args, scope){
+		if(typeof fn  === "function"){
+			if(arguments.length < 3 && "this" in fn){
+				scope = fn['this'];
+			}
+			return fn.apply(scope, args);
 		}
 	}
 
 	$global("$each", $each);
 	$global("$copy", $copy);
-	$global("$makeArray", $makeArray);
+	$global("$array", $array);
 	$global("$clone", $clone);
 	$global("$like", $like);
 	$global("$merge", $merge);
@@ -303,6 +307,6 @@
 	$global("$callBase", $callBase);
 	$global("$property", $property);
 	$global("$trace", $trace);
-	$global("$fnCall", $fnCall);
+	$global("$call", $call);
 })();
 
