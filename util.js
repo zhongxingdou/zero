@@ -302,6 +302,22 @@
 		}
 	}
 
+	/**
+	 * 声明一个枚举
+	 * @example
+	 * var color = $enum("BLUE", "RED", "YELLOW");
+	 * color.BLUE
+	 * color.RED
+	 * color.YELLOW
+	 */
+	function $enum(){
+		var o = {};
+		$each($array(arguments), function(k){
+			o[k] = {};
+		});
+		return o;
+	}
+
 	$global("$each", $each);
 	$global("$copy", $copy);
 	$global("$array", $array);
