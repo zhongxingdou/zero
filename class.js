@@ -8,7 +8,7 @@ $global.run(function($each, $copy, $array) {
 			prototype: "[object]",
 			statics: "[object]",
 			properties: "[object]",
-			implements: Array
+			implementions: Array
 		},
 		freeze: true
 	};
@@ -20,7 +20,7 @@ $global.run(function($each, $copy, $array) {
 		type: "function",
 		member: {
 			//define: "object",
-			//implements: Array
+			implementions: Array
 		}
 	};
 
@@ -92,9 +92,10 @@ $global.run(function($each, $copy, $array) {
 		if(!clazz)clazz = function(){};
 		if(!define)define = {};
 
-		var proto = define.prototype || {};
-		proto.constructor = clazz;
-		clazz.prototype = proto;
+		var proto = define.prototype;
+		if(proto){
+			$copy(proto, clazz.prototype);
+		}
 
 		$copy(define.statics, clazz);
 
@@ -102,9 +103,9 @@ $global.run(function($each, $copy, $array) {
 		if (base && base.prototype){ 
 			$extend(clazz, base.prototype);
 		}
-
-		//clazz.implements = define.implements || [];
+		
 		//clazz.define = define;
+		clazz.implementions = [].concat(define.implementions);
 
 		return clazz;
 	}

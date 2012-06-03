@@ -40,6 +40,24 @@ describe("$class()", function(){
 		expect(TestClass.name).toBe("TestClass");
 	});
 
+	it("类的原型在外面定义也可以",function(){
+		function Clazz(){};
+		Clazz.prototype = {a1: {}};
+
+		$class(Clazz);
+
+		var a = new Clazz();
+		expect(a.a1).toBeDefined();
+	});
+
+	it("类的静态成中在外面定义也可以", function(){
+		function Clazz(){};
+		Clazz.Abc = {a1: {}};
+	
+		$class(Clazz);
+		expect(Clazz.Abc).toBeDefined();
+	});
+
 	it("类的原型包含原型声明中的成员", function(){
 		function Clazz(){};
 		var proto = {
