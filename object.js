@@ -37,7 +37,8 @@
 			isSupported: function(interface){
 				return $support(interface, this);
 			}
-		}
+		},
+		implementions: IObject
 	});
 
 	$global("IObject", IObject);

@@ -47,7 +47,7 @@
 		}
 	}
 
-	$class(Module, {base: $Object});
+	$class(Module, {base: $Object, implementions: IModule});
 
 	$global("Module", Module);
 	$global("IModule", IModule);
