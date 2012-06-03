@@ -1,15 +1,15 @@
-function callWithArgsArray(fn, array, scope) {
-	if (!$is(Array, array)) {
-		array = [array];
-	}
-	$each(array, function(args) {
-		fn.apply(scope, args);
+(function(){
+	var FunctionWraper = $wrapper({
+		callWithArray: function(array){
+			return $callWithArray(this, array);
+		},
+		bindTo: function(obj){
+			var self = this;
+			var  fn =  function(){
+				return self.apply(obj, $array(arguments));
+			}
+			return fn;
+		}
 	});
-}
-
-function $function(fn) {
-	fn.callWithArgsArray = callWithArgsArray;
-}
-
-$.regist($function, [Function, "function"]);
-
+	$.regist(FunctionWraper, Function);
+})();
