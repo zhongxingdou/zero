@@ -15,40 +15,33 @@ $global.run(function(){
 			getWrapper: "function(interface)",
 
 			//查找对象的wrapper
-			findWrappers: "function(o)"
+			findWrapper: "function(o)"
 		}
 	});
 
 
 	function $(o) {
-		var wps = $.findWrappers(o);
+		var ws = $.findWrapper(o), 
+			newo = {},
+			w;
 
-		//clone对象确保对象不会被污染
-		//var so = typeof o == "object" ? $clone(o) : o;
-		var so = o;
-
-		var w;
-
-		while (w = wps.shift()) {
-			so = w(so);
+		if(ws.length == 1){
+			newo = new ws[0](o);
+		}else{
+			while (w = ws.pop()) {
+				$copy((new w(o)), newo);
+			}
 		}
 
-		return so;
+		return newo;
 	}
 
 	$.__wrapper = {};
 
 	$.regist = function(wrapper, interface) {
-		if (interface instanceof Array) {
-			var i = 0,
-			l = interface.length;
-			while (i < l) {
-				this.__wrapper[interface[i]] = wrapper;
-				i++;
-			}
-		} else {
-			this.__wrapper[interface] = wrapper;
-		}
+		$callWithArray(function(face){
+			this.__wrapper[face] = wrapper;
+		}, interface, $);
 	}
 
 	$.unregist = function(interface) {
@@ -59,34 +52,26 @@ $global.run(function(){
 		return this.__wrapper[interface];
 	}
 
-	$.findWrappers = function(o) {
-		var wps = [];
-		var t = typeof o;
-		var w = this.getWrapper(t);
-		if (w) wps.push(w);
+	$.findWrapper = function(o) {
+		var type = typeof(o);
+		var ws = [];
 
-		if (typeof o === "object") {
-			if (o.eachBase) {
-				o.eachBase(o, function(base) {
-					wps = $.findWrappers(base).concat(wps);
+		if(type === "object" || type === "function"){
+			$traceProto(o, function(proto){
+				var clazz = proto.constructor;
+				var w = $.getWrapper(clazz);
+				w && ws.push(w);
+
+				$each(clazz.implementions, function(interface){
+					w= $.getWrapper(interface)
+					w && ws.push(w);
 				});
-			}
-
-			var fn = o.constructor;
-			var w1 = this.getWrapper(fn)
-			if (w1) wps.push(w1);
-
-			//处理实现的接口
-			var faces = fn.implements;
-			if (faces && faces.length) {
-				var f;
-				while (f = faces.shift()) {
-					var w = this.getWrapper(f);
-					w && wps.push(w);
-				}
-			}
+			});
+		}else{
+			ws.push($.getWrapper(type));
 		}
-		return wps;
+
+		return ws;
 	}
 
 	$global("$", $);
