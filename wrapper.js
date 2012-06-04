@@ -3,7 +3,7 @@
 		scope: 'object',
 		get: 'function(k)',
 		set: 'function(k, v)',
-		call: 'function(fn, args)',
+		invoke: 'function(fn, args)'
 	});
 
 	function Wrapper(o) {
@@ -11,7 +11,7 @@
 		$eachKey(o, function(key, value) {
 			if (o.hasOwnProperty(key) && $is('function', value)) {
 				this[key] = function() {
-					value.apply(this.scope, $array(arguments));
+					value.apply(this.scope, arguments);
 				}
 			}
 		},
@@ -26,7 +26,7 @@
 			this.scope[k] = v;
 			return this;
 		},
-		call: function(fn, args) {
+		invoke: function(fn, args) {
 			return this.scope[fn].apply(this.scope, args);
 		}
 	}
@@ -36,7 +36,7 @@
 		$eachKey(obj, function(k, v) {
 			if (v && $is('function', v)) {
 				one[k] = function() {
-					return v.apply(this.scope, $array(arguments));
+					return v.apply(this.scope, arguments);
 				}
 			}
 		});
