@@ -30,7 +30,7 @@ $global.run(function() {
 							this[key] = spec[key];
 						}
 					}
-					handle.this = this;
+					handle.scope = this;
 					$eachKey(IType.member, handle);
 				}
 			}
