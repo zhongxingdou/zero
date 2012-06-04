@@ -22,7 +22,7 @@ describe("$support()", function() {
 			name: "string",
 			score: "number",
 			birthday: {
-				instanceof: Date
+				instanceOf: Date
 			}
 		});
 
@@ -47,14 +47,14 @@ describe("$support()", function() {
 	it("验证[]是Array和Object的实例", function() {
 		var baseFace = $interface({
 			type: {
-				instanceof: Object
+				instanceOf: Object
 			}
 		});
 
 		var face = $interface({
 			base: baseFace,
 			type: {
-				instanceof: Array
+				instanceOf: Array
 			}
 		});
 

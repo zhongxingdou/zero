@@ -37,7 +37,7 @@ describe("$class()", function(){
 		expect($support(IClass, TestClass)).toBeTruthy();
 		expect($support(IClass, TestClass)).toBeTruthy();
 
-		expect(TestClass.name).toBe("TestClass");
+		//expect(TestClass.name).toBe("TestClass");
 	});
 
 	it("类的原型在外面定义也可以",function(){
