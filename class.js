@@ -8,7 +8,7 @@ $global.run(function($each, $copy, $array) {
 			prototype: "[object]",
 			statics: "[object]",
 			properties: "[object]",
-			implementions: Array
+			implementions: "[object]"
 		},
 		freeze: true
 	};
@@ -24,6 +24,9 @@ $global.run(function($each, $copy, $array) {
 		}
 	};
 
+
+	var supportProto = {}.__proto__ !== undefined;
+
 	/**
 	 * 原型继承
 	 * @param {IClass} fnClazz
@@ -34,6 +37,7 @@ $global.run(function($each, $copy, $array) {
 	function $extend(clazz, baseProto) {
 		var old = clazz.prototype;
 
+		
 		var fn = function() {};
 		fn.prototype = baseProto;
 		clazz.prototype = new fn();
@@ -44,7 +48,7 @@ $global.run(function($each, $copy, $array) {
 		}
 
 		proto.constructor = clazz;
-		if(!('__proto__' in proto)){
+		if(!supportProto){
 			proto['__proto__'] = baseProto;
 		}
 	}
@@ -105,7 +109,7 @@ $global.run(function($each, $copy, $array) {
 		}
 		
 		//clazz.define = define;
-		clazz.implementions = [].concat(define.implementions);
+		clazz.implementions = define.implementions ? [].concat(define.implementions) : [];
 
 		return clazz;
 	}
@@ -115,19 +119,20 @@ $global.run(function($each, $copy, $array) {
 		var t = typeof name;
 		if (t == "string") {
 			var code;
+			var setProto = supportProto ? '' : "if(!this.__proto__)this.__proto__ = arguments.callee.prototype;";
 			if(define && define.base){
-				code = "function " + name + "(){ define.base.apply(this, $array(arguments));}";
+				code = "function " + name + "(){ "+setProto+"define.base.apply(this, arguments);}";
 			}else{
-				code = "function " + name + "(){}";
+				code = "function " + name + "(){"+setProto+"}";
 			}
-			eval(code);
+			fn = eval("(function(){ return "+code+" })()");
 
-			fn = eval(name);
+			//fn = eval(name);
 		} else if (t == "object") {
 			define = name;
 			if(define.base){
 				fn = function() {
-					define.base.apply(this, $array(arguments));
+					define.base.apply(this, arguments);
 				}
 			}
 		} 
