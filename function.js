@@ -6,7 +6,7 @@
 		bindTo: function(obj){
 			var self = this;
 			var  fn =  function(){
-				return self.apply(obj, $array(arguments));
+				return self.apply(obj, arguments);
 			}
 			return fn;
 		}
