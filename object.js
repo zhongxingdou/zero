@@ -1,4 +1,6 @@
 (function() {
+	var supportProto = {}.__proto__ != undefined;
+
 	var IObject = {
 		member: {
 			//调用父原型(o.__proto__.__proto__)的方法
@@ -8,10 +10,14 @@
 			//是否支持某个接口
 			isSupported: "function(interface)"
 		}
-	};
+	}
+
+	if(!supportProto){
+		IObject.member.__proto__ = "[object]";
+	}
 
 	function $Object() {
-		if(!this.__proto__){
+		if(!supportProto){
 			this.__proto__ = arguments.callee.prototype;
 		}
 	}
