@@ -16,7 +16,7 @@ describe("util.js", function() {
 	it("$eachKey", function(){
 		var o = {
 			key1: "key1",
-			key2: "key2",
+			key2: "key2"
 		}
 
 		var keys = [];
@@ -71,12 +71,10 @@ describe("util.js", function() {
 	it("$traceProto", function(){
 		function A(){};
 		A.prototype = {a1: {}};
-		A.prototype.constructor = A;
 
 		function B(){};
-		B.prototype = new A();
 		B.prototype.b1 = {};
-		B.prototype.constructor = B;
+		$extend(B, A.prototype);
 
 		var b = new B();
 		var ms = [];
@@ -193,22 +191,20 @@ describe("util.js", function() {
 
 	it("$getProtoMember", function(){
 		function A(){};
-		A.prototype = {a1: {}};
+		A.prototype = {a1: "A.a1"};
 		A.prototype.constructor = A;
 
 		function B(){};
-		B.prototype = new A();
-		B.prototype.b1 = {};
-		B.prototype.a1 = {};
-		B.prototype.constructor = B;
+		B.prototype.b1 = 'Bb1';
+		B.prototype.a1 = 'Ba1';
+		$extend(B, A.prototype);
 
 		function C(){};
-		C.prototype = new B();
-		C.prototype.c1 = {};
-		C.prototype.constructor = C;
+		C.prototype.c1 = "Cc1";
+		$extend(C, B.prototype);
 
 		var ac = new C();
-		ac.a1 = {};
+		ac.a1 = "ac.a1";
 
 		expect($getProtoMember(ac, 'a1')).toBe(C.prototype.a1);
 
@@ -253,31 +249,31 @@ describe("util.js", function() {
 		var i = 0;
 		function A(){
 			i++;
-		};
-		A.prototype.constructor = A;
+		}
 
 		function B(){
 			$callBase(this);
-		};
-		B.prototype = new A();
-		B.prototype.constructor = B;
+		}
+		$extend(B, A.prototype);
 
 		var ab = new B();
-		expect(i).toBe(2);
+		expect(i).toBe(1);
 	});
 
 	it("$callBase(this, action)将调用父原型的方法", function(){
 		var i = 0;
-		function A(){};
-		A.prototype = {action: function(){i++}};
-		A.prototype.constructor = A;
+		function A(){
+			var a='dosomething';
+		};
+		A.prototype = {action: function(){
+			i++
+		}};
 
 		function B(){
 			$callBase(this);
 			$callBase(this,'action');
 		};
-		B.prototype = new A();
-		B.prototype.constructor = B;
+		$extend(B, A.prototype);
 
 		var ab = new B();
 		expect(i).toBe(1);
@@ -295,7 +291,7 @@ describe("util.js", function() {
 		var fn3 = function(name){
 			this.name = name;
 		}
-		fn3.this = o;
+		fn3.scope = o;
 
 		$call(fn3, ['jim']);
 
