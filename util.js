@@ -41,7 +41,9 @@
 	 * 遍历对象的原型链，从下向上
 	 */
 	function $traceProto(o, fn, scope) {
-		var proto = o.__proto__ || o.constructor.prototype;
+		var supportProto = {}.__proto__ !== undefined;
+		
+		var proto = supportProto ? o.__proto__ : o.constructor.prototype;
 		return $trace(proto, '__proto__', fn, scope);
 	}
 
@@ -130,17 +132,21 @@
 		return option;
 	}
 
-
 	/**
 	 * clone对象
 	 * @param {Ojbect} o 
 	 * @param {Boolean} isDeepClone=false
 	 */
+	/*
 	function $clone(o, isDeepClone) {
+		var newo;
 		if (o.constructor == Object) {
 			newo = {}
 		} else {
-			newo = new o.constructor(o.valueOf());
+			var fn = function(){};
+			fn.prototype = o.constructor.prototype;
+			newo = new fn();
+			//newo = new o.constructor(o.valueOf());
 		}
 
 		if (!isDeepClone) {
@@ -164,7 +170,16 @@
 		newo.valueOf = o.valueOf;
 
 		return newo;
+	}*/
+
+	function $clone(obj) {
+		function Clone() { } 
+		Clone.prototype = obj;
+		var c = new Clone();
+		//c.constructor = Clone;
+		return c;
 	}
+
 
 	/**
 	 * 判断两个对象是否相似
@@ -197,7 +212,9 @@
 	 * 获取原型链上的成员
 	 */
 	function $getProtoMember(o, name){
-		var proto = o.__proto__ || o.constructor.prototype;
+		var supportProto = {}.__proto__ !== undefined;
+		
+		var proto = supportProto ? o.__proto__ : o.constructor.prototype;
 		if(!proto)return;
 
 		if (name.indexOf("proto.") != - 1) {
@@ -271,14 +288,18 @@
 	function $callBase(o, name, args) {
 		if(arguments.length == 1 || $is(Array, name)){
 			args = name;
-			return $getProtoMember(o, "proto.proto.constructor").apply(o, args);
+			var fn = $getProtoMember(o, "proto.proto.constructor");
+			if(fn){
+				fn.apply(o, args || []);
+			}
+			return;
 		}
 
 		var p = $getProtoMember(o, "proto.proto."+name);
 		if (typeof p != "function") {
 			throw "can't respond to " + '"' + name + '"';
 		}
-		return p.apply(o, args)
+		return p.apply(o, args || []);
 	}
 
 
@@ -287,10 +308,10 @@
 	 */
 	function $call(fn, args, scope){
 		if(typeof fn  === "function"){
-			if(scope === undefined && "this" in fn){
-				scope = fn['this'];
+			if(scope === undefined && "scope" in fn){
+				scope = fn['scope'];
 			}
-			return fn.apply(scope, args);
+			return fn.apply(scope, args || []);
 		}
 	}
 
@@ -312,7 +333,7 @@
 	 */
 	function $enum(){
 		var o = {};
-		$each($array(arguments), function(k){
+		$each(arguments, function(k){
 			o[k] = {};
 		});
 		return o;
