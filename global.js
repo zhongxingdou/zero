@@ -21,7 +21,7 @@
 			restore: "function(sName)",
 
 			//复制指定全局变量到某个对象上
-			"export": "function(saNames, oTarget)",
+			"exportTo": "function(saNames, oTarget)",
 
 			//提供一个沙箱运行环境，确保所执行的代码引用到的是被管理的全局变量
 			run: "function(fn)",
@@ -30,7 +30,10 @@
 			defaultTarget: "object",
 
 			//是否在注册一个全局变量时自动export到defaultTarget
-			autoExport: "boolean"
+			autoExport: "boolean",
+
+			//删除一个变量脱离global管理，如果它export到了target，从target对象中也删除
+			destroy: "function(sName)"
 		}
 	};
 
@@ -43,6 +46,10 @@
 	}
 
 	$global.set = function(sName, o){
+		if(this.get(sName)){
+			$global.destroy(sName);
+		}
+		
 		__global__[sName] = {value: o, target: null};
 		if(this.autoExport){
 			this.__export(sName, this.defaultTarget);
@@ -64,10 +71,14 @@
 		return a;
 	}
 
-	$global.delete = function(sName){
+	$global.destroy = function(sName){
 		var o = __global__[sName];
 		if(o && o.target){
-			delete o.target[sName];
+			try{
+				o.target[sName] = null;
+				delete o.target[sName];
+			}catch(e){
+			}
 		}
 		delete __global__[sName];
 	}
@@ -103,11 +114,11 @@
 	/**
 	 * 导出指定对象到host对象
 	 * @example
-	 * $global.export("*", window);
-	 * $global.export("$class", window);
-	 * $global.export(["$interface", "$module"], window);
+	 * $global.exportTo("*", window);
+	 * $global.exportTo("$class", window);
+	 * $global.exportTo(["$interface", "$module"], window);
 	 */
-	$global.export = function(sNames, oTarget){
+	$global.exportTo = function(sNames, oTarget){
 		if(sName === "*"){
 			for(var k in __global__){
 				this.__export(sName, oTarget);
@@ -140,13 +151,17 @@
 			aNameList = this.list();
 			var code = fn.toString();
 			var body = code.substr(code.indexOf("{"));
-			fn = eval("(function(" + aNameList.join(",") + ")" + body + ")");
+			
+			//fn = eval("(function(" + aNameList.join(",") + ")" + body + ")"); //throw error in ie
+			fn = eval("(function(){ return function(" + aNameList.join(",") + ")" + body + "})()"); //throw error in ie
+
 		}
 
 		var oList = [];
 		for(var i=0,l=aNameList.length; i<l; i++){
 			oList.push(this.get(aNameList[i]));
 		}
+
 
 		fn.apply(host, oList);
 	}
@@ -157,5 +172,5 @@
 
 	$global.autoExport = true;
 
-	host.$global = $global;
+	$global("$global", $global);
 })(this);
