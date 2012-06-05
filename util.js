@@ -200,12 +200,12 @@
 	/**
 	 * 返回对象的所有成员，但不包括原型链中原生原型所包含的成员
 	 */
-	function $getAllMembers(o){
-		var p, members = [];
+	function $getAllKeys(o){
+		var p, keys = [];
 		for(p in o){ 
-			members.push(p);
+			keys.push(p);
 		}
-		return members;
+		return keys;
 	}
 
 	/**
@@ -339,21 +339,26 @@
 		return o;
 	}
 
-	$global("$each", $each);
-	$global("$copy", $copy);
-	$global("$array", $array);
-	$global("$clone", $clone);
-	$global("$like", $like);
-	$global("$merge", $merge);
-	$global("$option", $option);
-	$global("$getAllMembers", $getAllMembers);
-	$global("$eachKey", $eachKey);
-	$global("$traceProto", $traceProto);
-	$global("$getProtoMember", $getProtoMember);
-	$global("$callBase", $callBase);
-	$global("$property", $property);
-	$global("$trace", $trace);
-	$global("$call", $call);
-	$global("$callWithArray", $callWithArray);
+
+	//遍历
+	var vars = ["$each", "$eachKey", "$trace"];
+
+	//操作与比较
+	vars.push("$copy", "$merge", "$clone", "$like");
+
+	//工厂
+	vars.push("$array","$enum","$property");
+
+	//方法相关
+	vars.push("$call", "$callWithArray", "$option");
+
+	//反射
+	vars.push("$traceProto", "$callBase",  "$getAllKeys", "$getProtoMember");
+	
+
+	var name;
+	while(name = vars.pop()){
+		$global(name, eval(name));
+	}
 })();
 
