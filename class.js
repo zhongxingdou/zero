@@ -93,12 +93,19 @@ $global.run(function($each, $copy, $array) {
 			define = constructor;
 		}
 
-		if(!clazz)clazz = function(){};
 		if(!define)define = {};
 
 		var proto = define.prototype;
 		if(proto){
-			$copy(proto, clazz.prototype);
+			if(t == "function"){
+				if($getAllKeys(clazz.prototype).length == 0){
+					clazz.prototype = proto;
+				}else{
+					$copy(proto, clazz.prototype);
+				}
+			}else{//构造函数是自动提供的
+				clazz.prototype = proto;
+			}
 		}
 
 		$copy(define.statics, clazz);
@@ -115,27 +122,19 @@ $global.run(function($each, $copy, $array) {
 	}
 
 	function __makeDefaultConstructor(name, define){
-		var fn;
-		var t = typeof name;
-		if (t == "string") {
-			var code;
-			var setProto = supportProto ? '' : "if(!this.__proto__)this.__proto__ = arguments.callee.prototype;";
-			if(define && define.base){
-				code = "function " + name + "(){ "+setProto+"define.base.apply(this, arguments);}";
-			}else{
-				code = "function " + name + "(){"+setProto+"}";
-			}
-			fn = eval("(function(){ return "+code+" })()");
-
-			//fn = eval(name);
-		} else if (t == "object") {
+		if (typeof(name) == "object") {
+			name = "";
 			define = name;
-			if(define.base){
-				fn = function() {
-					define.base.apply(this, arguments);
-				}
-			}
 		} 
+
+		var setProto = supportProto ? '' : "if(!this.__proto__)this.__proto__ = arguments.callee.prototype;";
+		if(define && define.base){
+			code = "function " + name + "(){ " + setProto + "define.base.apply(this, arguments);}";
+		}else{
+			code = "function " + name + "(){" + setProto + "}";
+		}
+
+		var fn = eval("(function(){ return " + code + " })()");
 		return fn;
 	}
 
