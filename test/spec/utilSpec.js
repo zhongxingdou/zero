@@ -182,9 +182,9 @@ describe("util.js", function() {
 		expect($like(a,b)).toBeTruthy();
 	});
 
-	it("$getAllMember", function() {
+	it("$getAllKeys", function() {
 		var o = {a: 'a', b: 'b'}
-		var ms = $getAllMembers(o)
+		var ms = $getAllKeys(o)
 		expect(ms).toContain('a');
 		expect(ms).toContain('b');
 	});
@@ -296,6 +296,14 @@ describe("util.js", function() {
 		$call(fn3, ['jim']);
 
 		expect(o.name).toBe('jim');
+	});
+
+	it("$enum()", function(){
+		var weekDay = $enum("Monday","Tuesday","Wednesday","Thursday","Friday","SaturDay","Sunday");
+		expect(weekDay.Monday).toBeDefined();
+		expect(weekDay.Sunday).toBeDefined();
+		expect(weekDay.Sunday).toNotBe(weekDay.Monday);
+		
 	});
 });
 
