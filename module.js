@@ -1,4 +1,5 @@
-(function() {
+$run(function(){
+	eval($global.all);
 	/**
 	 * IModule
 	 * @interface
@@ -53,5 +54,5 @@
 	$global("IModule", IModule);
 	$global("$module", $module);
 	$global("$include", $include);
-})();
+});
 

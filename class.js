@@ -1,4 +1,6 @@
-$global.run(function($each, $copy, $array) {
+$run(function() {
+	eval($global.all);
+
 	/**
 	 * $class()的define参数的接口
 	 */
@@ -6,9 +8,7 @@ $global.run(function($each, $copy, $array) {
 		member: {
 			base: "[object]",
 			prototype: "[object]",
-			statics: "[object]",
-			properties: "[object]",
-			implementions: "[object]"
+			properties: "[object]"
 		},
 		freeze: true
 	};
@@ -19,8 +19,7 @@ $global.run(function($each, $copy, $array) {
 	var IClass = {
 		type: "function",
 		member: {
-			//define: "object",
-			implementions: Array
+			implementions: {instanceOf: Array, optional: true}
 		}
 	};
 
@@ -68,8 +67,7 @@ $global.run(function($each, $copy, $array) {
 	 *		     prototype: {},
 	 *		     properties: {
 	 *			     property: "@rw"
-	 *		     },
-	 *		     statics: {}
+	 *		     }
 	 * })
 	 *
 	 * @description
@@ -98,7 +96,7 @@ $global.run(function($each, $copy, $array) {
 		var proto = define.prototype;
 		if(proto){
 			if(t == "function"){
-				if($getAllKeys(clazz.prototype).length == 0){
+				if(Object.keys(clazz.prototype).length == 0){
 					clazz.prototype = proto;
 				}else{
 					$copy(proto, clazz.prototype);
@@ -108,16 +106,11 @@ $global.run(function($each, $copy, $array) {
 			}
 		}
 
-		$copy(define.statics, clazz);
-
 		var base = define.base;
 		if (base && base.prototype){ 
 			$extend(clazz, base.prototype);
 		}
 		
-		//clazz.define = define;
-		clazz.implementions = define.implementions ? [].concat(define.implementions) : [];
-
 		return clazz;
 	}
 
@@ -143,10 +136,6 @@ $global.run(function($each, $copy, $array) {
 	 * @param {IClassDefine} define 
 	 */
 	function $reopenClass(clazz, define) {
-		//statics
-		$copy(define.statics, clazz);
-		//$copy(define.statics, clazz.define.statics);
-
 		//prototype
 		$copy(define.prototype, clazz.prototype);
 		//$copy(define.prototype, clazz.define.prototype);

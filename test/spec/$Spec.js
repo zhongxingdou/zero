@@ -1,50 +1,66 @@
-describe("$()", function() {
-	it("注册和获取wrapper", function() {
-		var w = function() {};
-		$.regist(w, "number");
+$run(function() {
+	eval($global.all);
 
-		expect($.getWrapper("number")).toBe(w);
-	});
+	describe("$()", function() {
+		var name = "@myWp";
+		var type = "number";
+		var spy = jasmine.createSpy("aw");
 
-	it("反注册wrapper", function() {
-		var w = function() {};
-		$.regist(w, "number");
+		afterEach(function() {
+			$.unregist(type, name);
+			spy.reset();
+		});
 
-		$.unregist("number");
-		expect($.getWrapper("number")).toBeUndefined();
-	});
+		it("注册和获取wrapper", function() {
+			$.regist(spy, type, name);
+			expect($.getWrapper(type, name)).toBe(spy);
+		});
 
-	it("包装值类型", function() {
-		var aw = jasmine.createSpy("aw");
+		it("反注册wrapper", function() {
+			$.regist(spy, type, name);
 
-		$.regist(aw, "number");
-		$(8);
+			$.unregist(type, name);
+			expect($.getWrapper(type, name)).toBeUndefined();
+		});
 
-		expect(aw).toHaveBeenCalledWith(8);
-	});
+		it("包装值类型", function() {
+			$.regist(spy, type, name);
+			$(8, name);
 
-	it("包装引用类型", function() {
-		var aw = jasmine.createSpy("aw");
+			expect(spy).toHaveBeenCalledWith(8);
+		});
 
-		$.regist(aw, Array);
-		var a = [];
-		$(a);
+		it("包装引用类型", function() {
+			type = Array;
 
-		expect(aw).toHaveBeenCalled();
-	});
+			$.regist(spy, type, name);
 
-	it("同时包装多个接口", function() {
-		var aw = jasmine.createSpy("aw");
+			var a = [];
+			$(a, name);
 
-		$.regist(aw, [Array, String]);
+			expect(spy).toHaveBeenCalled();
+		});
 
-		var a = [];
-		$(a);
-		expect(aw).toHaveBeenCalled();
-		aw.reset();
+		it("同时包装多个接口", function() {
+			type = [Array, String];
 
-		var b = new String("");
-		$(b);
-		expect(aw).toHaveBeenCalled();
+			$.regist(spy, type, name);
+
+			var a = [];
+			$(a, name);
+			expect(spy).toHaveBeenCalled();
+
+			spy.reset();
+
+			var b = new String("");
+			$(b, "@myWp");
+
+			expect(spy).toHaveBeenCalled();
+
+			$.unregist(type, name);
+			expect($.getWrapper(Array, name)).toBeUndefined();
+			expect($.getWrapper(String, name)).toBeUndefined();
+		});
 	});
 });
+

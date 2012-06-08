@@ -1,4 +1,6 @@
-$global.run(function(){
+$run(function(){
+	eval($global.all);
+
 	/**
 	 * 将源对象包装成另一个对象，并且不污染源对象
 	 */
@@ -20,8 +22,8 @@ $global.run(function(){
 	});
 
 
-	function $(o) {
-		var ws = $.findWrapper(o), 
+	function $(o, name) {
+		var ws = $.findWrapper(o, name), 
 			newo = {},
 			w;
 
@@ -38,41 +40,69 @@ $global.run(function(){
 
 	$.__wrapper = {};
 
-	$.regist = function(wrapper, interface) {
+	$.regist = function(wrapper, interface, name) {
+		if(name  === "@default")return;
+
 		$callWithArray(function(face){
-			this.__wrapper[face] = wrapper;
+			var map = this.__wrapper[face];
+			if(!map){
+				map = this.__wrapper[face] = {"@default": null};
+			}
+
+			this.__wrapper[face][name] = wrapper;
 		}, interface, $);
 	}
 
-	$.unregist = function(interface) {
-		delete this.__wrapper[interface];
+	$.setDefault = function(interface, name){
+		var wp = this.getWrapper(interface, name);
+		if(wp){
+			this.__wrapper[interface]["@default"] = wp;
+		}
 	}
 
-	$.getWrapper = function(interface) {
-		return this.__wrapper[interface];
+	$.unregist = function(interface, name) {
+		if(!(interface && name))return;
+
+		$callWithArray(function(face){
+			if(this.__wrapper[face]["@default"] ==  this.getWrapper(face, name)){
+				this.setDefault(face, null);
+			}
+			delete this.__wrapper[face][name];
+		}, interface, $);
 	}
 
-	$.findWrapper = function(o) {
+	$.getWrapper = function(interface, name) {
+		name = name || "@default"
+		var map = this.__wrapper[interface];
+		if(map){
+			return map[name];
+		}
+	}
+
+	$.findWrapper = function(o, name) {
 		var type = typeof(o);
 		var ws = [];
 
 		if(type === "object" || type === "function"){
 			$traceProto(o, function(proto){
 				var clazz = proto.constructor;
-				var w = $.getWrapper(clazz);
+				var w = $.getWrapper(clazz, name);
 				w && ws.push(w);
 
-				$each(clazz.implementions, function(interface){
-					w= $.getWrapper(interface)
-					w && ws.push(w);
-				});
+				if(clazz.implementions){
+					clazz.implementions.each(function(interface){
+						w= $.getWrapper(interface, name)
+						w && ws.push(w);
+					});
+				}
 			});
 		}else{
-			ws.push($.getWrapper(type));
+			ws.push($.getWrapper(type, name));
 		}
 
 		return ws;
 	}
 
 	$global("$", $);
+
 });

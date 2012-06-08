@@ -1,31 +1,36 @@
-describe("$module()", function() {
-	it("$module()创建的对象符合IModule接口", function(){
-		var m = $module();
-		expect($support(IModule, m)).toBeTruthy();
-	});
+$run(function() {
+	eval($global.all);
 
-	it("$include()", function(){
-		var m = $module({
-			m1: {},
-			m2: {}
+	describe("$module()", function() {
+		it("$module()创建的对象符合IModule接口", function() {
+			var m = $module();
+			expect($support(IModule, m)).toBeTruthy();
 		});
 
-		var o = {};
-		$include(o, m);
+		it("$include()", function() {
+			var m = $module({
+				m1: {},
+				m2: {}
+			});
 
-		expect(o.m1).toBeDefined();
-		expect(o.m2).toBeDefined();
-	});
+			var o = {};
+			$include(o, m);
 
-	it("$include()一个模块时会调用它的onIncluded()", function(){
-		var spy = jasmine.createSpy();
-		var m = $module({
-			onIncluded: spy
+			expect(o.m1).toBeDefined();
+			expect(o.m2).toBeDefined();
 		});
 
-		var o = {};
-		$include(o, m);
-		expect(spy).toHaveBeenCalled();
-	});
+		it("$include()一个模块时会调用它的onIncluded()", function() {
+			var spy = jasmine.createSpy();
+			var m = $module({
+				onIncluded: spy
+			});
 
+			var o = {};
+			$include(o, m);
+			expect(spy).toHaveBeenCalled();
+		});
+
+	});
 });
+

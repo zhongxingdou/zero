@@ -1,10 +1,12 @@
 (function() {
+	eval($global.all);
+
 	/**
 	 * 遍历数组或集合对象
 	 * @param {Array|Object} obj 
 	 * @param {Function} fn(item) 如果fn返回false，将中止遍历
 	 */
-	function $each(obj, fn, scope) {
+	function $every(obj, fn, scope) {
 		if (!obj) return true;
 		for (var i = 0, l = obj.length; i < l; i++) {
 			if ($call(fn, [obj[i]], scope) === false) return false;
@@ -12,10 +14,11 @@
 		return true;
 	}
 
+
 	/**
 	 * 遍历对象的所有成员 
 	 */
-	function $eachKey(o, fn, scope){
+	function $everyKey(o, fn, scope){
 		if(typeof fn != "function")return false;
 
 		for(p in o){ 
@@ -111,7 +114,7 @@
 			l = args.length;
 		
 		var count = 0;
-		$each(args, function(p){
+		$every(args, function(p){
 			if(p != undefined) count++;
 		});
 
@@ -132,46 +135,10 @@
 		return option;
 	}
 
+
 	/**
-	 * clone对象
-	 * @param {Ojbect} o 
-	 * @param {Boolean} isDeepClone=false
+	 * 浅clone
 	 */
-	/*
-	function $clone(o, isDeepClone) {
-		var newo;
-		if (o.constructor == Object) {
-			newo = {}
-		} else {
-			var fn = function(){};
-			fn.prototype = o.constructor.prototype;
-			newo = new fn();
-			//newo = new o.constructor(o.valueOf());
-		}
-
-		if (!isDeepClone) {
-			for (var key in o) {
-				newo[key] = o[key];
-			}
-		} else {
-			for (var key in o) {
-				var v = o[key];
-				if (newo[key] != v) { //防止循环clone
-					if (typeof(v) == 'object') {
-						newo[key] = $clone(v);
-					} else {
-						newo[key] = v;
-					}
-				}
-			}
-		}
-
-		newo.toString = o.toString;
-		newo.valueOf = o.valueOf;
-
-		return newo;
-	}*/
-
 	function $clone(obj) {
 		function Clone() { } 
 		Clone.prototype = obj;
@@ -286,7 +253,7 @@
 	 * 调用父原型的方法
 	 */
 	function $callBase(o, name, args) {
-		if(arguments.length == 1 || $is(Array, name)){
+		if(arguments.length == 1 || name instanceof Array){
 			args = name;
 			var fn = $getProtoMember(o, "proto.proto.constructor");
 			if(fn){
@@ -317,7 +284,7 @@
 
 	function $callWithArray(fn, args, scope){
 		if(args instanceof Array){
-			return $each(args, fn, scope);
+			return $every(args, fn, scope);
 		}else{
 			return $call(fn, [args], scope);
 		}
@@ -333,15 +300,25 @@
 	 */
 	function $enum(){
 		var o = {};
-		$each(arguments, function(k){
+		$every(arguments, function(k){
 			o[k] = {};
 		});
 		return o;
 	}
 
+	/***
+	 * 运行一个方法，避免产生全局变量
+	 */
+	function $run(fn){
+		return fn.apply({}, arguments);
+	}
+
+	$global("$run", $run);
+	this.$run = $run;
+
 
 	//遍历
-	var vars = ["$each", "$eachKey", "$trace"];
+	var vars = ["$every", "$everyKey", "$trace"];
 
 	//操作与比较
 	vars.push("$copy", "$merge", "$clone", "$like");
@@ -353,7 +330,7 @@
 	vars.push("$call", "$callWithArray", "$option");
 
 	//反射
-	vars.push("$traceProto", "$callBase",  "$getAllKeys", "$getProtoMember");
+	vars.push("$traceProto", "$callBase",  "$getProtoMember");
 	
 
 	var name;

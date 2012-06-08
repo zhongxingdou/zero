@@ -1,59 +1,64 @@
-describe("GlobalManager", function() {
-	var man;
-	var owner;
-	beforeEach(function(){
-		owner = {};
-		man = new GlobalManager(owner);
-	});
+$run(function() {
+	eval($global.all);
 
-	it("测试.set()和.get()", function(){
-		var a = {};
-		man.set('a',a);
-		expect(owner.a).toBe(a);
-		expect(man.get('a')).toBe(a);
-	});
+	describe("GlobalManager", function() {
+		var man;
+		var owner;
+		beforeEach(function() {
+			owner = {};
+			man = new GlobalManager(owner);
+		});
 
-	it(".list()返回所有声明过的对象", function(){
-		man.set("n",8);
-		man.set("k",9);
+		it("测试.set()和.get()", function() {
+			var a = {};
+			man.set('a', a);
+			expect(owner.a).toBe(a);
+			expect(man.get('a')).toBe(a);
+		});
 
-		var all = man.list();
-		expect(all).toContain('n');
-		expect(all).toContain('k');
-	});
+		it(".list()返回所有声明过的对象", function() {
+			man.set("n", 8);
+			man.set("k", 9);
 
-	it(".destroy", function(){
-		var a = {};
-		man.set("a",a);
+			var all = man.list();
+			expect(all).toContain('n');
+			expect(all).toContain('k');
+		});
 
-		man.destroy('a');
-		expect(owner.a).toBeUndefined();
-		expect(man.get('a')).toBeUndefined();
-	});
+		it(".destroy", function() {
+			var a = {};
+			man.set("a", a);
 
-	it(".restore()恢复变量到原来拥有它的对象上", function(){
-		var old = {};
-		owner.a = old; 
+			man.destroy('a');
+			expect(owner.a).toBeUndefined();
+			expect(man.get('a')).toBeUndefined();
+		});
 
-		var b = {};
-		man.set('a', b);
+		it(".restore()恢复变量到原来拥有它的对象上", function() {
+			var old = {};
+			owner.a = old;
 
-		expect(owner.a).toBe(b);
+			var b = {};
+			man.set('a', b);
 
-		man.restore('a');
+			expect(owner.a).toBe(b);
 
-		expect(owner.a).toBe(old);
+			man.restore('a');
 
-		expect(man.get('a')).toBe(b);
-	});
+			expect(owner.a).toBe(old);
 
-	it(".export()设定到指定对象", function(){
-		var k = {};
+			expect(man.get('a')).toBe(b);
+		});
 
-		var a = {};
-		man.set("a", a);
+		it(".exportTo()设定到指定对象", function() {
+			var k = {};
 
-		man.exportTo("a", k);
-		expect(k.a).toBe(a);
+			var a = {};
+			man.set("a", a);
+
+			man.exportTo(k);
+			expect(k.a).toBe(a);
+		});
 	});
 });
+

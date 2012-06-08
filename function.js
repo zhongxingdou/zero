@@ -1,15 +1,12 @@
-(function(){
+$run(function(){
+	eval($global.all);
+
 	var FunctionWraper = $wrapper({
-		callWithArray: function(array){
+		withAll: function(array){
 			return $callWithArray(this, array);
-		},
-		bindTo: function(obj){
-			var self = this;
-			var  fn =  function(){
-				return self.apply(obj, arguments);
-			}
-			return fn;
 		}
 	});
-	$.regist(FunctionWraper, Function);
-})();
+
+	$.regist(FunctionWraper, Function, "@function");
+	$.setDefault(Function, "@function");
+});

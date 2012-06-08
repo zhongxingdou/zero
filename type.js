@@ -1,5 +1,40 @@
-$global.run(function() {
-	var IType = {
+$run(function() {
+	eval($global.all);
+
+	var ITypeSpec;
+	
+	/**
+	 * @class
+	 * 类型
+	 */
+	function TypeSpec(spec) {
+		var self = arguments.callee;
+		var t = typeof spec;
+
+		if(t == "object"){
+			if(spec instanceof self){
+				return spec
+			}else{
+				if(spec !== null){
+					var handle = function(key, value){
+						if(key in spec){
+							this[key] = spec[key];
+						}
+					}
+					handle.scope = this;
+					$everyKey(ITypeSpec.member, handle);
+				}
+			}
+		}else if(t == "string"){
+			this.typeOf = spec;
+		}else if(t == "function"){
+			this.instanceOf = spec;
+		}else if(t === "undefined"){
+			this.typeOf = t;
+		}
+	}
+
+	ITypeSpec = {
 		member: {
 			//是值类型还是引用类型，是哪种值类型
 			typeOf: "[string]",
@@ -13,41 +48,12 @@ $global.run(function() {
 		freeze: true
 	};
 
-	/**
-	 * @class
-	 * 类型
-	 */
-	function $Type(spec) {
-		var t = typeof spec;
-
-		if(t == "object"){
-			if(spec instanceof $Type){
-				return spec
-			}else{
-				if(spec !== null){
-					var handle = function(key, value){
-						if(key in spec){
-							this[key] = spec[key];
-						}
-					}
-					handle.scope = this;
-					$eachKey(IType.member, handle);
-				}
-			}
-		}else if(t == "string"){
-			this.typeOf = spec;
-		}else if(t == "function"){
-			this.instanceOf = spec;
-		}else if(t === "undefined"){
-			this.typeOf = t;
-		}
-	}
 
 	/**
 	 * new $Type()的别名
 	 */
-	function $typedef(typeSpec) {
-		return (new $Type(typeSpec));
+	function $spec(typeSpec) {
+		return (new TypeSpec(typeSpec));
 	}
 
 	/**
@@ -58,8 +64,8 @@ $global.run(function() {
 	function $is(type, o) {
 		if(type === null)return type === o;
 
-		if(!(type instanceof $Type)){
-			type = $typedef(type);
+		if(!(type instanceof TypeSpec)){
+			type = $spec(type);
 		}
 
 		var t = type.typeOf;
@@ -86,11 +92,11 @@ $global.run(function() {
 	}
 
 
-	$global("IType", IType);
+	$global("ITypeSpec", ITypeSpec);
 
-	$global("$Type", $Type);
+	//$global("TypeSpec", TypeSpec);
 
-	$global("$typedef", $typedef);
+	$global("$spec", $spec);
 
 	$global("$is", $is);
 });

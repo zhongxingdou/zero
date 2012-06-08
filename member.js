@@ -1,4 +1,6 @@
-$global.run(function() {
+$run(function() {
+	eval($global.all);
+
 	var IMemberSpec = {
 		member: {
 			optional: "boolean",
@@ -13,14 +15,16 @@ $global.run(function() {
 
 		var t = typeof spec;
 		if (t == "string") {
-			spec = self.parse(spec);
-		}else if($is($Type, spec)){
-			spec = {type: spec};
+			return self.parse(spec);
+		}else if(t == "object"){
+			if("optional" in spec || "ownProperty" in spec || "type" in spec){
+				$copy(spec, this);
+			}else{
+				this.type = spec;
+			}
 		}
 
-		$merge(arguments.callee.option, spec);
-
-		$copy(spec, this);
+		$merge(arguments.callee.option, this);
 	}
 
 	$MemberSpec.option = {
@@ -44,7 +48,7 @@ $global.run(function() {
 			spec.type = exp;
 		}
 
-		return spec;
+		return new this(spec);
 	}
 
 	$MemberSpec.prototype = {

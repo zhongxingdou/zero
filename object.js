@@ -1,4 +1,6 @@
-(function() {
+$run(function() {
+	eval($global.all);
+
 	var supportProto = {}.__proto__ != undefined;
 
 	var IObject = {
@@ -49,5 +51,5 @@
 
 	$global("IObject", IObject);
 	$global("$Object", $Object);
-})();
+});
 

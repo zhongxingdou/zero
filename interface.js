@@ -1,4 +1,6 @@
-$global.run(function() {
+$run(function() {
+	eval($global.all);
+
 	/**
 	 * @todo 
 	 *   1.验证对象的所有成员都符合成员规格
@@ -9,9 +11,9 @@ $global.run(function() {
 		var option = $option();
 
 		if (option.type == undefined) {
-			option.type = $typedef(Object);
-		}else if(!(option.type instanceof $Type)){
-			option.type = $typedef(option.type);
+			option.type = $spec(Object);
+		}else if(typeof option.type == 'object'){
+			option.type = $spec(option.type);
 		}
 
 		var p, ms = option.member;
@@ -68,7 +70,7 @@ $global.run(function() {
 		member: {
 			base: "[object]",
 			member: "[object]",
-			type: IType,
+			type: ITypeSpec,
 			freeze: "[boolean]",
 			addMember: "function",
 			removeMember: "function"
@@ -105,19 +107,44 @@ $global.run(function() {
 		return true;
 	}
 
+	/*
+	function $typedef(interface, creator, name){
+		var option = $option();
+
+		type.interface = interface;
+				
+		type.validate = function(o){
+			if(!$support(interface, o)){
+				throw "Invalid " + name;
+			}
+		}
+
+		return type;
+	}
+	$typdef.option = {
+		interface: null,
+		creator: function(o){
+			var self = auguments.callee;
+			self.validate(o);
+			$copy(o, this);
+		},
+		name: null
+	}*/
+
+
 	//这两个接口定义在interface定义之前的依赖文件中，在这里成为正式的接口
 	IClass = $interface(IClass);
 	IClassDefine = $interface(IClassDefine);
 
 
-	IType = $interface(IType);
+	ITypeSpec = $interface(ITypeSpec);
 
 	IMemberSpec = $interface(IMemberSpec);
 
 	$global("IClass", IClass);
 	$global("IClassDefine", IClassDefine);
 	$global("IObject", IObject);
-	$global("IType", IType);
+	$global("ITypeSpec", ITypeSpec);
 	$global("IMemberSpec", IMemberSpec);
 
 
