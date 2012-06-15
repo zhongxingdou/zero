@@ -3,7 +3,7 @@ $run(function(){
 
 	var FunctionWraper = $wrapper({
 		withAll: function(array){
-			return $callWithArray(this, array);
+			return $every(array, this.target);
 		}
 	});
 

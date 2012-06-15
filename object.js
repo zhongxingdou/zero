@@ -10,7 +10,9 @@ $run(function() {
 			//mix a module or object
 			mix: "function(module)",
 			//是否支持某个接口
-			isSupported: "function(interface)"
+			isSupported: "function(interface)",
+			//定义properties
+			property: "function()"
 		}
 	}
 
@@ -18,24 +20,27 @@ $run(function() {
 		IObject.member.__proto__ = "[object]";
 	}
 
+	/**
+	 * $Object
+	 * @class
+	 * @description 对象系统的基础类，建议所有对象都以此类作为超类
+	 */
 	function $Object() {
 		if(!supportProto){
 			this.__proto__ = arguments.callee.prototype;
 		}
 	}
 
-	/**
-	 * $Object
-	 * @class
-	 * @description 对象系统的基础类，建议所有对象都以此类作为超类
-	 */
-	$class($Object, {
-		prototype: {
+    $Object.prototype = {
+			proto: function(){
+				var proto = this.__proto__ || this.constructor.prototype;
+				return proto;
+			},
 			callBase: function(name, args) {
 				return $callBase(this, name, args);
 			},
 			mix: function(obj) {
-				if($is(Module, obj)){
+				if($is(IModule, obj)){
 					$include(this, obj);
 				}else{
 					$copy(obj, this);
@@ -44,10 +49,20 @@ $run(function() {
 			},
 			isSupported: function(interface){
 				return $support(interface, this);
+			},
+			/**
+			 * @todo return this 还是return Object.definedProperties返回的东西;
+			 */
+			property: function(){
+				$property.apply(this, [this].concat($slice(arguments)));
+				return this;
+			},
+			is: function(spec){
+				return $is(spec, this);
 			}
-		},
-		implementions: IObject
-	});
+	}
+
+	$class($Object).implement(IObject);
 
 	$global("IObject", IObject);
 	$global("$Object", $Object);

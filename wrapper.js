@@ -1,12 +1,12 @@
 $run(function() {
 	eval($global.all);
 
-	var IWrapper = $interface({
+	var IWrapper = {
 		scope: 'object',
 		get: 'function(k)',
 		set: 'function(k, v)',
 		invoke: 'function(fn, args)'
-	});
+	};
 
 	function Wrapper(o) {
 		this.scope = o;
@@ -39,7 +39,7 @@ $run(function() {
 	Wrapper.bind = function(obj) {
 		var one = {};
 		$everyKey(obj, function(k, v) {
-			if (v && $is('function', v)) {
+			if (v && typeof v == "function") {
 				one[k] = function() {
 					return v.apply(this.scope, arguments);
 				}
@@ -48,19 +48,12 @@ $run(function() {
 		return one;
 	}
 
-	$class(Wrapper, {
-		base: $Object,
-		implementions: IWrapper
-	});
+	//$class(Wrapper, {
+		//base: $Object,
+		//implementions: IWrapper
+	//});
 
 
-	function $wrapper(obj) {
-		var proto = Wrapper.bind(obj);
-		var w = $class({
-			prototype: proto
-		});
-		return w;
-	}
 
 	$.regist(Wrapper, Object, "@object");
 	$.setDefault(Object, "@object");

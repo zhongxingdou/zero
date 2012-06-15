@@ -2,6 +2,7 @@ $run(function() {
 	eval($global.all);
 
 	describe("$class()", function() {
+		/*
 		it("创建类无参数", function() {
 			expect($support(IClass, $class())).toBeTruthy();
 		});
@@ -29,6 +30,7 @@ $run(function() {
 			expect($support(IClass, cls)).toBeTruthy();
 		});
 
+
 		it("提供完整的参数来创建一个类", function() {
 			function TestClass() {};
 
@@ -47,6 +49,7 @@ $run(function() {
 
 			//expect(TestClass.name).toBe("TestClass");
 		});
+		*/
 
 		it("创建类后构造函数的原有prototype没变", function() {
 			function Clazz() {};
@@ -75,29 +78,26 @@ $run(function() {
 			var proto = {
 				m1: "m1"
 			}
-			$class(Clazz, {
+			Clazz.prototype = proto;
+			/*$class(Clazz, {
 				prototype: proto
-			});
+			});*/
 
 			expect(Clazz.prototype.m1).toBe(proto.m1);
 		});
 
 		it("子类的实例包含父prototype中的成员,父类的prototype是子类实例的原型之一", function() {
 			function Base() {};
-			$class(Base, {
-				prototype: {
+			Base.prototype = {
 					baseM1: {}
-				}
-			});
+			}
 
 			function Clazz() {};
 			var proto = {
 				m1: "m1"
 			}
-			$class(Clazz, {
-				base: Base,
-				prototype: proto
-			});
+			Clazz.prototype = proto;
+			$class(Clazz).extend(Base);
 
 			var a = new Clazz();
 
@@ -109,24 +109,24 @@ $run(function() {
 		});
 
 		it("创建的类和它的实例可通过instaceof来验证关系", function() {
-			var C = $class();
-			var ac = new C();
-			expect(ac instanceof C).toBeTruthy();
+			var Clazz = function(){};
+			$class(Clazz);
+			var ac = new Clazz();
+			expect(ac instanceof Clazz).toBeTruthy();
 		});
 
 		it("验证创建类时提供的prototype是类与其实例的prototype", function() {
+			var C = function(){};
 			var proto = {};
-			var C = $class({
-				prototype: proto
-			});
+			C.prototype = proto;
+
 			var ac = new C();
 			expect(proto.isPrototypeOf(ac)).toBeTruthy();
 			expect(C.prototype).toBe(proto);
 
-			var fn = function() {};
-			var B = $class(fn, {
-				prototype: proto
-			});
+			var B = function() {};
+			B.prototype = proto; 
+
 			var ab = new C();
 			expect(proto.isPrototypeOf(ab)).toBeTruthy();
 			expect(B.prototype).toBe(proto);

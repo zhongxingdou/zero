@@ -48,7 +48,7 @@ $run(function(){
 		}
 	}
 
-	$class(Module, {base: $Object, implementions: IModule});
+	$class(Module).extend($Object).implement(IModule);
 
 	$global("Module", Module);
 	$global("IModule", IModule);

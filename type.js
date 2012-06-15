@@ -80,7 +80,7 @@ $run(function() {
 
 		var proto = type.prototypeOf;
 		if (proto) {
-			var b = $callWithArray(function(proto){
+			var b = $callWithAll(function(proto){
 				if (!proto.isPrototypeOf(o)) return false;
 				return true;
 			}, proto);

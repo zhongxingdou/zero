@@ -4,7 +4,7 @@ $run(function(){
 	/**
 	 * 将源对象包装成另一个对象，并且不污染源对象
 	 */
-	var I$ = $interface({
+	var I$ = {
 		type: "function",
 		member: {
 			//注册一个wrapper
@@ -19,7 +19,7 @@ $run(function(){
 			//查找对象的wrapper
 			findWrapper: "function(o)"
 		}
-	});
+	};
 
 
 	function $(o, name) {
@@ -43,7 +43,7 @@ $run(function(){
 	$.regist = function(wrapper, interface, name) {
 		if(name  === "@default")return;
 
-		$callWithArray(function(face){
+		$callWithAll(function(face){
 			var map = this.__wrapper[face];
 			if(!map){
 				map = this.__wrapper[face] = {"@default": null};
@@ -63,7 +63,7 @@ $run(function(){
 	$.unregist = function(interface, name) {
 		if(!(interface && name))return;
 
-		$callWithArray(function(face){
+		$callWithAll(function(face){
 			if(this.__wrapper[face]["@default"] ==  this.getWrapper(face, name)){
 				this.setDefault(face, null);
 			}
@@ -89,8 +89,8 @@ $run(function(){
 				var w = $.getWrapper(clazz, name);
 				w && ws.push(w);
 
-				if(clazz.implementions){
-					clazz.implementions.each(function(interface){
+				if(clazz.implns){
+					clazz.implns.each(function(interface){
 						w= $.getWrapper(interface, name)
 						w && ws.push(w);
 					});
@@ -103,6 +103,14 @@ $run(function(){
 		return ws;
 	}
 
+
+	function $wrapper(methods, constructor) {
+		var clazz = constructor || function(target){ this.target = target;};
+		clazz.prototype = methods;
+		return clazz;
+	}
+
+	$global("$wrapper", $wrapper);
 	$global("$", $);
 
 });

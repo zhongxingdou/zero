@@ -19,7 +19,7 @@ $run(function() {
 	var IClass = {
 		type: "function",
 		member: {
-			implementions: {instanceOf: Array, optional: true}
+			implns: {instanceOf: Array, optional: true}
 		}
 	};
 
@@ -52,6 +52,24 @@ $run(function() {
 		}
 	}
 
+	var Clazz = $wrapper({
+		extend: function(base){
+			$extend(this.target, base.prototype || base);
+			delete this.extend;
+			return this;
+		},
+		implement: function(interfaces){
+			this.target.implns = [].concat(interfaces);
+			return this;
+		}
+	});
+
+	$.regist(Clazz, Function, "@class");
+
+	$class = function(fn){
+		return $(fn, "@class");
+	}
+
 	/**
 	 * 定义一个类
 	 * @param {Function|String} constructor 构造函数或构造函数的名称
@@ -76,6 +94,7 @@ $run(function() {
 	 * 2.继承原型链，但所有超类的构造函数需要手动执行，因为需要
 	 * 3.属性声明也得不到支持
 	 */
+	/*
 	function $class(constructor, define) {
 		var clazz;
 
@@ -130,11 +149,13 @@ $run(function() {
 		var fn = eval("(function(){ return " + code + " })()");
 		return fn;
 	}
+	*/
 
 	/**
 	 * 重新打开类
 	 * @param {IClassDefine} define 
 	 */
+	/*
 	function $reopenClass(clazz, define) {
 		//prototype
 		$copy(define.prototype, clazz.prototype);
@@ -146,10 +167,12 @@ $run(function() {
 
 		return clazz;
 	}
+	*/
 
 	/**
 	 * 初始化类定义中声明的属性
 	 */
+	/*
 	function $initProperties(o){
 		var define = o.constructor.define;
 		if(define){
@@ -162,12 +185,13 @@ $run(function() {
 			}
 		}
 	}
+	*/
 
 
 	$global("IClass", IClass);
-	$global("IClassDefine", IClassDefine);
+	//$global("IClassDefine", IClassDefine);
 	$global("$class", $class);
 	$global("$extend", $extend);
-	$global("$reopenClass", $reopenClass);
-	$global("$initProperties", $initProperties);
+	//$global("$reopenClass", $reopenClass);
+	//$global("$initProperties", $initProperties);
 });

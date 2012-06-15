@@ -34,18 +34,17 @@ $run(function() {
 		freeze: false
 	}
 
-	$class(Interface, {
-		base: $Object,
-		prototype: {
-			addMember: function(name, spec){
-				this.member[name] = new $MemberSpec(spec);
-				return this;
-			},
-			removeMember: function(name){
-				delete this.member[name];
-			}
+	Interface.prototype = {
+		addMember: function(name, spec){
+			this.member[name] = new $MemberSpec(spec);
+			return this;
+		},
+		removeMember: function(name){
+			delete this.member[name];
 		}
-	});
+	}
+
+	$class(Interface).extend($Object);
 
 	/**
 	 * 定义一个接口
@@ -134,7 +133,7 @@ $run(function() {
 
 	//这两个接口定义在interface定义之前的依赖文件中，在这里成为正式的接口
 	IClass = $interface(IClass);
-	IClassDefine = $interface(IClassDefine);
+	//IClassDefine = $interface(IClassDefine);
 
 
 	ITypeSpec = $interface(ITypeSpec);
@@ -142,7 +141,7 @@ $run(function() {
 	IMemberSpec = $interface(IMemberSpec);
 
 	$global("IClass", IClass);
-	$global("IClassDefine", IClassDefine);
+	//$global("IClassDefine", IClassDefine);
 	$global("IObject", IObject);
 	$global("ITypeSpec", ITypeSpec);
 	$global("IMemberSpec", IMemberSpec);

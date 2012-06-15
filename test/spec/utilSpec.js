@@ -98,9 +98,9 @@ $run(function() {
 			expect(ms[1]).toBeDefined("b1");
 		});
 
-		it("$array将fn.arguments转换成Array", function() {
+		it("$slice将fn.arguments转换成Array", function() {
 			function fn(a1, a2) {
-				var args = $array(fn.arguments);
+				var args = $slice(fn.arguments);
 				return args;
 			}
 
@@ -108,9 +108,9 @@ $run(function() {
 			expect(args.constructor).toBe(Array);
 		});
 
-		it("$array从指定位置开始转换", function() {
+		it("$slice从指定位置开始转换", function() {
 			function fn(a1, a2, a3) {
-				var args = $array(fn.arguments, 1);
+				var args = $slice(fn.arguments, 1);
 				return args;
 			}
 
@@ -257,32 +257,6 @@ $run(function() {
 		});
 
 		it("$property", function() {
-			var o = {};
-			$property(o, 'name');
-			expect(o.getName).toBeDefined();
-			expect(o.setName).toBeDefined();
-
-			var name = "Lucy";
-			o.setName(name);
-			expect(o.getName()).toBe(name);
-		});
-
-		it("$property.getPrivateName()", function() {
-			expect($property.getPrivateName("name")).toBe("__name");
-		});
-
-		it("$property.set()", function() {
-			var o = {};
-			$property(o, 'name');
-			$property.set(o, 'name', 'jim');
-			expect(o.__name).toBe('jim');
-		});
-
-		it("$property.get()", function() {
-			var o = {};
-			$property(o, 'name');
-			$property.set(o, 'name', 'jim');
-			expect($property.get(o, 'name')).toBe('jim');
 		});
 
 		it("$callBase(this)将调用父原型的构造函数", function() {

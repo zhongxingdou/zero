@@ -55,8 +55,7 @@
 	 * @param {Object} obj 被转换的对象
 	 * @param {Object} start=0 从集合对象中的第几项开始转换 
 	 */
-	function $array(obj, start) {
-		if(obj instanceof Array)return obj;
+	function $slice(obj, start) {
 		return Array.prototype.slice.apply(obj, [start || 0]);
 	}
 
@@ -201,52 +200,15 @@
 	}
 
 	/**
-	 * 生成属性方法的工厂函数
-	 * @description
-	 * $property(o, 'name', '@RW')
-	 * 将会生成o.getName,o.setName方法，这两个方法将从o.__name设置或访问值
+     * Object.definedProperties的快捷方式
 	 */
-	function $property(o, name, accessor){
-		var args = $option(), 
-			name = args.name, 
-			o = args.scope, 
-			rw = args.accessor;
-		var upName = name.slice(0, 1).toUpperCase() + name.slice(1);
-		var privateName = arguments.callee.getPrivateName(name);
-		var rw = rw.toUpperCase();
-
-		if (rw.indexOf("R") != - 1) {
-			o["get" + upName] = function() {
-				return o[privateName];
-			};
+	function $property(){
+		var l = arguments.length;
+		if(l > 2){
+			Object.definedProperties.apply(Object, arguments);
+		}else{
+			Object.definedProperty.apply(Object, arguments);
 		}
-		if (rw.indexOf("W") != - 1) {
-			o["set" + upName] = function(value) {
-				o[privateName] = value;
-			}
-		}
-	}
-
-	$property.getPrivateName = function(name){
-		return "__" + name;
-	}
-
-	$property.set = function(o, name, value){
-		var privateName = this.getPrivateName(name);
-		o[privateName] = value;
-		return o;
-	}
-
-	$property.get = function(o, name){
-		var privateName = this.getPrivateName(name);
-		return o[privateName];
-	}
-
-
-	$property.option = {
-		scope: undefined,
-		name: undefined, //lowercase
-		accessor: "@RW" //upcase @RW
 	}
 
 	/**
@@ -282,8 +244,9 @@
 		}
 	}
 
-	function $callWithArray(fn, args, scope){
-		if(args instanceof Array){
+	function $callWithAll(fn, args, scope){
+		var isArray = args instanceof Array;
+		if(isArray){
 			return $every(args, fn, scope);
 		}else{
 			return $call(fn, [args], scope);
@@ -324,10 +287,10 @@
 	vars.push("$copy", "$merge", "$clone", "$like");
 
 	//工厂
-	vars.push("$array","$enum","$property");
+	vars.push("$slice","$enum","$property");
 
 	//方法相关
-	vars.push("$call", "$callWithArray", "$option");
+	vars.push("$call", "$callWithAll", "$option");
 
 	//反射
 	vars.push("$traceProto", "$callBase",  "$getProtoMember");
@@ -337,5 +300,6 @@
 	while(name = vars.pop()){
 		$global(name, eval(name));
 	}
+	
 })();
 
