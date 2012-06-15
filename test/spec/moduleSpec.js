@@ -3,7 +3,7 @@ $run(function() {
 
 	describe("$module()", function() {
 		it("$module()创建的对象符合IModule接口", function() {
-			var m = $module();
+			var m = $module({});
 			expect($support(IModule, m)).toBeTruthy();
 		});
 
@@ -14,7 +14,7 @@ $run(function() {
 			});
 
 			var o = {};
-			$include(o, m);
+			$include(m, o);
 
 			expect(o.m1).toBeDefined();
 			expect(o.m2).toBeDefined();
@@ -27,10 +27,31 @@ $run(function() {
 			});
 
 			var o = {};
-			$include(o, m);
+			$include(m, o);
 			expect(spy).toHaveBeenCalled();
 		});
 
+		it("$include()时不会把onIncluded()也放进toObj里去了", function(){
+			var m = {
+				onIncluded: function(){}
+			}
+
+			var toObj = {};
+			$include(m, toObj);
+			expect(toObj.onIncluded).toBeUndefined();
+		});
+
+		it("$include()时调用onIncluded()会传递toObj和option", function(){
+			var m = {
+				onIncluded: jasmine.createSpy()
+			}
+
+			var toObj = {};
+			var option = {}
+			$include(m, toObj, option);
+
+			expect(m.onIncluded).toHaveBeenCalledWith(toObj, option);
+		});
 	});
 });
 
