@@ -2,19 +2,23 @@ $run(function() {
 	eval($global.all);
 
 	var IWrapper = {
-		scope: 'object',
+		target: 'object',
 		get: 'function(k)',
 		set: 'function(k, v)',
 		invoke: 'function(fn, args)'
 	};
 
 	function Wrapper(o) {
-		this.scope = o;
+		this.target = o;
 		$everyKey(o, function(key, value) {
+			/**
+			 * 因为$会调用$traceProto来包装所有proto，所以只需要包装对象自己拥有
+			 * 的成员，而不是原型链上的
+			 */
 			if (o.hasOwnProperty(key) && $is('function', value)) {
 				this[key] = function() {
-					value.apply(this.scope, arguments);
-				}
+					return value.apply(this.target, arguments);
+				};
 			}
 		},
 		this);
@@ -22,17 +26,17 @@ $run(function() {
 
 	Wrapper.prototype = {
 		get: function(k) {
-			return this.scope[k];
+			return this.target[k];
 		},
 		set: function(k, v) {
-			this.scope[k] = v;
+			this.target[k] = v;
 			return this;
 		},
 		invoke: function(fn, args) {
-			return this.scope[fn].apply(this.scope, args);
+			return this.target[fn].apply(this.target, args);
 		},
-		to: function(){
-			return this.scope[fn].apply(this.scope, args);
+		to: function(wrapper){
+			return $(this.target, wrapper);
 		}
 	}
 
@@ -40,9 +44,9 @@ $run(function() {
 		var one = {};
 		$everyKey(obj, function(k, v) {
 			if (v && typeof v == "function") {
-				one[k] = function() {
-					return v.apply(this.scope, arguments);
-				}
+				one[k] = $fn(function() {
+					return v.apply(this.target, arguments);
+				});
 			}
 		});
 		return one;

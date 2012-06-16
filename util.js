@@ -276,6 +276,14 @@
 		return fn.apply({}, arguments);
 	}
 
+
+	/**
+	 * 判断一个成员的名字是否符合表示私有
+	 */
+	function $isPrivate(name){
+		return name.toString().match(/^__/);
+	}
+
 	$global("$run", $run);
 	this.$run = $run;
 
@@ -294,6 +302,8 @@
 
 	//反射
 	vars.push("$traceProto", "$callBase",  "$getProtoMember");
+
+	vars.push("$isPrivate");
 	
 
 	var name;
