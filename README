@@ -1,1 +1,84 @@
 Zero is a javascript object oriented framework.
+
+features:
+
+1.class
+	$class is only a wrapper for Function which has extend, implement, include methods;
+	$class(aConstructor).extend(aBase).implement(aInterface);
+
+2.module
+	$(aClass).include(aModule);
+	$(aObj).include(aModule);
+
+3.wrapper
+	$(obj).to("@reflect")
+	$(8).next();
+	$("string").trim();
+	$(date).nextMonth();
+	$(fn).withAll([]);
+
+4.interface
+	var Interface = interface({
+		member1:	{type: Object, optional: true},
+		member2:	{type: Function, optional: true, option: {
+					param1: Number,
+					param2: String
+				}}
+	});
+
+	$support(Interface, aObj);
+	
+
+5.global variable manager
+	...
+	$global("$each" $each);
+	...
+
+	$run(function(){
+		eval($glbal.all);
+		
+		$each()
+	});
+
+	$each //undefiend
+
+6.intelligent convert
+	$covert.regist(Type1, Type2, fnConvertor);
+	$covert.regist(Type2, Type3, fnConvertor);
+	$covert.regist(Type3, Type4, fnConvertor);
+
+	$covert({obj:haType1, to:Type4});
+
+	$covert({obj:haType1, to:Type4, customConvert: {
+				from: Type2,
+				to: Type3,
+				handler: function(){}
+			}});
+
+
+7.refelct
+	var ro = $(obj).to("@reflect");
+	ro.publicMethods();
+	ro.privateMethods();
+	ro.ownProperties();
+	ro.fields();
+	ro.protoLink();
+
+8.event binding 
+	var obj = {
+		doSomething: function(){}
+	}
+	button.on("click").tell(obj).doSomething()
+
+9.and more ...
+	$enum("Blue","Yellow","Red"), 
+	$is(Function, aobj), $is(Number, aobj), $is(Class, aobj)
+	$property
+	$trace
+	$traceProto
+	$every
+	$each
+	$everyKey
+	$eachKey
+	$slice
+	$call
