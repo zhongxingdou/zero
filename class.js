@@ -7,7 +7,7 @@ $run(function() {
 	var IClass = {
 		type: "function",
 		member: {
-			implns: {instanceOf: Array, optional: true}
+			implns: {instanceOf: Array, required: true}
 		}
 	};
 

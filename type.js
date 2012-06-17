@@ -45,7 +45,7 @@ $run(function() {
 			//原型链中包含哪些原型
 			prototypeOf: "[object]" 
 		},
-		freeze: true
+		freeze: false
 	};
 
 

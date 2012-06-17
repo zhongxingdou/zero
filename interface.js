@@ -19,8 +19,8 @@ $run(function() {
 		var p, ms = option.member;
 		for(p in ms){
 			var m = ms[p];
-			if(!$is($MemberSpec, m)){
-				ms[p] = new $MemberSpec(m);
+			if(!$is(MemberSpec, m)){
+				ms[p] = new MemberSpec(m);
 			}
 		}
 
@@ -36,7 +36,7 @@ $run(function() {
 
 	Interface.prototype = {
 		addMember: function(name, spec){
-			this.member[name] = new $MemberSpec(spec);
+			this.member[name] = new MemberSpec(spec);
 			return this;
 		},
 		removeMember: function(name){
@@ -74,7 +74,7 @@ $run(function() {
 			addMember: "function",
 			removeMember: "function"
 		},
-		freeze: true,
+		freeze: false,
 		type: "object"
 	});
 
@@ -138,13 +138,13 @@ $run(function() {
 
 	ITypeSpec = $interface(ITypeSpec);
 
-	IMemberSpec = $interface(IMemberSpec);
+	//IMemberSpec = $interface(IMemberSpec);
 
 	$global("IClass", IClass);
 	//$global("IClassDefine", IClassDefine);
 	$global("IObject", IObject);
 	$global("ITypeSpec", ITypeSpec);
-	$global("IMemberSpec", IMemberSpec);
+	//$global("IMemberSpec", IMemberSpec);
 
 
 	//发布全局对象

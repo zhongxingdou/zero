@@ -1,44 +1,48 @@
 $run(function() {
 	eval($global.all);
 
-	var IMemberSpec = {
+	/**
+	 * @todo 缓存常见的MemberSpec
+	 * @todo 缓存一个接口中重复的
+	 */
+	var IMemberSpecOption = {
 		member: {
-			optional: "boolean",
-			type: [Array, "string"],
+			required: "boolean",
+			type: [Array, ITypeSpec],
 			ownProperty:  "boolean"
 		},
-		freeze: true
+		freeze: false
 	};
 
-	function $MemberSpec(spec) {
+	function MemberSpec(spec) {
+		if(spec instanceof MemberSpec){
+				return spec;
+		}
+
 		var self = arguments.callee;
 
 		var t = typeof spec;
 		if (t == "string") {
-			return self.parse(spec);
+			self.__parse(spec, this);
 		}else if(t == "object"){
-			if("optional" in spec || "ownProperty" in spec || "type" in spec){
-				$copy(spec, this);
-			}else{
-				this.type = spec;
-			}
+			$merge(spec, this);
+		}else if(t == "function"){
+			this.type = spec;
 		}
 
 		$merge(arguments.callee.option, this);
 	}
 
-	$MemberSpec.option = {
-		optional: false,
+	MemberSpec.option = {
+		required: false,
 		type: null,
 		ownProperty: false
 	}
 
-	$MemberSpec.parse = function(exp) {
-		var spec = {};
-
+	MemberSpec.__parse = function(exp, spec) {
 		var m = exp.match(/^\[(.*)\]$/);
 		if (m) {
-			spec.optional = true;
+			spec.required = false;
 			exp = m[1];
 		}
 
@@ -47,22 +51,21 @@ $run(function() {
 		} else {
 			spec.type = exp;
 		}
-
-		return new this(spec);
+		return spec;
 	}
 
-	$MemberSpec.prototype = {
+	MemberSpec.prototype = {
 		check: function(o, name) {
 			var v = o[name];
 
 			if(v == null){
-				return this.optional;
+				return !this.required;
 			}
 
 
 			if (this.type) {
 				var t = this.type;
-				if ($is(Array, this.type)) {
+				if ($is(Array, t)) {
 					var isType = false;
 					for (var i = 0, l = t.length; i < l; i++) {
 						if ($is(t[i], v)) {
@@ -73,7 +76,7 @@ $run(function() {
 
 					if (!isType) return false;
 				} else {
-					if (!$is(this.type, v)) return false;
+					if (!$is(t, v)) return false;
 				}
 			}
 
@@ -83,7 +86,7 @@ $run(function() {
 		}
 	}
 
-	$global("IMemberSpec", IMemberSpec);
-	$global("$MemberSpec", $MemberSpec);
+	//$global("IMemberSpec", IMemberSpec);
+	$global("MemberSpec", MemberSpec);
 });
 

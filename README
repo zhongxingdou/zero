@@ -19,8 +19,8 @@ features:
 
 4.interface
 	var Interface = interface({
-		member1:	{type: Object, optional: true},
-		member2:	{type: Function, optional: true, option: {
+		member1:	{type: Object, required: true},
+		member2:	{type: Function, required: true, option: {
 					param1: Number,
 					param2: String
 				}}
