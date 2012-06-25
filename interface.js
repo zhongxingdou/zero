@@ -8,7 +8,7 @@ $run(function() {
 	 *   3.验证对象是否可以拥有规格以外的成员
 	 */
 	function Interface(member, type) {
-		var option = $option();
+		var	option = $option(member.member ? member :{member: member, type: type});
 
 		if (option.type == undefined) {
 			option.type = $spec(Object);
@@ -105,6 +105,9 @@ $run(function() {
 
 		return true;
 	}
+
+
+
 
 	/*
 	function $typedef(interface, creator, name){
