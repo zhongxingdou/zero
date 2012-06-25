@@ -1,7 +1,6 @@
 $run(function() {
 	eval($global.all);
 
-	var supportProto = {}.__proto__ != undefined;
 
 	var IObject = {
 		member: {
@@ -10,14 +9,10 @@ $run(function() {
 			//mix a module or object
 			mix: "function(module)",
 			//是否支持某个接口
-			isSupported: "function(interface)",
+			support: "function(interface)",
 			//定义properties
 			property: "function()"
 		}
-	}
-
-	if(!supportProto){
-		IObject.member.__proto__ = "[object]";
 	}
 
 	/**
@@ -25,29 +20,60 @@ $run(function() {
 	 * @class
 	 * @description 对象系统的基础类，建议所有对象都以此类作为超类
 	 */
-	function $Object() {
-		if(!supportProto){
-			this.__proto__ = arguments.callee.prototype;
-		}
-	}
+	function $Object() {}
 
     $Object.prototype = {
-			proto: function(){
-				var proto = this.__proto__ || this.constructor.prototype;
-				return proto;
+			get: function(name) {
+				return this[name];
 			},
-			callBase: function(name, args) {
-				return $callBase(this, name, args);
-			},
-			mix: function(obj) {
-				if($is(IModule, obj)){
-					$include(this, obj);
-				}else{
-					$copy(obj, this);
-				}
+			set: function(name, value) {
+				this[name] = value;
 				return this;
 			},
-			isSupported: function(interface){
+			proto: (function(){
+				var SUPPORT_PROTO = {}.__proto__ != undefined;
+				if(SUPPORT_PROTO){
+					return 	function(){
+						return this.__proto__;
+					}
+				}else{
+					return function(){
+						return  this.constructor.prototype;
+					}
+				}
+			})(), 
+			callBase: function() {
+				var caller = this.callBase.caller;
+
+				//此处不能用caller.name，因为caller.name可能不是它在对象中的key
+				var fnName = (caller == this.constructor) ? "constructor" : undefined; 
+				if(!fnName){
+					$everyKey(this, function(k){
+						if(this[k] == caller){
+							fnName = k;
+						}
+					}, this);
+				}
+
+
+				var protoFn = null;
+				$traceProto(this.proto(), function(proto){
+					var o = proto[fnName];
+					if(o){
+						protoFn = o;
+						return false; //break;
+					}
+				});
+
+				if(typeof protoFn == "function"){
+					return protoFn.apply(this, arguments);
+				}
+			},
+			mix: function(module) {
+				$global.get("$mix")(module, this);
+				return this;
+			},
+			support: function(interface){
 				return $support(interface, this);
 			},
 			/**
@@ -59,6 +85,8 @@ $run(function() {
 			},
 			is: function(spec){
 				return $is(spec, this);
+			},
+			wrap: function(wrapper){
 			}
 	}
 
