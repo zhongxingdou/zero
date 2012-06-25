@@ -47,9 +47,9 @@ features:
 	$covert.regist(Type2, Type3, fnConvertor);
 	$covert.regist(Type3, Type4, fnConvertor);
 
-	$covert({obj:haType1, to:Type4});
+	$covert({obj:aType1, to:Type4});
 
-	$covert({obj:haType1, to:Type4, customConvert: {
+	$covert({obj:aType1, to:Type4, customConvert: {
 				from: Type2,
 				to: Type3,
 				handler: function(){}
@@ -63,12 +63,6 @@ features:
 	ro.ownProperties();
 	ro.fields();
 	ro.protoLink();
-
-8.event binding 
-	var obj = {
-		doSomething: function(){}
-	}
-	button.on("click").tell(obj).doSomething()
 
 9.and more ...
 	$enum("Blue","Yellow","Red"), 
