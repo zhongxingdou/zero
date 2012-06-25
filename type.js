@@ -21,8 +21,7 @@ $run(function() {
 							this[key] = spec[key];
 						}
 					}
-					handle.scope = this;
-					$everyKey(ITypeSpec.member, handle);
+					$everyKey(ITypeSpec.member, handle, this);
 				}
 			}
 		}else if(t == "string"){
