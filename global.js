@@ -167,7 +167,9 @@
 				oList.push(this.get(aNameList[i]));
 			}
 
-			fn.apply(host, oList);
+			var thisOjb = {};
+			fn.apply(thisObj, oList);
+			return this;
 		},
 		
 		destroyExported: function(){
@@ -232,7 +234,14 @@
 
 	function $global(name, o, autoExport) {
 		var self = arguments.callee;
-		self.set(name, o, autoExport);
+		var type = typeof name;
+		if(type == "object"){
+			for(var k in name){
+				self.set(k, name[k], autoExport);
+			}
+		}else if(type == "string"){
+			self.set(name, o, autoExport);
+		}
 		return self;
 	}
 
@@ -248,14 +257,6 @@
 	
 	//$global("$global", $global, true);
 	host.$global = $global;
-
-	var TempScope = function(){};
-	TempScope.prototype = $global.__member;
-
-	var $run = function(fn){
-		"use strict"
-		$global.run(fn);
-	}
 
 	$global("GlobalManager", GlobalManager);
 })(this);
