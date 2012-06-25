@@ -1,62 +1,80 @@
 $run(function() {
 	eval($global.all);
 
-
-	var Reflect = $wrapper({
+	var Inspect = $module({
 		methods: function(){
-			var keys = this.properties();
+			var allKeys = this.allKeys();
 			var t = this.target;
-			return keys.filter(function(k){
+			return allKeys.filter(function(k){
 				return typeof t[k] == "function";
 			});
 		},
 		properties: function(){
+			return Object.getOwnPropertyNames(this.target);
+		},
+		allKeys: function(){
+			return $allKeys(this.target);
+		},
+		ownKeys: function(){
 			return Object.keys(this.target);
 		},
 		ownProperties: function(){
-			var keys = this.properties();
+			var allKeys = this.allKeys();
 			var t = this.target;
-			return keys.forEach(function(k){
+			return allKeys.forEach(function(k){
 				return t.hasOwnProperty(k);
 			});
 		},
 		publicMethods: function(){
-			var keys = this.methods();
-			return keys.filter(function(k){
+			var allKeys = this.methods();
+			return allKeys.filter(function(k){
 				return !$isPrivate(k);
 			});
 		},
 		privateMethods: function(){
-			var keys = this.methods();
-			return keys.filter(function(k){
+			var allKeys = this.methods();
+			return allKeys.filter(function(k){
 				return $isPrivate(k);
 			});
 		},
 		fields: function(){
-			var keys = this.properties();
+			var allKeys = this.allKeys();
 			var t = this.target;
-			return keys.filter(function(k){
+			return allKeys.filter(function(k){
 				return typeof t[k] != "function";
 			});
 		},
 		publicFields: function(){
-			var keys = this.fields();
-			return keys.filter(function(k){
+			var allKeys = this.fields();
+			return allKeys.filter(function(k){
 				return !$isPrivate(k);
 			});
 		},
 		privateFields: function(){
-			var keys = this.fields();
-			return keys.filter(function(k){
+			var allKeys = this.fields();
+			return allKeys.filter(function(k){
 				return $isPrivate(k);
 			});
 		},
 		type: function(){
 			return typeof this.target;
 		},
-		implns: function(){
-			return this.target.implns;
+		/*
+		implementations: function(){
+			var ar = [];
+			var t = this.target;
+
+			if(t.implns){ 
+				ar = ar.concat(t.implns); 
+			}
+
+			var implns = t.consturctor.implns;
+			if(implns){
+				ar = ar.concat(implns);
+			}
+			return ar;
 		},
+		*/
 		creator: function(){
 			return this.target.constructor;
 		},
@@ -69,9 +87,17 @@ $run(function() {
 		},
 		proto: function(){
 			var t = this.target;
-			return t.__proto__ || t.constructor.prototype;
+			var supportedProto = {}.__proto__ !== undefined;
+			return supportedProto ? t.__proto__ : t.constructor.prototype;
 		}
 	});
 
-	$.regist(Reflect, Object, "@reflect");
+	$.regist(Inspect, Object, "@inspect");
+
+	function $inspect(o){
+		return $(o).wrapWith("@inspect");
+	} 
+
+	$global("$inspect", $inspect);
 });
+
