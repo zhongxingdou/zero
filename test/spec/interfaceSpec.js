@@ -11,6 +11,14 @@ $run(function() {
 			var face = $interface(option);
 			expect($support(IInterface, face)).toBeTruthy();
 		});
+
+		it("使用普通对象创建interface", function(){
+			var face = $interface({
+				m1: {}
+			})
+
+			expect(face.member.m1).toBeDefined();
+		});
 	});
 
 	describe("$support()", function() {
