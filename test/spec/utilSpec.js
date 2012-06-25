@@ -86,7 +86,7 @@ $run(function() {
 
 			function B() {};
 			B.prototype.b1 = {};
-			$extend(B, A.prototype);
+			$extend(B, A);
 
 			var b = new B();
 			var ms = [];
@@ -238,11 +238,11 @@ $run(function() {
 			function B() {};
 			B.prototype.b1 = 'Bb1';
 			B.prototype.a1 = 'Ba1';
-			$extend(B, A.prototype);
+			$extend(B, A);
 
 			function C() {};
 			C.prototype.c1 = "Cc1";
-			$extend(C, B.prototype);
+			$extend(C, B);
 
 			var ac = new C();
 			ac.a1 = "ac.a1";
@@ -256,8 +256,7 @@ $run(function() {
 			expect($getProtoMember(ac, 'proto.proto.proto.a1')).toBe(A.prototype.a1);
 		});
 
-		it("$property", function() {
-		});
+		it("$property", function() {});
 
 		it("$callBase(this)将调用父原型的构造函数", function() {
 			var i = 0;
@@ -268,34 +267,40 @@ $run(function() {
 			function B() {
 				$callBase(this);
 			}
-			$extend(B, A.prototype);
+			$extend(B, A);
 
 			var ab = new B();
 			expect(i).toBe(1);
 		});
 
-		it("$callBase(this, action)将调用父原型的方法", function() {
-			var i = 0;
-			function A() {
-				var a = 'dosomething';
-			};
+		it("$callBase(this)将调用父原型的方法", function() {
+			function A() {}
+
+			var spy = jasmine.createSpy();
+
 			A.prototype = {
-				action: function() {
-					i++
-				}
-			};
+				action: spy
+			}
 
 			function B() {
 				$callBase(this);
-				$callBase(this, 'action');
-			};
-			$extend(B, A.prototype);
+			}
+
+			B.prototype = {
+				action: function() {
+					$callBase(this);
+				}
+			}
+
+			$extend(B, A);
 
 			var ab = new B();
-			expect(i).toBe(1);
+			ab.action();
+
+			expect(spy).toHaveBeenCalled();
 		});
 
-		it("$call()", function() {
+		/*it("$call()", function() {
 			var fn = undefined;
 			$call(fn);
 
@@ -312,7 +317,7 @@ $run(function() {
 			$call(fn3, ['jim']);
 
 			expect(o.name).toBe('jim');
-		});
+		});*/
 
 		it("$enum()", function() {
 			var weekDay = $enum("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "SaturDay", "Sunday");
@@ -323,3 +328,4 @@ $run(function() {
 		});
 	});
 });
+

@@ -1,4 +1,4 @@
-(function() {
+(function(HOST) {
 	eval($global.all);
 
 	/**
@@ -9,7 +9,7 @@
 	function $every(obj, fn, scope) {
 		if (!obj) return true;
 		for (var i = 0, l = obj.length; i < l; i++) {
-			if ($call(fn, [obj[i]], scope) === false) return false;
+			if (fn.apply(scope, [obj[i]]) === false) return false;
 		}
 		return true;
 	}
@@ -22,7 +22,7 @@
 		if(typeof fn != "function")return false;
 
 		for(p in o){ 
-			if($call(fn, [p, o[p]], scope)=== false)return false;
+			if(fn.apply(scope, [p, o[p]]) === false)return false;
 		}
 
 		return true;
@@ -34,20 +34,37 @@
 	function $trace(o, name, fn, scope){
 		var p = o;
 		while(p){
-			if($call(fn,[p], scope) === false)return false;
+			if(fn.apply(scope, [p]) === false)return false;
 			p = p[name];
 		}
 		return true;
 	}
 
+	var SUPPORTED_PROTO = {}.__proto__ !== undefined;
+
 	/**
 	 * 遍历对象的原型链，从下向上
 	 */
-	function $traceProto(o, fn, scope) {
-		var supportProto = {}.__proto__ !== undefined;
-		
-		var proto = supportProto ? o.__proto__ : o.constructor.prototype;
-		return $trace(proto, '__proto__', fn, scope);
+	if(SUPPORTED_PROTO){
+		function $traceProto(o, fn, scope) {
+				return $trace(o.__proto__, '__proto__', fn, scope);
+		}
+	}else{
+		function $traceProto(o, fn, scope) {
+			var proto = o.constructor.prototype;
+			if(proto == o){
+				proto = o.constructor.baseProto;
+			}
+
+			while(proto){
+				if(fn.apply(scope, [proto]) === false)return false;
+				proto = proto.constructor.baseProto;
+			}
+
+			if(o.constructor !== Object){
+				if(fn.apply(scope, [Object.prototype]) === false)return false;
+			}
+		}
 	}
 
 	/**
@@ -97,6 +114,7 @@
 
 	/**
 	 * 将以逗号分隔的参数转换成Option，并合并默认参数
+	 * 如果你只有一个参数，并且这个参数不是option，而是作为第一个参数，请使用$option({key: value})的形式
 	 * @example
 	 * function fn(p1, p2){
 	 *     var option = $option();
@@ -105,13 +123,16 @@
 	 * fn("k1", "k2") //option = {key1: "k1", key2: "k2", key3: true}
 	 * fn.option = {key1: null, key2: null, key3: true}
 	 */
-	function $option() {
+	function $option(option) {
 		var fn = $option.caller,
 			deft = fn.option, 
-			option = {},
 			args = fn.arguments,
 			l = args.length;
-		
+	
+		if(option)return $merge(fn.option, option);
+
+		option = {};
+	
 		var count = 0;
 		$every(args, function(p){
 			if(p != undefined) count++;
@@ -166,7 +187,7 @@
 	/**
 	 * 返回对象的所有成员，但不包括原型链中原生原型所包含的成员
 	 */
-	function $getAllKeys(o){
+	function $allKeys(o){
 		var p, keys = [];
 		for(p in o){ 
 			keys.push(p);
@@ -178,16 +199,14 @@
 	 * 获取原型链上的成员
 	 */
 	function $getProtoMember(o, name){
-		var supportProto = {}.__proto__ !== undefined;
-		
-		var proto = supportProto ? o.__proto__ : o.constructor.prototype;
+		var proto = SUPPORTED_PROTO ? o.__proto__ : o.constructor.prototype;
 		if(!proto)return;
 
 		if (name.indexOf("proto.") != - 1) {
 			var uplevel = name.split("proto.").length - 1;
 			var base;
 			for (var i = 1; i < uplevel && proto; i++) {
-				base = proto.__proto__;
+				base = SUPPORTED_PROTO ? proto.__proto__ : (proto.constructor.baseProto || Object.prototype);
 				if(proto === base)break;
 				proto = base;
 			}
@@ -211,45 +230,40 @@
 		}
 	}
 
-	/**
-	 * 调用父原型的方法
-	 */
-	function $callBase(o, name, args) {
-		if(arguments.length == 1 || name instanceof Array){
-			args = name;
-			var fn = $getProtoMember(o, "proto.proto.constructor");
-			if(fn){
-				fn.apply(o, args || []);
-			}
-			return;
+	function $callBase(obj, args){
+		var caller = $callBase.caller;
+		//此处不能用caller.name，因为caller.name可能不是它在对象中的key
+		var fnName = (caller == obj.constructor) ? "constructor" : undefined;
+		if(!fnName){
+			$everyKey(obj, function(k){
+				if(obj[k] == caller){
+					fnName = k;
+				}
+			}, obj);
 		}
 
-		var p = $getProtoMember(o, "proto.proto."+name);
-		if (typeof p != "function") {
-			throw "can't respond to " + '"' + name + '"';
+
+		var protoFn = null;
+		$traceProto(obj.__proto__ || obj.constructor.prototype, function(proto){
+			var o = proto[fnName];
+			if(o){
+				protoFn = o;
+				return false; //break;
+			}
+		});
+
+		if(typeof protoFn == "function"){
+			return protoFn.apply(obj, args || caller.arguments);
 		}
-		return p.apply(o, args || []);
 	}
 
-
-	/**
-	 * 调用一个方法，调用之前先判断是否为方法
-	 */
-	function $call(fn, args, scope){
-		if(typeof fn  === "function"){
-			if(scope === undefined && "scope" in fn){
-				scope = fn['scope'];
-			}
-			return fn.apply(scope, args || []);
-		}
-	}
 
 	function $callWithAll(fn, args, scope){
 		var isArray = args instanceof Array;
 		if(isArray){
 			return $every(args, fn, scope);
 		}else{
-			return $call(fn, [args], scope);
+			return fn.apply(scope, [args]);
 		}
 	}
 
@@ -261,7 +275,11 @@
 	 * color.RED
 	 * color.YELLOW
 	 */
-	function $enum(){
+	function $enum(obj){
+		if(arguments.length == 1 && typeof obj == "object"){
+			return obj;
+		}
+
 		var o = {};
 		$every(arguments, function(k){
 			o[k] = {};
@@ -273,7 +291,10 @@
 	 * 运行一个方法，避免产生全局变量
 	 */
 	function $run(fn){
-		return fn.apply({}, arguments);
+		"use strict"
+		var thisObj = {};
+		fn.apply(thisObj, arguments);
+		return thisObj;
 	}
 
 
@@ -284,8 +305,10 @@
 		return name.toString().match(/^__/);
 	}
 
+
+
 	$global("$run", $run);
-	this.$run = $run;
+	HOST.$run = $run;
 
 
 	//遍历
@@ -298,12 +321,12 @@
 	vars.push("$slice","$enum","$property");
 
 	//方法相关
-	vars.push("$call", "$callWithAll", "$option");
+	vars.push("$callWithAll", "$option");
 
 	//反射
 	vars.push("$traceProto", "$callBase",  "$getProtoMember");
 
-	vars.push("$isPrivate");
+	vars.push("$isPrivate", "$allKeys");
 	
 
 	var name;
@@ -311,5 +334,5 @@
 		$global(name, eval(name));
 	}
 	
-})();
+})(this);
 
