@@ -22,20 +22,32 @@ $run(function(){
 	};
 
 
-	function $(o, name) {
-		var ws = $.findWrapper(o, name), 
-			newo = {},
-			w;
+	function $(target, name) {
+		var newo = {target: target};
 
-		if(ws.length == 1){
-			newo = new ws[0](o);
-		}else{
-			while (w = ws.pop()) {
-				$copy((new w(o)), newo);
+		//copy function member
+		$everyKey(target, function(key, value) {
+			if(typeof value == "function"){
+				newo[key] = value.bind(newo.target);
 			}
-		}
+		});
+
+		//mix wrapper
+		//module中this.x＝xx不会设置到target上，要设置到target请使用this.set(x, xx);
+		//!!! @todo 考虑要不要给Module.onIncluded方法传递$(target),考虑mix到对象时是否绑定到$(target),避免直接操作target对象
+		$.findWrapper(target, name).reverse().forEach(function(wrapper){
+			$mix(wrapper, newo);
+		}); 
 
 		return newo;
+	}
+
+
+	function $$(o, name){
+		$.findWrapper(o, name).reverse().forEach(function(wrapper){
+			$mix(wrapper, o);
+		});
+		return o;
 	}
 
 	$.__wrapper = {};
@@ -104,6 +116,7 @@ $run(function(){
 	}
 
 
+	/*
 	function $wrapper(methods, constructor) {
 		var clazz = constructor || function(target){ this.target = target;};
 		clazz.prototype = methods;
@@ -111,6 +124,9 @@ $run(function(){
 	}
 
 	$global("$wrapper", $wrapper);
+	*/
+
 	$global("$", $);
+	$global("$$", $$);
 
 });
