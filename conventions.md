@@ -23,32 +23,15 @@
 
 ## JavaScript编码约定
 
-### 类型暗示约定
-* 基本类型（除Object,Function外）取类型名称小写首字母作为前缀
-	
-	sString,
-	nNumber,
-	dDate,
-	bBoolean,
-	rRegExp,
-	aArray
-	
-* 用户创建的对象不加前缀
-
 ### 可见性暗示约定
 	
 	__private
-	_protected
 	public
 	
 ### 特殊的变量
-* @CONST 常量以@开头
-* $global 全局变量以$开头
 * Class 类名（首字母大写）
 * MModule 模块以M＋模块名（首字母大写）
 * IInterface 接口以I+接口名（首字母大写）
-* DAY.MONDAY 枚举全部为大写
-* action 方法名为动词或动词＋名词
 * $class 类关键字方法以$开头，名称全部小写（$interface, $property, $class）
 
 
