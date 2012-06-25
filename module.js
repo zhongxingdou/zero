@@ -4,27 +4,26 @@ $run(function(){
 	 * IModule
 	 * @interface
 	 */
-	var IModule = $interface({
-		onIncluded: "[function(toObj, option)]"
-	});
+	var IModule = {
+		onIncluded: "[function()]",
+		mixTo: "[function(toObj)]"
+	};
 
+	var __moduleMember = Object.keys(IModule);
 	/**
-	 * include一个module到toObjObj
+	 * mix一个module到toObjObj
 	 * @param {IModule} module 
 	 * @param {Object} toObj 
-	 * @param {Object} option 调用module的oncluded()时传递给它的附加参数
 	 */
-	function $include(module, toObj, option) {
-		if(module.onIncluded){
-			$everyKey(module, function(k, v){
-				if(k != "onIncluded"){
-					toObj[k] = v;
-				}
-			});
+	function $mix(module, toObj) {
+		$everyKey(module, function(k, v){
+			if(__moduleMember.indexOf(k) == -1){
+				toObj[k] = v;
+			}
+		});
 
-			module.onIncluded(toObj, option);
-		}else{
-			$copy(module, toObj);
+		if(module.onIncluded){
+			module.onIncluded.call(toObj);
 		}
 
 		if(module.implns){
@@ -32,17 +31,21 @@ $run(function(){
 				toObj.implns = [].concat(module.implns);
 			}else{
 				//@todo 去除重复的
-				toObj.implns.catcat(module.implns);
+				toObj.implns.concat(module.implns);
 			}
 		}
 	}
 
 	function $module(o){
+		o.mixTo = function(toObj){
+			$mix(o, toObj);
+			return o;
+		}
 		return o;
 	}
 
 	$global("IModule", IModule);
 	$global("$module", $module);
-	$global("$include", $include);
+	$global("$mix", $mix);
 });
 
