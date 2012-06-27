@@ -3,22 +3,46 @@ Zero is a javascript object oriented framework.
 features:
 
 1.class
-	$class is only a wrapper for Function which has extend, implement, include methods;
-	$class(aConstructor).extend(aBase).implement(aInterface);
+
+	var Class = function(){
+		this.callBase();
+		this.property({...});
+		this.include(module);
+	}
+
+	Class.prototye = {
+		sayHello: function(){
+		    this.callBase();
+		}
+	}
+
+
+	$class is only a wrapper of Function which has extend, implement, include methods;
+	$class(Class).extend($Object).implement(interface);
+
+	Class.extend //undefined
 
 2.module
 	$(aClass).include(aModule);
 	$(aObj).include(aModule);
 
 3.wrapper
-	$(obj).to("@reflect")
+	$.register(IInterface, module1, "wrapper1");
+	$.setDefault(IInterface, "wrapper1");
+	
+
 	$(8).next();
-	$("string").trim();
+	$("string").capitalize();
 	$(date).nextMonth();
 	$(fn).withAll([]);
+	$(obj).action();
+	obj.action //undefined
+
+	$$(obj)
+	obj.action //defined
 
 4.interface
-	var Interface = interface({
+	var Interface = $interface({
 		member1:	{type: Object, required: true},
 		member2:	{type: Function, required: true, option: {
 					param1: Number,
@@ -27,7 +51,7 @@ features:
 	});
 
 	$support(Interface, aObj);
-	
+
 
 5.global variable manager
 	...
@@ -42,21 +66,8 @@ features:
 
 	$each //undefiend
 
-6.intelligent convert
-	$covert.regist(Type1, Type2, fnConvertor);
-	$covert.regist(Type2, Type3, fnConvertor);
-	$covert.regist(Type3, Type4, fnConvertor);
 
-	$covert({obj:aType1, to:Type4});
-
-	$covert({obj:aType1, to:Type4, customConvert: {
-				from: Type2,
-				to: Type3,
-				handler: function(){}
-			}});
-
-
-7.refelct
+6.refelct
 	var ro = $(obj).to("@reflect");
 	ro.publicMethods();
 	ro.privateMethods();
@@ -64,15 +75,34 @@ features:
 	ro.fields();
 	ro.protoLink();
 
-9.and more ...
+7.function option
+	var fn = function(p1, p2){
+		var opt = $option();
+		opt.p1...
+	}
+
+
+	fn.option = {
+		p1: "xxx",
+		p2: true,
+		p3: null,
+		p4: obj
+	}
+
+	fn(p1, p2);
+	fn({ p1: xxx, p2: xxx, p3:  xxx });
+
+8.function overwrites
+	var fn = $router(fn1, fn2, fn3, fn4);
+	fn(type1, type2); //call fn1
+	fn(type3, type2); //call fn2
+	fn(type4); //call fn3
+	...
+
+
+9.and more util ...
 	$enum("Blue","Yellow","Red"), 
 	$is(Function, aobj), $is(Number, aobj), $is(Class, aobj)
-	$property
 	$trace
 	$traceProto
-	$every
-	$each
-	$everyKey
-	$eachKey
-	$slice
-	$call
+	...
