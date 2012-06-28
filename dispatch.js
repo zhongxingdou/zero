@@ -35,10 +35,43 @@ $run(function() {
 		return args.length == i;
 	}
 
+	function __objToArray(obj){
+		var keys = Object.keys(obj);
+		var ar = [];
+		keys.forEach(function(k){
+			ar.push(a0[k]);
+		});
+		return ar;
+	}
+
+	function $fnRounter(fns){
+		return function(){
+			var fn = $dispatch(fns)
+			fn && fn.apply(this, arguments);
+		}
+	}
+
 	function $dispatch(fns, args){
-		var caller = $dispatch.caller,
+		var caller = $thisFn().caller,
 			args = args || caller.arguments,
 			argc = args.length;
+
+		var a0 = args[0];
+		if(argc == 1 && typeof a0 == "object"){
+			if(a0 instanceof Paramap){
+				args = __objToArray(a0);
+				argc = args.length;
+			}else{
+				$every(function(fn){
+					opt = fn.option;
+					if(opt && $hasSubset(Object.keys(opt), Object.keys(a0))){
+						args = __objToArray(a0);
+						argc = args.length;
+						return false; //break the loop
+					}
+				});
+			}
+		}
 
 		var argcMap = __makeArgcMap(fns, argc);
 
