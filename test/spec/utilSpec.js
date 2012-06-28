@@ -171,27 +171,6 @@ $run(function() {
 			expect(b.p1).toBe("pb");
 		});
 
-		it("$option", function() {
-			function fn(p1, p2) {
-				var option = $option();
-				return option;
-
-			}
-			fn.option = {
-				key1: "key1",
-				key2: "key2",
-				key3: "key3"
-			}
-
-			var option = fn("k1", "k2");
-
-			expect(option).toBeDefined();
-
-			expect(option.key1).toBe("k1");
-			expect(option.key2).toBe("k2");
-			expect(option.key3).toBe("key3");
-		});
-
 		it("$clone", function() {
 			var obj = {
 				key1: {},
@@ -219,14 +198,12 @@ $run(function() {
 			expect($like(a, b)).toBeTruthy();
 		});
 
-		/*
-	it("$getAllKeys", function() {
-		var o = {a: 'a', b: 'b'}
-		var ms = $getAllKeys(o)
-		expect(ms).toContain('a');
-		expect(ms).toContain('b');
-	});
-	*/
+		it("$allKeys", function() {
+			var o = {a: 'a', b: 'b'}
+			var ms = $allKeys(o)
+			expect(ms).toContain('a');
+			expect(ms).toContain('b');
+		});
 
 		it("$getProtoMember", function() {
 			function A() {};
@@ -300,31 +277,32 @@ $run(function() {
 			expect(spy).toHaveBeenCalled();
 		});
 
-		/*it("$call()", function() {
-			var fn = undefined;
-			$call(fn);
-
-			var fn2 = jasmine.createSpy();
-			$call(fn2);
-			expect(fn2).toHaveBeenCalled();
-
-			var o = {};
-			var fn3 = function(name) {
-				this.name = name;
-			}
-			fn3.scope = o;
-
-			$call(fn3, ['jim']);
-
-			expect(o.name).toBe('jim');
-		});*/
-
 		it("$enum()", function() {
 			var weekDay = $enum("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "SaturDay", "Sunday");
 			expect(weekDay.Monday).toBeDefined();
 			expect(weekDay.Sunday).toBeDefined();
 			expect(weekDay.Sunday).toNotBe(weekDay.Monday);
 
+		});
+
+		it("$thisFn()", function(){
+			var fn = function(){
+				expect($thisFn()).toBe(fn);
+			}
+
+			fn();
+		});
+
+		it("$hasSubset()", function(){
+			var set = [1, 2];
+
+			expect($hasSubset(set, [1,2])).toBeTruthy();
+
+			expect($hasSubset(set, [1])).toBeTruthy();
+
+			expect($hasSubset(set, [3])).toBeFalsy();
+
+			expect($hasSubset(set, [])).toBeFalsy();
 		});
 	});
 });
