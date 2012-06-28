@@ -112,48 +112,6 @@
 	}
 
 
-	/**
-	 * 将以逗号分隔的参数转换成Option，并合并默认参数
-	 * 如果你只有一个参数，并且这个参数不是option，而是作为第一个参数，请使用$option({key: value})的形式
-	 * @example
-	 * function fn(p1, p2){
-	 *     var option = $option();
-	 *     ....
-	 * }
-	 * fn("k1", "k2") //option = {key1: "k1", key2: "k2", key3: true}
-	 * fn.option = {key1: null, key2: null, key3: true}
-	 */
-	function $option(option) {
-		var fn = $option.caller,
-			deft = fn.option, 
-			args = fn.arguments,
-			l = args.length;
-	
-		if(option)return $merge(fn.option, option);
-
-		option = {};
-	
-		var count = 0;
-		$every(args, function(p){
-			if(p != undefined) count++;
-		});
-
-		if (count == 1 && args[0] != undefined) { //参数只有一个时，认为它是参数对象，而不是参数数组中的第一个
-			return $merge(deft, args[0]);
-		}else{
-			var k, i = 0;
-			for (k in deft) {
-				if (i < l) {
-					option[k] = args[i];
-					i++;
-				} else {
-					option[k] = deft[k];
-				}
-			}
-		}
-
-		return option;
-	}
 
 
 	/**
@@ -305,7 +263,31 @@
 		return name.toString().match(/^__/);
 	}
 
+	function $thisFn(){
+		return $thisFn.caller;
+	}
 
+	function $fn(fn, option){
+		if(option){
+			fn.option = option;
+		}
+		return fn;
+	}
+
+	function $hasSubset(set, sub) {
+		var k,
+			count = 0;
+
+		for(var i=0, l=sub.length; i<l; i++){
+			if(set.indexOf(sub[i]) != -1){ //exists
+				count++;
+			}else{
+				return false;
+			}
+		}
+
+		return count > 0;
+	}
 
 	$global("$run", $run);
 	HOST.$run = $run;
@@ -321,13 +303,12 @@
 	vars.push("$slice","$enum","$property");
 
 	//方法相关
-	vars.push("$callWithAll", "$option");
+	vars.push("$callWithAll");
 
 	//反射
 	vars.push("$traceProto", "$callBase",  "$getProtoMember");
 
-	vars.push("$isPrivate", "$allKeys");
-	
+	vars.push("$isPrivate", "$allKeys", "$thisFn", "$hasSubset");
 
 	var name;
 	while(name = vars.pop()){
