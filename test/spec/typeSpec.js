@@ -23,7 +23,7 @@ $run(function() {
 			};
 			var type = $spec(o);
 			expect($support(ITypeSpec, type));
-			expect(type.name).toBeUndefined();
+			expect(type.name).toBeDefined();
 			expect(type.typeOf).toBe('string');
 		});
 
