@@ -8,20 +8,26 @@ $run(function() {
 	 * 类型
 	 */
 	function TypeSpec(spec) {
-		var self = arguments.callee;
+		this.callBase();
+
+		var thisFn = $thisFn();
 		var t = typeof spec;
 
 		if(t == "object"){
-			if(spec instanceof self){
+			if(spec instanceof thisFn){
 				return spec
 			}else{
 				if(spec !== null){
-					var handle = function(key, value){
-						if(key in spec){
-							this[key] = spec[key];
-						}
+					var k;
+					for(k in spec){
+						this[k] = spec[k];
 					}
-					$everyKey(ITypeSpec.member, handle, this);
+					//var handle = function(key, value){
+						//if(key in spec){
+							//this[key] = spec[key];
+						//}
+					//}
+					//$everyKey(ITypeSpec.member, handle, this);
 				}
 			}
 		}else if(t == "string"){
@@ -32,6 +38,8 @@ $run(function() {
 			this.typeOf = t;
 		}
 	}
+
+	$class(TypeSpec).extend($Object);
 
 	ITypeSpec = {
 		member: {
@@ -93,7 +101,7 @@ $run(function() {
 
 	$global("ITypeSpec", ITypeSpec);
 
-	//$global("TypeSpec", TypeSpec);
+	$global("TypeSpec", TypeSpec);
 
 	$global("$spec", $spec);
 
