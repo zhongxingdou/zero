@@ -8,31 +8,28 @@ $run(function() {
 	 *   3.验证对象是否可以拥有规格以外的成员
 	 */
 	function Interface(member, type) {
-		var	option = $option(member.member ? member :{member: member, type: type});
+		this.base = null;
+		this.freeze = false;
+		this.type = type || Object;
+		this.member = member;
 
-		if (option.type == undefined) {
-			option.type = $spec(Object);
-		}else if(typeof option.type == 'object'){
-			option.type = $spec(option.type);
+		if(member.member){
+			$copy(member, this);
 		}
 
-		var p, ms = option.member;
+		if(typeof this.type == 'object'){
+			this.type = $spec(this.type);
+		}
+
+		var p, ms = this.member;
 		for(p in ms){
 			var m = ms[p];
-			if(!$is(MemberSpec, m)){
+			if(!(m instanceof MemberSpec)){
 				ms[p] = new MemberSpec(m);
 			}
 		}
-
-		$copy(option, this);
 	}
 
-	Interface.option = {
-		member: {},
-		type: null,
-		base: null,
-		freeze: false
-	}
 
 	Interface.prototype = {
 		addMember: function(name, spec){
@@ -54,6 +51,8 @@ $run(function() {
 	 * @param {Boolean} .freeze = false 是否可以拥有member定义以外的成员
 	 */
 	function $interface(member, type) {
+		if(member instanceof Interface)return member;
+
 		return new Interface(member, type);
 	}
 
