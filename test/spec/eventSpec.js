@@ -5,7 +5,7 @@ $run(function(){
 
 		it("addListener(), getListerners()", function(){
 			var btn = {};
-			MEvent.mixTo(btn);
+			$include(MEvent, btn);
 
 			var listener = function(){};
 			btn.addListener("click", listener); 
@@ -16,7 +16,7 @@ $run(function(){
 
 		it("removeListener()", function(){
 			var btn = {};
-			MEvent.mixTo(btn);
+			$include(MEvent, btn);
 
 			var listener = function(){};
 			btn.addListener("click", listener); 
@@ -28,7 +28,7 @@ $run(function(){
 
 		it("fire()", function(){
 			var btn = {};
-			MEvent.mixTo(btn);
+			$include(MEvent, btn);
 
 			var listener = jasmine.createSpy();
 			btn.addListener("click", listener); 

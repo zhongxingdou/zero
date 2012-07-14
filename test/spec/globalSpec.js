@@ -1,18 +1,16 @@
 $run(function() {
 	eval($global.all);
 
-	describe("GlobalManager", function() {
+	describe("VariableManager", function() {
 		var man;
 		var owner;
 		beforeEach(function() {
-			owner = {};
-			man = new GlobalManager(owner);
+			man = new VariableManager();
 		});
 
 		it("测试.set()和.get()", function() {
 			var a = {};
 			man.set('a', a);
-			expect(owner.a).toBe(a);
 			expect(man.get('a')).toBe(a);
 		});
 
@@ -30,24 +28,7 @@ $run(function() {
 			man.set("a", a);
 
 			man.destroy('a');
-			expect(owner.a).toBeUndefined();
 			expect(man.get('a')).toBeUndefined();
-		});
-
-		it(".restore()恢复变量到原来拥有它的对象上", function() {
-			var old = {};
-			owner.a = old;
-
-			var b = {};
-			man.set('a', b);
-
-			expect(owner.a).toBe(b);
-
-			man.restore('a');
-
-			expect(owner.a).toBe(old);
-
-			expect(man.get('a')).toBe(b);
 		});
 
 		it(".exportTo()设定到指定对象", function() {
@@ -56,9 +37,40 @@ $run(function() {
 			var a = {};
 			man.set("a", a);
 
-			man.exportTo(k);
+			man.exportTo(['a'], k);
 			expect(k.a).toBe(a);
 		});
+
+		it(".run()运行一个方法传递签名中指定的变量", function(){
+			var o = {
+				a: {},
+				k: {}
+			}
+
+			man.set("a", o.a); 
+			man.set("k", o.k); 
+
+			man.run(function(a, k){
+				expect(a).toBe(o.a);
+				expect(k).toBe(o.k);
+			});
+		});
+
+		it(".run()运行一个方法传递所有被管理的变量", function(){
+			var o = {
+				a: {},
+				k: {}
+			}
+
+			man.set("a", o.a); 
+			man.set("k", o.k); 
+
+			man.run(function(){
+				expect(a).toBeDefined();
+				expect(k).toBeDefined();
+			});
+		});
+
 	});
 });
 

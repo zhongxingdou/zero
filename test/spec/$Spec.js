@@ -74,5 +74,18 @@ $run(function() {
 			expect($.getWrapper(String, name)).toBeUndefined();
 		});
 	});
+
+	describe("$$()", function(){
+		it("$$()包装对象", function(){
+			$.regist({
+				sayHello: function(){},
+			}, Object, "@myWrapper");
+
+			var o = {};
+			$$(o, "@myWrapper");
+
+			expect(o.sayHello).toBeDefined();
+		});
+	}); 
 });
 

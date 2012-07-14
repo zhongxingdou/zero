@@ -1,20 +1,66 @@
 $run(function() {
 	eval($global.all);
-	describe("$Object.mix()", function(){
-		it("mix一个普通对象", function(){
+	
+	describe("$Object", function(){
+		it("set(),get()", function(){
+			var o = new $Object();
+			var value = {};
+			o.set("prop", value);
+			var prop = o.get("prop");
+			expect(prop).toBe(value);
+		});
+
+		it("proto()获取对象的原型", function(){
+			var o = new $Object();
+			expect(o.proto()).toBe($Object.prototype);
+			expect(o.proto().proto()).toBe(Object.prototype);
+		});
+
+		it("property()设置对象属性", function(){
+			var o = new $Object();
+			o.property("name", {get: function(){return name}, set: function(v){name = v}});
+			var name = "jim";
+			o.name = name;
+			expect(o.name).toBe(name);
+		});
+
+		it("property()提供默认的getter, setter", function(){
+			var o = new $Object();
+			o.property("name");
+			var name = "jim";
+			o.name = name;
+			expect(o.name).toBe(name);
+		});
+
+		it("property()一次定义多个属性", function(){
+			var o = new $Object();
+			o.property({
+				"name": {},
+				"age": {}
+			});
+			o.name = {};
+			o.age = {};
+			expect(o.name).toBeDefined();
+			expect(o.name).toBeDefined();
+		});
+	}); 
+
+
+	describe("$Object.include()", function(){
+		it("include一个普通对象", function(){
 			var o = new $Object();
 			var sayHello = function(){};
-			o.mix({
+			o.include({
 				sayHello: sayHello
 			});
 
 			expect(o.sayHello).toBeDefined();
 		});
 
-		it("mix一个普通对象", function(){
+		it("include一个普通对象", function(){
 			var o = new $Object();
 			var sayHello = function(){};
-			o.mix({
+			o.include({
 				sayHello: sayHello
 			});
 

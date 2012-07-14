@@ -99,5 +99,16 @@ $run(function() {
 			expect($is(t, new B)).toBeTruthy();
 		});
 
+		it("$is()检验原型链", function(){
+			function A() {};
+
+			function B() {};
+			B.prototype = new A();
+			B.prototype.constructor = B();
+
+			expect($is({prototypeOf: [B.prototype, Object.prototype]}, new B())).toBeTruthy();
+
+		});
+
 	});
 });

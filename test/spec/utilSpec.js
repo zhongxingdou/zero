@@ -171,6 +171,7 @@ $run(function() {
 			expect(b.p1).toBe("pb");
 		});
 
+		/*
 		it("$clone", function() {
 			var obj = {
 				key1: {},
@@ -185,52 +186,13 @@ $run(function() {
 			expect(obj).toEqual(obj2);
 			expect(obj).toNotBe(obj2);
 		});
+		*/
 
-		it("$like", function() {
-			var a = {
-				a: 'a',
-				b: 'b'
-			};
-			var b = {
-				a: 'a',
-				b: 'b'
-			};
-			expect($like(a, b)).toBeTruthy();
-		});
-
-		it("$allKeys", function() {
+		it("$keys", function() {
 			var o = {a: 'a', b: 'b'}
-			var ms = $allKeys(o)
+			var ms = $keys(o)
 			expect(ms).toContain('a');
 			expect(ms).toContain('b');
-		});
-
-		it("$getProtoMember", function() {
-			function A() {};
-			A.prototype = {
-				a1: "A.a1"
-			};
-			A.prototype.constructor = A;
-
-			function B() {};
-			B.prototype.b1 = 'Bb1';
-			B.prototype.a1 = 'Ba1';
-			$extend(B, A);
-
-			function C() {};
-			C.prototype.c1 = "Cc1";
-			$extend(C, B);
-
-			var ac = new C();
-			ac.a1 = "ac.a1";
-
-			expect($getProtoMember(ac, 'a1')).toBe(C.prototype.a1);
-
-			expect($getProtoMember(ac, 'proto.a1')).toBe(B.prototype.a1);
-			expect($getProtoMember(ac, 'proto.a1')).toNotBe(A.prototype.a1);
-
-			expect($getProtoMember(ac, 'proto.proto.a1')).toBe(B.prototype.a1);
-			expect($getProtoMember(ac, 'proto.proto.proto.a1')).toBe(A.prototype.a1);
 		});
 
 		it("$property", function() {});
@@ -293,16 +255,16 @@ $run(function() {
 			fn();
 		});
 
-		it("$hasSubset()", function(){
+		it("$containsAll()", function(){
 			var set = [1, 2];
 
-			expect($hasSubset(set, [1,2])).toBeTruthy();
+			expect($containsAll(set, [1,2])).toBeTruthy();
 
-			expect($hasSubset(set, [1])).toBeTruthy();
+			expect($containsAll(set, [1])).toBeTruthy();
 
-			expect($hasSubset(set, [3])).toBeFalsy();
+			expect($containsAll(set, [3])).toBeFalsy();
 
-			expect($hasSubset(set, [])).toBeFalsy();
+			expect($containsAll(set, [])).toBeFalsy();
 		});
 	});
 });
