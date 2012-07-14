@@ -2,89 +2,135 @@ $run(function(){
 	eval($global.all);
 
 	/**
-	 * 将源对象包装成另一个对象，并且不污染源对象
+	 * 将源对象包装成增强的对象，并且不污染源对象
+	 * @param {Object} o
+	 * @param {String} [name] 指定一个包装器
 	 */
 	var I$ = {
-		type: "function",
+		type: "function(o)",
 		member: {
-			//注册一个wrapper
-			regist: "function(wrapper, interface)",
+			/**
+			 * 注册一个wrapper
+			 * @param {Module} wrapper
+			 * @param {Interface} interface
+			 * @param {String} name
+			 */
+			regist: "function(wrapper, interface, name)",
 
-			//反注册一个wrapper
-			unregist: "function(wraper, interface)",
+			/**
+			 * 反注册一个wrapper
+			 * @param {Interface} interface
+			 * @param {String} name
+			 */
+			unregist: "function(interface, name)",
 
-			//根据interface获取一个wrapper
-			getWrapper: "function(interface)",
+			/**
+			 * 根据interface获取一个wrapper
+			 * @param {Interface} interface
+			 * @param {String} name
+			 */
+			getWrapper: "function(interface, name)",
 
-			//查找对象的wrapper
-			findWrapper: "function(o)"
+			/**
+			 * 查找对象的wrapper
+			 * @param {Object} o
+			 * @param {String} name
+			 */
+			findWrapper: "function(o, name)",
+
+			/**
+			 * 设置某个接口的默认wrapper
+			 * @param {Interface} interface
+			 * @param {String} name
+			 */
+			setDefault: "function(interface, name)"
 		}
 	};
 
+	/**
+	 * 将源对象包装成增强的对象
+	 * @param {Object} o
+	 * @param {String} [name] 指定一个包装器
+	 */
+	var I$$ = {
+		type: "function(o)"
+	}
 
-	function $(target, name) {
-		var newo = {target: target};
+	function $(o /*, name */) {
+		var name = arguments[1];
+		var proxy = {target: o};
 
 		//copy function member
-		$everyKey(target, function(key, value) {
+		$everyKey(o, function(key, value) {
 			if(typeof value == "function"){
-				newo[key] = value.bind(newo.target);
+				proxy[key] = value.bind(proxy.target);
 			}
 		});
 
-		//mix wrapper
+		//include wrapper
 		//module中this.x＝xx不会设置到target上，要设置到target请使用this.set(x, xx);
-		//!!! @todo 考虑要不要给Module.onIncluded方法传递$(target),考虑mix到对象时是否绑定到$(target),避免直接操作target对象
-		$.findWrapper(target, name).reverse().forEach(function(wrapper){
-			$mix(wrapper, newo);
+		//!!! @todo 考虑要不要给Module.onIncluded方法传递$(target),考虑include到对象时是否绑定到$(target),避免直接操作target对象
+		$.findWrapper(o, name).reverse().forEach(function(wrapper){
+			$include(wrapper, proxy);
 		}); 
 
-		return newo;
+		return proxy;
 	}
 
 
-	function $$(o, name){
+	function $$(o /* ,name */){
+		var name = arguments[1];
 		$.findWrapper(o, name).reverse().forEach(function(wrapper){
-			$mix(wrapper, o);
+			$include(wrapper, o);
 		});
 		return o;
 	}
 
+	var DEFAULT = "@default";
+
 	$.__wrapper = {};
 
 	$.regist = function(wrapper, interface, name) {
-		if(name  === "@default")return;
+		if(name  === DEFAULT)return;
 
-		$callWithAll(function(face){
-			var map = this.__wrapper[face];
+		if(interface instanceof Array){
+			interface.forEach(function(face){
+				$.regist(wrapper, face, name);
+			});
+		}else{
+			var map = this.__wrapper[interface];
 			if(!map){
-				map = this.__wrapper[face] = {"@default": null};
+				map = this.__wrapper[interface] = {"@default": null};
 			}
 
-			this.__wrapper[face][name] = wrapper;
-		}, interface, $);
+			this.__wrapper[interface][name] = wrapper;
+		}
 	}
 
 	$.setDefault = function(interface, name){
 		var wp = this.getWrapper(interface, name);
 		if(wp){
-			this.__wrapper[interface]["@default"] = wp;
+			this.__wrapper[interface][DEFAULT] = wp;
 		}
 	}
 
 	$.unregist = function(interface, name) {
 		if(!(interface && name))return;
 
-		$callWithAll(function(face){
-			if(this.__wrapper[face]["@default"] ==  this.getWrapper(face, name)){
-				this.setDefault(face, null);
+		if(interface instanceof Array){
+			interface.forEach(function(face){
+				$.unregist(face, name);
+			});
+		}else{
+			if(this.__wrapper[interface][DEFAULT] ==  this.getWrapper(interface, name)){
+				this.setDefault(interface, null);
 			}
-			delete this.__wrapper[face][name];
-		}, interface, $);
+			delete this.__wrapper[interface][name];
+		}
 	}
 
 	$.getWrapper = function(interface, name) {
-		name = name || "@default"
+		name = name || DEFAULT;
 		var map = this.__wrapper[interface];
 		if(map){
 			return map[name];
@@ -115,18 +161,6 @@ $run(function(){
 		return ws;
 	}
 
-
-	/*
-	function $wrapper(methods, constructor) {
-		var clazz = constructor || function(target){ this.target = target;};
-		clazz.prototype = methods;
-		return clazz;
-	}
-
-	$global("$wrapper", $wrapper);
-	*/
-
 	$global("$", $);
 	$global("$$", $$);
-
 });
