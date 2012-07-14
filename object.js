@@ -1,18 +1,38 @@
 $run(function() {
 	eval($global.all);
 
-
+	/**
+	 * @interface
+	 */
 	var IObject = {
-		member: {
-			//调用父原型(o.__proto__.__proto__)的方法
-			callBase: "function(sName)",
-			//mix a module or object
-			mix: "function(module)",
-			//是否支持某个接口
-			support: "function(interface)",
-			//定义properties
-			property: "function()"
-		}
+		/**
+		 * 获取对象的成员
+		 * @param {String} name
+		 */
+		get: "function(name)",
+		/**
+		 * 设置对象的成员
+		 * @param {String} name
+		 * @param {Object} value
+		 */
+		set: "function(name, value)",
+		/**
+		 * 返回对象的原型
+		 */
+		proto: "function",
+		/**
+		 * 调用父原型(o.__proto__.__proto__)的方法
+		 */
+		callBase: "function()",
+		/**
+		 * 包含一个模块
+		 * @param {Module} module
+		 */
+		include: "function(module)",
+		/**
+		 *定义properties
+		 */
+		property: "function()"
 	}
 
 	/**
@@ -46,11 +66,11 @@ $run(function() {
 				var caller = this.callBase.caller;
 
 				//此处不能用caller.name，因为caller.name可能不是它在对象中的key
-				var fnName = (caller == this.constructor) ? "constructor" : undefined; 
-				if(!fnName){
+				var funcName = (caller == this.constructor) ? "constructor" : undefined; 
+				if(!funcName){
 					$everyKey(this, function(k){
 						if(this[k] == caller){
-							fnName = k;
+							funcName = k;
 						}
 					}, this);
 				}
@@ -58,7 +78,7 @@ $run(function() {
 
 				var protoFn = null;
 				$traceProto(this.proto(), function(proto){
-					var o = proto[fnName];
+					var o = proto[funcName];
 					if(o){
 						protoFn = o;
 						return false; //break;
@@ -69,24 +89,13 @@ $run(function() {
 					return protoFn.apply(this, arguments);
 				}
 			},
-			mix: function(module) {
-				$global.get("$mix")(module, this);
+			include: function(module) {
+				$global.get("$include")(module, this);
 				return this;
 			},
-			support: function(interface){
-				return $support(interface, this);
-			},
-			/**
-			 * @todo return this 还是return Object.definedProperties返回的东西;
-			 */
 			property: function(){
 				$property.apply(this, [this].concat($slice(arguments)));
 				return this;
-			},
-			is: function(spec){
-				return $is(spec, this);
-			},
-			wrap: function(wrapper){
 			}
 	}
 
