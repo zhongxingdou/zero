@@ -36,7 +36,7 @@ $run(function() {
 			} else {
 				var arg0Keys = Object.keys(arg0);
 				var deftKeys = Object.keys(member);
-				if ($hasSubset(deftKeys, arg0Keys)) { //is paramap
+				if ($containsAll(deftKeys, arg0Keys)) { //is paramap
 					paramap = arg0;
 				} else { //as really args 0
 					var key0 = deftKeys[0];
