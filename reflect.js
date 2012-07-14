@@ -3,56 +3,56 @@ $run(function() {
 
 	var Inspect = $module({
 		methods: function(){
-			var allKeys = this.allKeys();
+			var keys = this.keys();
 			var t = this.target;
-			return allKeys.filter(function(k){
+			return keys.filter(function(k){
 				return typeof t[k] == "function";
 			});
 		},
 		properties: function(){
 			return Object.getOwnPropertyNames(this.target);
 		},
-		allKeys: function(){
-			return $allKeys(this.target);
+		keys: function(){
+			return $keys(this.target);
 		},
 		ownKeys: function(){
 			return Object.keys(this.target);
 		},
 		ownProperties: function(){
-			var allKeys = this.allKeys();
+			var keys = this.keys();
 			var t = this.target;
-			return allKeys.forEach(function(k){
+			return keys.forEach(function(k){
 				return t.hasOwnProperty(k);
 			});
 		},
 		publicMethods: function(){
-			var allKeys = this.methods();
-			return allKeys.filter(function(k){
+			var keys = this.methods();
+			return keys.filter(function(k){
 				return !$isPrivate(k);
 			});
 		},
 		privateMethods: function(){
-			var allKeys = this.methods();
-			return allKeys.filter(function(k){
+			var keys = this.methods();
+			return keys.filter(function(k){
 				return $isPrivate(k);
 			});
 		},
 		fields: function(){
-			var allKeys = this.allKeys();
+			var keys = this.keys();
 			var t = this.target;
-			return allKeys.filter(function(k){
+			return keys.filter(function(k){
 				return typeof t[k] != "function";
 			});
 		},
 		publicFields: function(){
-			var allKeys = this.fields();
-			return allKeys.filter(function(k){
+			var keys = this.fields();
+			return keys.filter(function(k){
 				return !$isPrivate(k);
 			});
 		},
 		privateFields: function(){
-			var allKeys = this.fields();
-			return allKeys.filter(function(k){
+			var keys = this.fields();
+			return keys.filter(function(k){
 				return $isPrivate(k);
 			});
 		},
@@ -95,7 +95,7 @@ $run(function() {
 	$.regist(Inspect, Object, "@inspect");
 
 	function $inspect(o){
-		return $(o).wrapWith("@inspect");
+		return $(o).wrap("@inspect");
 	} 
 
 	$global("$inspect", $inspect);
