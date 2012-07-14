@@ -37,3 +37,15 @@ function $clone(o, isDeepClone) {
 	return newo;
 }
 
+
+/**
+* 浅克隆一个对象
+* @param {Object} obj 被克隆的对象
+*/
+function $clone(obj) {
+   function Clone() { } 
+   Clone.prototype = obj;
+   var cloneObj = new Clone();
+   cloneObj.constructor = obj.constructor;
+   return cloneObj;
+}
