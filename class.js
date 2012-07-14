@@ -6,14 +6,10 @@ $run(function() {
 	 */
 	var IClass = { type: "function" };
 
-
-	var supportProto = {}.__proto__ !== undefined;
-
 	/*
 	 * 原型继承
-	 * @param {IClass} fnClazz
-	 * @param {Object} prototype
-	 * @description 
+	 * @param {Class} clazz
+	 * @param {Object} base
 	 */
 	function $extend(clazz, base) {
 		var old = clazz.prototype;
@@ -31,24 +27,45 @@ $run(function() {
 		clazz.baseProto = base.prototype;
 	}
 
+	/**
+	 * @module
+	 */
 	var Clazz = $module({
+		/**
+		 * 继承一个类
+		 * @param {Object} base
+		 */
 		extend: function(base){
 			$extend(this.target, base);
 			delete this.extend;
 			return this;
 		},
+		/**
+		 * 添加类的实现接口名单
+		 * @param {Array} interfaces
+		 */
 		implement: function(interfaces){
-			var implns = this.target.prototype.implns || [];
-			this.target.prototype.implns = implns.concat(interfaces);
+			var implns = this.target.implns || [];
+			this.target.implns = implns.concat(interfaces);
 			return this;
 		},
-		include: function(module, option){
-			$include(module, this.target.prototype, {Class: this.target});
+		/**
+		 * 包含一个模块
+		 * @param {Module} module
+		 */
+		include: function(module){
+			$include(module, this.target.prototype);
+			if(module.implns){
+				this.implement(module.implns);
+			}
 		}
 	});
 
 	$.regist(Clazz, Function, "@functionAsClass");
 
+	/**
+	 * 将构造函数包装成类
+	 */
 	$class = function(fn){
 		return $(fn, "@functionAsClass");
 	}
