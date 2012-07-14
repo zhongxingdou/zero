@@ -1,48 +1,7 @@
 $run(function() {
 	eval($global.all);
 
-	var ITypeSpec;
-	
-	/**
-	 * @class
-	 * 类型
-	 */
-	function TypeSpec(spec) {
-		this.callBase();
-
-		var thisFn = $thisFn();
-		var t = typeof spec;
-
-		if(t == "object"){
-			if(spec instanceof thisFn){
-				return spec
-			}else{
-				if(spec !== null){
-					var k;
-					for(k in spec){
-						this[k] = spec[k];
-					}
-					//var handle = function(key, value){
-						//if(key in spec){
-							//this[key] = spec[key];
-						//}
-					//}
-					//$everyKey(ITypeSpec.member, handle, this);
-				}
-			}
-		}else if(t == "string"){
-			this.typeOf = spec;
-		}else if(t == "function"){
-			this.instanceOf = spec;
-		}else if(t === "undefined"){
-			this.typeOf = t;
-		}
-	}
-
-	$class(TypeSpec).extend($Object);
-
-	ITypeSpec = {
-		member: {
+	var ITypeSpec = {
 			//是值类型还是引用类型，是哪种值类型
 			typeOf: "[string]",
 
@@ -51,9 +10,45 @@ $run(function() {
 
 			//原型链中包含哪些原型
 			prototypeOf: "[object]" 
-		},
-		freeze: false
-	};
+	}
+	
+	/**
+	 * 类型规格
+	 * @class
+	 * @param {Object|String|Function} spec 
+	 */
+	function TypeSpec(spec) {
+		this.callBase();
+
+		var t = typeof spec;
+
+		switch(t){
+			case "object":
+				var thisFn = $thisFn();
+				if(spec instanceof thisFn){
+					return spec
+				}else{
+					if(spec !== null){
+						var k;
+						for(k in spec){
+							this[k] = spec[k];
+						}
+					}
+				}
+				break;
+			case "string":
+				this.typeOf = spec;
+				break;
+			case "function":
+				this.instanceOf = spec;
+				break;
+			case "undefined":
+				this.typeOf = t;
+				break;
+		}
+	}
+
+	$class(TypeSpec).extend($Object);
 
 
 	/**
@@ -65,34 +60,39 @@ $run(function() {
 
 	/**
 	 * 检测对象是否为某种类型
-	 * @param{$Type} type 类型
+	 * @param{Object|TypeSpec} type 类型规格
 	 * @param{Object} o 要检验的对象
 	 */
 	function $is(type, o) {
-		if(type === null)return type === o;
+		if(type === null)return type === o; // 检查对象是否为null
 
+		//确保type是TypeSpec实例
 		if(!(type instanceof TypeSpec)){
 			type = $spec(type);
 		}
 
+		//typeof 判断
 		var t = type.typeOf;
 		if(t){
-			if(t.indexOf("function") != -1){
+			if(t.indexOf("function") != -1){ //function的声明可以写成function(p1, p2)的形式，这种形式一律视为function
 				t = "function";
 			}
 			if(!(typeof(o) === t))return false;
 		}
 
+		//instanceof 判断
 		if (type.instanceOf && !(o instanceof type.instanceOf)) return false;
 
+		//prototypeof 判断
 		var proto = type.prototypeOf;
 		if (proto) {
-			var b = $callWithAll(function(proto){
-				if (!proto.isPrototypeOf(o)) return false;
-				return true;
-			}, proto);
-
-			if(!b)return false;
+			if(proto instanceof Array){
+				if(!$every(proto, function(aproto){
+					return aproto.isPrototypeOf(o);
+				}))return false;
+			}else{
+				if(!proto.isPrototypeOf(o))return false;
+			}
 		}
 
 		return true;
