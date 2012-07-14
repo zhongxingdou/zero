@@ -1,88 +1,76 @@
 (function(host) {
-	var IGlobalMenager = {
+	var IVariableMenager = {
 		type: "function(names, o)",
 		member: {
-			//注册一个变量为全局变量
+			//注册一个变量
 			set: "function(name, o)",
 
-			//返回一个全局变量
+			//返回一个变量
 			get: "function(name):Object",
 
 			//列举所有的全局变量
 			list: "function():Array",
 
-			//返回所有被覆盖的变量
-			getOrigin: "function():Object",
-
-			//恢复覆盖的变量到原来拥有它的对象上
-			restore: "function(name)",
-
-			//复制指定全局变量到某个对象上
-			exportTo: "function(saNames, oTarget)",
+			//导出指定变量到某个对象上
+			exportTo: "function(list, target)",
 			
-			//从owner删除导出到它的变量
-			destroyExported: "function()",
-
-			//提供一个沙箱运行环境，确保所执行的代码引用到的是被管理的全局变量
+			//提供一个沙箱运行环境，确保所执行的代码引用到的是被管理的变量
 			run: "function(fn)",
 
-			//全局变量的默认的复制到目标
-			getOwner: "function()",
-
-			//是否在注册一个全局变量时自动export到defaultTarget
-			autoExport: "boolean",
-
-			//删除一个变量脱离global管理，如果它export到了target，从target对象中也删除
+			//删除一个变量
 			destroy: "function(name)",
 
-			getIsAutoExport: "function()",
-
-			setIsAutoExport: "function(v)",
-
-			changeOwner: "function(newOwner)"
+			//一个用于eval(string)方式声明被管理变量的表达式字符串
+			all: "string"
 		}
 	};
 
 
 
-
-	function GlobalManager(owner, isAutoExport) {
+	/**
+	 * 变量管理类
+	 * @class
+	 */
+	function VariableManager() {
 		this.__member = {};
-		this.__origin = {};
-		this.__owner = owner;
 	}
 
-	GlobalManager.prototype = {
-		getOwner : function(){
-			return this.__owner;
-		},
-		set: function(name, object, autoExport) {
+	VariableManager.prototype = {
+		/**
+		 * 登记一个变量
+		 * @param {String} name 注册名
+		 * @param {Object} object 变量
+		 */
+		set: function(name, object) {
 			if (this.get(name)) {
 				this.destroy(name);
 			}
-
 			this.__member[name] = object;
-			if(autoExport !== false){
-				var owner = this.getOwner();
-				if(owner){
-					var old = owner[name];
-					if (old) {
-						this.__origin[name] = old; 
-					}
 
-					owner[name] = this.get(name);
-				}
-			}
-			
-			this.all = this.getEvalCode();
+			this.__onChange();
 
 			return this;
 		},
 
+		/**
+		 * 注册或者删除一个变量时执行的方法
+		 */
+		__onChange: function(){
+			this.all = this.__getEvalCode();
+		},
+
+		/**
+		 * 根据名称返回变量
+		 * @param {String} name 注册名
+		 */
 		get: function(name) {
 			return this.__member[name];
 		},
 
+		/**
+		 * 返回所有注册的变量
+		 * @return Array
+		 */
 		list: function() {
 			var a = [];
 			for (var p in this.__member) {
@@ -91,56 +79,52 @@
 			return a;
 		},
 
+		/**
+		 * 删除一个变量
+		 * @param {String} name 注册名
+		 */
 		destroy: function(name) {
-			var m = this.get(name);
-
-			var owner = this.getOwner();
-			if(owner && owner[name] === m){
-				try {
-					owner[name] = null;
-					delete owner[name];
-				} catch(e) {}
+			if(name in this.__member){
+				delete this.__member[name];
+				this.__onChange();
 			}
-			delete this.__member[name];
-
-			this.all = this.getEvalCode();
-		},
-
-		restore: function(name) {
-			var o = this.__origin[name];
-			if (o) {
-				var owner = this.getOwner();
-				if(!owner)return;
-
-				var now = owner[name];
-				if(now === this.get(name) || now == null){ //确保没有被重新赋值
-					owner[name] = o;
-					delete this.__origin[name];
-				}
-			}
-		},
-
-		getOrigin: function() {
-			return this.__origin;
 		},
 
 		/**
-		 * 导出指定对象到host对象
+		 * 导出变量到指定对象上
+		 * @param {Array|String} list 要导出的变量名称列表
+		 * @param {Object} target 导出目标对象
+		 *
 		 * @example
-		 * exportTo("*", window);
-		 * exportTo("$class", window);
 		 * exportTo(["$interface", "$module"], window);
 		 */
-		exportTo: function(oTarget, list) {
+		exportTo: function(list, target) {
+			if(typeof list == "string"){
+				list = [list];
+			}
+
 			var ms = list || this.list(),
 				k,
 				self = this;
 
 			ms.forEach(function(k){
-				oTarget[k] = self.get(k);
+				target[k] = self.get(k);
 			});
 		},
 
+		/**
+		 * 运行指定的方法，并按方法的参数名提取管理的变量作为参数
+		 * @param {Function} fn(param1, param2)
+		 * !!!注意fn内部不能引用外部局部变量，只能引用全局的
+		 *
+		 * @example
+		 *	var man = new VariableManager();
+		 *
+		 *	man.set("param1", value1);
+		 *	man.set("param2", value2);
+		 *
+		 *	man.run(function(param1, param2){});
+		 */
 		run: function(fn) {
 			var aNameList = fn.__args;
 			if (!aNameList) {
@@ -167,61 +151,12 @@
 				oList.push(this.get(aNameList[i]));
 			}
 
-			var thisOjb = {};
+			var thisObj = {};
 			fn.apply(thisObj, oList);
 			return this;
 		},
 		
-		destroyExported: function(){
-			var owner = this.getOwner();
-			if(!owner)return;
-
-			var list = this.list(),
-				key;
-
-
-			while(key = list.pop()){
-				if(owner[key] === this.get(key)){ //确保没有被重新赋值
-					try{
-						owner[key] = null;
-						delete owner[key];
-					}catch(e){};
-				}
-			}
-		},
-
-		changeOwner: function(newOwner, needRestore){
-			var k;
-
-			this.destroyExported();
-
-			//restore All oringins
-			if(needRestore){
-				var olds = this.getOrigin();
-				for(k in olds){
-					this.restore(k);
-				}
-			}
-
-
-			this.__origin = {};
-			this.__owner = newOwner;
-
-
-			var ms = this.list();
-			var old;
-			var originMap = this.__origin;
-			while(k = ms.pop()){
-				old = newOwner[k];
-				if (old) {
-					originMap[k] = old; 
-				}
-
-				newOwner[k] = this.get(k);
-			}
-		},
-
-		getEvalCode: function(){
+		__getEvalCode: function(){
 			var list = this.list();
 			var code = [];
 			list.forEach(function(name){
@@ -232,31 +167,29 @@
 	}
 
 
-	function $global(name, o, autoExport) {
+	/**
+	 * 注册一个变量，$global.set的快捷方式
+	 */
+	function $global(name, o) {
 		var self = arguments.callee;
 		var type = typeof name;
 		if(type == "object"){
 			for(var k in name){
-				self.set(k, name[k], autoExport);
+				self.set(k, name[k]);
 			}
 		}else if(type == "string"){
-			self.set(name, o, autoExport);
+			self.set(name, o);
 		}
 		return self;
 	}
 
-	//$global.defaultTarget = host;
-
-	//$global.autoExport = true;
-
-	var hostMan = new GlobalManager();
+	var hostMan = new VariableManager();
 	var p;
 	for(p in hostMan){
 		$global[p] = hostMan[p];
 	}
 	
-	//$global("$global", $global, true);
-	host.$global = $global;
+	$global("VariableManager", VariableManager);
 
-	$global("GlobalManager", GlobalManager);
+	host.$global = $global;
 })(this);
