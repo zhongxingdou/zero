@@ -1,38 +1,70 @@
 $run(function() {
 	eval($global.all);
 
-	var IWrapper = {
+	/**
+	 * Object的默认包装器
+	 */
+	var IObjectWrapper = {
 		target: 'object',
-		get: 'function(k)',
-		set: 'function(k, v)',
-		invoke: 'function(fn, args)',
-		call: 'function(fnName, scope)',
-		apply: 'function(fnName, scope, args)',
-		wrapWith: 'function(wrapper)'
+		/**
+		 * 返回对象的成员
+		 * @param {String} member
+		 */
+		get: 'function(name)',
+		/**
+		 * 给对象成员赋值
+		 * @param {String} member
+		 * @param {Object} value
+		 */
+		set: 'function(member, value)',
+		/**
+		 * 调用对象的一个方法
+		 * @param {String} funcName
+		 * @param {Array} args
+		 */
+		invoke: 'function(funcName, args)',
+		/**
+		 * 调用对象的一个方法，并可指定作为this的对象
+		 * @param {String} funcName
+		 * @param {Object} thisp
+		 */
+		call: 'function(funcName, thisp/*, arg1, arg2,...**/)',
+		/**
+		 * 调用对象的一个方法，并可指定作为this的对象
+		 * @param {String} funcName
+		 * @param {Object} thisp
+		 * @param {Array} args
+		 */
+		apply: 'function(funcName, thisp, args)',
+		/**
+		 * 使用wrapper包装自己
+		 * @param {Module} wrapper
+		 */
+		wrap: 'function(wrapper)'
 	};
 
 	var MObjectWrapper = $module({
-		get: function(k) {
-			return this.target[k];
+		get: function(member) {
+			return this.target[member];
 		},
-		set: function(k, v) {
-			this.target[k] = v;
+		set: function(member, value) {
+			this.target[member] = value;
 			return this;
 		},
-		invoke: function(fnName, args){
-			return this.target[fnName].apply(this.target, $slice(arguments, 1));
+		invoke: function(funcName, args){
+			return this.target[funcName].apply(this.target, $slice(arguments, 1));
 		},
-		call: function(fnName, scope/**args...**/) {
-			return this.target[fnName].apply(scope, $slice(arguments, 2));
+		call: function(funcName, thisp/*, arg1, arg2,...**/) {
+			return this.target[funcName].apply(thisp, $slice(arguments, 2));
 		},
-		apply: function(fnName, scope, args){ 
-			return this.target[fn].apply(scope, args);
+		apply: function(funcName, thisp, args){ 
+			return this.target[fn].apply(thisp, args);
 		},
-		wrapWith: function(wrapper){
+		wrap: function(wrapper){
 			var ws = $.findWrapper(this.target, wrapper);
 			var w;
 			while(w=ws.pop()){
-				$mix(w, this);
+				$include(w, this);
 			}
 			return this;
 		}
