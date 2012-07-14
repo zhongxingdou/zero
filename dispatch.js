@@ -64,7 +64,7 @@ $run(function() {
 			}else{
 				$every(function(fn){
 					opt = fn.option;
-					if(opt && $hasSubset(Object.keys(opt), Object.keys(a0))){
+					if(opt && $containsAll(Object.keys(opt), Object.keys(a0))){
 						args = __objToArray(a0);
 						argc = args.length;
 						return false; //break the loop
