@@ -2,8 +2,12 @@ $run(function() {
 	eval($global.all);
 
 	/**
-	 * 将以逗号分隔的参数转换成Option，并合并默认参数
-	 * 如果你只有一个参数，并且这个参数不是option，而是作为第一个参数，请使用$option({key: value})的形式
+	 * 将arguments转换成key/value形式的参数，并合并参数的默认值
+	 * 如果只有一个参数，且这个参数不是key/value参数，而是作为第一个参数，请使用$option({key: value})的形式
+	 * 因为在参数少于两个时，不推荐使用$option
+	 * key/value参数，指
+	 * @param {Object} argumap 手动指定对象作为key/value参数，此参数通常从方法参数获取
+	 * @param {Object} option 手动指定方法的参数的接口，此参数通过从方法的option属性获取
 	 * @example
 	 * function fn(p1, p2){
 	 *     var option = $option();
@@ -11,7 +15,11 @@ $run(function() {
 	 * }
 	 * fn.option = $interface(...);
 	 */
-	function $option(paramap, option) {
+	function $option(/*argumap, option*/) {
+		var thisArgs = arguments;
+		var argumap = thisArgs[0];
+		var option = thisArgs[1];
+
 		var thisFn = $thisFn(),
 		fn = thisFn.caller,
 		spec = $interface(option || fn.option),
@@ -19,35 +27,35 @@ $run(function() {
 		args = fn.arguments,
 		argc = args.length;
 
-		if (paramap){
-			if($support(spec, paramap)){
-				return __mergeOption(paramap, member);
+		if (argumap){
+			if($support(spec, argumap)){
+				return __mergeOption(argumap, member);
 			}else{
 				throw "arguments invalid";
 			}
 		}
 
-		paramap = paramap || {};
+		argumap = argumap || {};
 
 		var arg0 = args[0];
 		if (argc == 1 && typeof arg0 == 'object') {
-			if (arg0 instanceof Paramap) {
-				paramap = arg0;
+			if (arg0 instanceof ArguMap) {//如果第一个参数是一个argumap，直接认作key/value参数
+				argumap = arg0;
 			} else {
 				var arg0Keys = Object.keys(arg0);
 				var deftKeys = Object.keys(member);
-				if ($containsAll(deftKeys, arg0Keys)) { //is paramap
-					paramap = arg0;
-				} else { //as really args 0
+				if ($containsAll(deftKeys, arg0Keys)) { //如果方法的接口成员包含第一个参数的所有成员，就将第一个参数作为key/value参数
+					argumap = arg0;
+				} else { //作为第一个参数
 					var key0 = deftKeys[0];
-					paramap[key0] = arg0;
+					argumap[key0] = arg0;
 				}
 			}
-		} else {
+		} else {//是普通arguments，将它转为argumap
 			var k, i=0;
 			for(k in member){
 				if(i<argc){
-					paramap[k] = args[i];
+					argumap[k] = args[i];
 				}else{
 					break;
 				}
@@ -55,8 +63,8 @@ $run(function() {
 			}
 		}
 
-		if($support(spec, paramap)){
-			return __mergeOption(paramap, member);
+		if($support(spec, argumap)){
+			return __mergeOption(argumap, member);
 		}else{
 			throw "arguments invalid";
 		}
@@ -73,17 +81,24 @@ $run(function() {
 		return option;
 	}
 
-	function Paramap(hash){
-		for(var k in hash){
-			this[k] = hash[k];
+	/**
+	 * key/value参数类
+	 * @description 
+	 * 通过情况下并不需要将key/value形式的参数实例化成ArguMap，
+	 * 仅在有可能将key/value形式的参数误当作普通参数时强制实例化成ArguMap
+	 */
+	function ArguMap(argsMap){
+		for(var k in argsMap){
+			this[k] = argsMap[k];
 		}
 	}
 
-	function $paramap(hash){
-		return new Paramap(hash);
+	function $argumap(hash){
+		return new ArguMap(hash);
 	}
 
 
+	/*
 	IOptionSpec = {
 		base: ITypeSpec,
 		member: {
@@ -100,10 +115,11 @@ $run(function() {
 	}
 
 	$class(OptionSpec).extend(TypeSpec);
+	*/
 
 
-	$global("$paramap", $paramap);
-	$global("Paramap", Paramap);
+	$global("$argumap", $argumap);
+	$global("ArguMap", ArguMap);
 
 	$global("$option", $option);
 });
