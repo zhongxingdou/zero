@@ -51,12 +51,19 @@ $run(function() {
 			expect(option.key1).toBe(param);
 		});
 
-		it("有两个以上参数时，第一个参数不会被作为hash参数，即使它拥有isOption成员", function(){
-			var param = {isOption: true, key1: {}};
+		it("有两个以上参数时，第一个参数不会被作为key/value参数，即使它是$argumap创建的", function(){
+			var param = $argumap({key1: {}});
 			var option = fn(param, param);
 
 			expect(option.key1).toBe(param);
 			expect(option.key2).toBe(param);
+		});
+
+		it("只有一个参数时，$argumap创建的参数会被当做key/value参数", function(){
+			var key1 = {};
+			var param = $argumap({key1: key1});
+			var option = fn(param);
+			expect(option.key1).toBe(key1);
 		});
 
 	});
