@@ -1,32 +1,31 @@
 $run(function() {
 	eval($global.all);
 
-	/**
-	 * @todo 缓存常见的MemberSpec
-	 * @todo 缓存一个接口中重复的
-	 */
-	var IMemberSpecOption = {
-		member: {
-			required: "boolean",
-			type: [Array, ITypeSpec],
-			ownProperty:  "boolean"
-		},
-		freeze: false
-	};
+	var IMemberSpec = {
+		required: "boolean",
+		type: [Object, Array],
+		ownProperty: "boolean",
+		check: "function(o, name)"
+	}
 
+	/**
+	 * 对象的成员规格
+	 * @todo 缓存常见的MemberSpec，缓存一个接口中重复的
+	 * @param {Object} spec
+	 */
 	function MemberSpec(spec) {
-		if(spec instanceof MemberSpec){
+		var self = arguments.callee;
+
+		if(spec instanceof self){
 				return spec;
 		}
 
-		var self = arguments.callee;
-
 		var t = typeof spec;
-		if (t == "string") {
-			self.__parse(spec, this);
+		if (t == "string") {//字符表达式的形式表示MemberSpec.option
+			$copy(self.__parse(spec), this);
 		}else if(t == "object"){
-			$merge(spec, this);
-		}else if(t == "function"){
+			$copy(spec, this);
+		}else if(t == "function"){ //声明此成员的constructor
 			this.type = spec;
 		}
 
@@ -34,12 +33,17 @@ $run(function() {
 	}
 
 	MemberSpec.option = {
-		required: false,
-		type: null,
+		required: false, //字符串表达式可用[]括住的表示非必须required=false
+		type: null, //字符表达式可用|分隔多种不同的类型
 		ownProperty: false
 	}
 
-	MemberSpec.__parse = function(exp, spec) {
+	/**
+	 * 解析成员规格字符表达式
+	 * @param {String} exp
+	 */
+	MemberSpec.__parse = function(exp) {
+		var spec = {};
 		var m = exp.match(/^\[(.*)\]$/);
 		if (m) {
 			spec.required = false;
@@ -55,6 +59,11 @@ $run(function() {
 	}
 
 	MemberSpec.prototype = {
+		/**
+		 * 检查对象成员是否符合成员规格
+		 * @param {Object} o 成员的拥有者
+		 * @param {String} name 成员的名称
+		 */
 		check: function(o, name) {
 			var v = o[name];
 
