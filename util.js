@@ -88,7 +88,7 @@
 	 * @return Array
 	 */
 	function $slice(items, start) {
-		return Array.prototype.slice.apply(items, [start || 0]);
+		return Array.prototype.slice.call(items, start || 0);
 	}
 
 	/**
@@ -97,7 +97,7 @@
 	 * @return Array
 	 */
 	function $array(items){
-		return Array.prototype.slice.apply(items, 0);
+		return Array.prototype.slice.call(items, 0);
 	}
 
 
@@ -311,7 +311,7 @@
 	vars.push("$copy", "$merge");
 
 	//工厂
-	vars.push("$slice","$enum","$property");
+	vars.push("$slice","$enum","$property", "$array");
 
 	//反射
 	vars.push("$traceProto", "$callBase");
