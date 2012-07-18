@@ -2,25 +2,30 @@ $run(function() {
 	eval($global.all);
 
 	/**
-	 * @todo 
-	 *   1.验证对象的所有成员都符合成员规格
-	 *   2.验证数组的所有项都符合成员规格
-	 *   3.验证对象是否可以拥有规格以外的成员
+	 * 接口
+	 * @todo 验证数组的所有项都符合成员规格
+	 * @param {Object} member 描述对象的成员
+	 * @param {Object} type 描述对象的类型
 	 */
 	function Interface(member, type) {
 		this.base = null;
 		this.freeze = false;
-		this.type = type || Object;
+		this.type = type || Object; //type可以为Object或Function，如是其它的，可以通过base来指定
 		this.member = member;
 
-		if(member.member){
+		if(member.member){//说明为hash形式的参数
 			$copy(member, this);
+			this.type = member.type || Object; //确保忽略type参数，此时它应该定义在member.type
 		}
 
-		if(typeof this.type == 'object'){
+		//if(typeof this.type == 'object'){
+			//this.type = $spec(this.type);
+		//}
+		if(this.type){
 			this.type = $spec(this.type);
 		}
 
+		//将成员的描述实例化成为MemberSpec
 		var p, ms = this.member;
 		for(p in ms){
 			var m = ms[p];
@@ -32,10 +37,19 @@ $run(function() {
 
 
 	Interface.prototype = {
+		/**
+		 * 添加成员描述
+		 * @param {String} name 成员名称
+		 * @param {Object} spec 成员描述
+		 */
 		addMember: function(name, spec){
 			this.member[name] = new MemberSpec(spec);
 			return this;
 		},
+		/**
+		 * 添加成员描述
+		 * @param {String} name 成员名称
+		 */
 		removeMember: function(name){
 			delete this.member[name];
 		}
@@ -70,13 +84,18 @@ $run(function() {
 			member: "[object]",
 			type: ITypeSpec,
 			freeze: "[boolean]",
-			addMember: "function",
-			removeMember: "function"
+			addMember: "function(name, spec)",
+			removeMember: "function(name)"
 		},
 		freeze: false,
 		type: "object"
 	});
 
+	/**
+	 * 检测某个对象是否符合接口描述
+	 * @param {Interface} spec 接口
+	 * @param {Object} o 被检测的对象
+	 */
 	function $support(spec, o) {
 		if (!$is(Interface, spec))spec = $interface(spec);
 
@@ -106,50 +125,28 @@ $run(function() {
 	}
 
 
-
-
-	/*
-	function $typedef(interface, creator, name){
-		var option = $option();
-
-		type.interface = interface;
-				
-		type.validate = function(o){
-			if(!$support(interface, o)){
-				throw "Invalid " + name;
-			}
-		}
-
-		return type;
-	}
-	$typdef.option = {
-		interface: null,
-		creator: function(o){
-			var self = auguments.callee;
-			self.validate(o);
-			$copy(o, this);
-		},
-		name: null
-	}*/
-
-
 	//这两个接口定义在interface定义之前的依赖文件中，在这里成为正式的接口
 	IClass = $interface(IClass);
-	//IClassDefine = $interface(IClassDefine);
 
+	//IClassDefine = $interface(IClassDefine);
 
 	ITypeSpec = $interface(ITypeSpec);
 
 	//IMemberSpec = $interface(IMemberSpec);
 
+
+	//发布全局对象
 	$global("IClass", IClass);
+
 	//$global("IClassDefine", IClassDefine);
+	
 	$global("IObject", IObject);
+
 	$global("ITypeSpec", ITypeSpec);
+
 	//$global("IMemberSpec", IMemberSpec);
 
 
-	//发布全局对象
 	$global("IInterface", IInterface);
 
 	$global("Interface", Interface);
