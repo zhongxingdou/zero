@@ -10,10 +10,7 @@ $run(function() {
 
 		it("以字符串声明类型", function() {
 			var spec = new MemberSpec("string");
-			var pass = spec.check({
-				name: "Poly"
-			},
-			"name");
+			var pass = spec.check({ name: "Poly" }, "name");
 
 			expect(pass).toBeTruthy();
 		});
@@ -21,39 +18,23 @@ $run(function() {
 		it("Type1|Type2形式的多种类型声明", function() {
 			var spec = new MemberSpec("string|number");
 
-			var pass1 = spec.check({
-				name: "Poly"
-			},
-			"name");
+			var pass1 = spec.check({ name: "Poly" }, "name");
 			expect(pass1).toBeTruthy();
 
-			var pass2 = spec.check({
-				age: 8
-			},
-			"age");
+			var pass2 = spec.check({ age: 8 }, "age");
 			expect(pass2).toBeTruthy();
 		});
 
 		it("[Type1|Type2]形式的多种类型声明", function() {
 			var spec = new MemberSpec("[string|number]");
 
-			expect(spec.check({
-				name: "Poly"
-			},
-			"name")).toBeTruthy();
+			expect(spec.check({ name: "Poly" }, "name")).toBeTruthy();
 
-			expect(spec.check({
-				age: 8
-			},
-			"age")).toBeTruthy();
+			expect(spec.check({ age: 8 }, "age")).toBeTruthy();
 
-			expect(spec.check({
-				age: new Date()
-			},
-			"age")).toBeFalsy();
+			expect(spec.check({ age: new Date() }, "age")).toBeFalsy();
 
-			expect(spec.check({},
-			"name")).toBeTruthy();
+			expect(spec.check({}, "name")).toBeTruthy();
 		});
 	});
 
@@ -72,8 +53,7 @@ $run(function() {
 				required: false
 			});
 
-			var pass = spec.check({},
-			"key");
+			var pass = spec.check({}, "key");
 			expect(pass).toBeTruthy();
 		});
 
@@ -90,15 +70,9 @@ $run(function() {
 				type: ["string", "number"]
 			});
 
-			expect(spec.check({
-				name: "Poly"
-			},
-			"name")).toBeTruthy();
+			expect(spec.check({ name: "Poly" }, "name")).toBeTruthy();
 
-			expect(spec.check({
-				age: true
-			},
-			"age")).toBeFalsy();
+			expect(spec.check({ age: true }, "age")).toBeFalsy();
 
 		});
 
