@@ -1,83 +1,88 @@
 $run(function() {
 	eval($global.all);
 
+	/**
+	 * 检视对象
+	 * @module
+	 */
 	var Inspect = $module({
+		/**
+		 * 返回对象的所有方法
+		 */
 		methods: function(){
-			var keys = this.keys();
+			var keys = this.allKeys();
 			var t = this.target;
 			return keys.filter(function(k){
 				return typeof t[k] == "function";
 			});
 		},
-		properties: function(){
-			return Object.getOwnPropertyNames(this.target);
-		},
-		keys: function(){
-			return $keys(this.target);
-		},
-		ownKeys: function(){
-			return Object.keys(this.target);
-		},
-		ownProperties: function(){
-			var keys = this.keys();
-			var t = this.target;
-			return keys.forEach(function(k){
-				return t.hasOwnProperty(k);
-			});
-		},
+		/**
+		 * 返回对象的所有公开方法
+		 */
 		publicMethods: function(){
 			var keys = this.methods();
 			return keys.filter(function(k){
 				return !$isPrivate(k);
 			});
 		},
+		/**
+		 * 返回对象的所有私有方法
+		 */
 		privateMethods: function(){
 			var keys = this.methods();
 			return keys.filter(function(k){
 				return $isPrivate(k);
 			});
 		},
+		/**
+		 * 返回对象的所有数据成员
+		 */
 		fields: function(){
-			var keys = this.keys();
+			var keys = this.allKeys();
 			var t = this.target;
 			return keys.filter(function(k){
 				return typeof t[k] != "function";
 			});
 		},
+		/**
+		 * 返回对象的所有公有数据成员
+		 */
 		publicFields: function(){
 			var keys = this.fields();
 			return keys.filter(function(k){
 				return !$isPrivate(k);
 			});
 		},
+		/**
+		 * 返回对象的所有私有数据成员
+		 */
 		privateFields: function(){
 			var keys = this.fields();
 			return keys.filter(function(k){
 				return $isPrivate(k);
 			});
 		},
+		/**
+		 * 返回对象的非原型链上成员的名称
+		 */
+		keys: function(){
+			return Object.keys(this.target);
+		},
+		/**
+		 * 返回对象的所有成员的名称
+		 */
+		allKeys: function(){
+			return $keys(this.target);
+		},
+		/**
+		 * 返回对象的typeof值
+		 */
 		type: function(){
 			return typeof this.target;
 		},
-		/*
-		implementations: function(){
-			var ar = [];
-			var t = this.target;
-
-			if(t.implns){ 
-				ar = ar.concat(t.implns); 
-			}
-
-			var implns = t.consturctor.implns;
-			if(implns){
-				ar = ar.concat(implns);
-			}
-			return ar;
-		},
-		*/
-		creator: function(){
-			return this.target.constructor;
-		},
+		/**
+		 * 返回对象的原型链
+		 */
 		protoLink: function(){
 			var protos = [];
 			$traceProto(this.target, function(p){
@@ -85,15 +90,28 @@ $run(function() {
 			});
 			return protos;
 		},
+		/**
+		 * 返回对象的原型
+		 */
 		proto: function(){
 			var t = this.target;
 			var supportedProto = {}.__proto__ !== undefined;
 			return supportedProto ? t.__proto__ : t.constructor.prototype;
+		},
+		/**
+		 * 返回对象的constructor
+		 */
+		creator: function(){
+			return this.target.constructor;
 		}
 	});
 
 	$.regist(Inspect, Object, "@inspect");
 
+	/**
+	 * 检视对象
+	 * @param {Object} o
+	 */
 	function $inspect(o){
 		return $(o).wrap("@inspect");
 	} 
