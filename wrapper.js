@@ -52,13 +52,13 @@ $run(function() {
 			return this;
 		},
 		invoke: function(funcName, args){
-			return this.target[funcName].apply(this.target, $slice(arguments, 1));
+			return this.target[funcName].apply(this.target, args);
 		},
 		call: function(funcName, thisp/*, arg1, arg2,...**/) {
 			return this.target[funcName].apply(thisp, $slice(arguments, 2));
 		},
 		apply: function(funcName, thisp, args){ 
-			return this.target[fn].apply(thisp, args);
+			return this.target[funcName].apply(thisp, args);
 		},
 		wrap: function(wrapper){
 			var ws = $.findWrapper(this.target, wrapper);
