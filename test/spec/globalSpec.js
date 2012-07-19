@@ -1,11 +1,11 @@
 $run(function() {
 	eval($global.all);
 
-	describe("VariableManager", function() {
+	describe("z.VariableManager", function() {
 		var man;
 		var owner;
 		beforeEach(function() {
-			man = new VariableManager();
+			man = new z.VariableManager();
 		});
 
 		it("测试.set()和.get()", function() {

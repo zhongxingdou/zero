@@ -4,7 +4,7 @@ $run(function() {
 	describe("$module()", function() {
 		it("$module()创建的对象符合IModule接口", function() {
 			var m = $module({});
-			expect($support(IModule, m)).toBeTruthy();
+			expect($support(z.IModule, m)).toBeTruthy();
 		});
 
 		it("$include()", function() {

@@ -30,7 +30,7 @@ $run(function() {
 	/**
 	 * @module
 	 */
-	var Clazz = $module({
+	var MClass = $module({
 		/**
 		 * 继承一个类
 		 * @param {Object} base
@@ -61,7 +61,7 @@ $run(function() {
 		}
 	});
 
-	$.regist(Clazz, Function, "@functionAsClass");
+	$.regist(MClass, Function, "@functionAsClass");
 
 	/**
 	 * 将构造函数包装成类
@@ -70,7 +70,9 @@ $run(function() {
 		return $(fn, "@functionAsClass");
 	}
 
-	$global("IClass", IClass);
+	z.MClass = MClass;
+
 	$global("$class", $class);
+
 	$global("$extend", $extend);
 });

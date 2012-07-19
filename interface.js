@@ -12,6 +12,7 @@ $run(function() {
 		this.freeze = false;
 		this.type = type || Object; //type可以为Object或Function，如是其它的，可以通过base来指定
 		this.member = member;
+		var MemberSpec = z.MemberSpec;
 
 		if(member.member){//说明为hash形式的参数
 			$copy(member, this);
@@ -43,7 +44,7 @@ $run(function() {
 		 * @param {Object} spec 成员描述
 		 */
 		addMember: function(name, spec){
-			this.member[name] = new MemberSpec(spec);
+			this.member[name] = new z.MemberSpec(spec);
 			return this;
 		},
 		/**
@@ -55,7 +56,7 @@ $run(function() {
 		}
 	}
 
-	$class(Interface).extend($Object);
+	$class(Interface).extend(z.Base);
 
 	/**
 	 * 定义一个接口
@@ -71,18 +72,20 @@ $run(function() {
 	}
 
 
-	IObject = $interface(IObject);
+	$interface(z.IBase);
+
+	$interface(z.ITypeSpec);
 
 	/**
 	 * 接口对象的接口
 	 * 定义了instanceOf的时候
 	 */
 	var IInterface = $interface({
-		base: IObject,
+		base: z.IBase,
 		member: {
 			base: "[object]",
 			member: "[object]",
-			type: ITypeSpec,
+			type: z.ITypeSpec,
 			freeze: "[boolean]",
 			addMember: "function(name, spec)",
 			removeMember: "function(name)"
@@ -124,32 +127,9 @@ $run(function() {
 		return true;
 	}
 
+	z.IInterface = IInterface;
 
-	//这两个接口定义在interface定义之前的依赖文件中，在这里成为正式的接口
-	IClass = $interface(IClass);
-
-	//IClassDefine = $interface(IClassDefine);
-
-	ITypeSpec = $interface(ITypeSpec);
-
-	//IMemberSpec = $interface(IMemberSpec);
-
-
-	//发布全局对象
-	$global("IClass", IClass);
-
-	//$global("IClassDefine", IClassDefine);
-	
-	$global("IObject", IObject);
-
-	$global("ITypeSpec", ITypeSpec);
-
-	//$global("IMemberSpec", IMemberSpec);
-
-
-	$global("IInterface", IInterface);
-
-	$global("Interface", Interface);
+	z.Interface = Interface;
 
 	$global("$interface", $interface);
 

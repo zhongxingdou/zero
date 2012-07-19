@@ -9,7 +9,7 @@ $run(function() {
 			}
 
 			var face = $interface(option);
-			expect($support(IInterface, face)).toBeTruthy();
+			expect($support(z.IInterface, face)).toBeTruthy();
 		});
 
 		it("使用普通对象创建interface", function(){

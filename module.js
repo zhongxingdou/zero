@@ -45,8 +45,10 @@ $run(function(){
 		return o;
 	}
 
-	$global("IModule", IModule);
+	z.IModule = IModule;
+
 	$global("$module", $module);
+
 	$global("$include", $include);
 });
 

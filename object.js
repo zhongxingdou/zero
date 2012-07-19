@@ -4,7 +4,7 @@ $run(function() {
 	/**
 	 * @interface
 	 */
-	var IObject = {
+	var IBase = {
 		/**
 		 * 获取对象的成员
 		 * @param {String} name
@@ -36,13 +36,13 @@ $run(function() {
 	}
 
 	/**
-	 * $Object
+	 * Zobject
 	 * @class
 	 * @description 对象系统的基础类，建议所有对象都以此类作为超类
 	 */
-	function $Object() {}
+	function Base() {}
 
-    $Object.prototype = {
+    Base.prototype = {
 			get: function(name) {
 				return this[name];
 			},
@@ -99,9 +99,10 @@ $run(function() {
 			}
 	}
 
-	$class($Object).implement(IObject);
+	$class(Base).implement(IBase);
 
-	$global("IObject", IObject);
-	$global("$Object", $Object);
+	z.IBase = IBase;
+
+	z.Base = Base;
 });
 

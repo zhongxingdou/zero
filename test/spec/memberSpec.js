@@ -1,22 +1,22 @@
 $run(function() {
 	eval($global.all);
 
-	describe("MemberSpec(string)", function() {
+	describe("z.MemberSpec(string)", function() {
 		it("以[]声明可选项", function() {
-			var spec = new MemberSpec("[string]");
+			var spec = new z.MemberSpec("[string]");
 			var pass = spec.check({}, "name");
 			expect(pass).toBeTruthy();
 		});
 
 		it("以字符串声明类型", function() {
-			var spec = new MemberSpec("string");
+			var spec = new z.MemberSpec("string");
 			var pass = spec.check({ name: "Poly" }, "name");
 
 			expect(pass).toBeTruthy();
 		});
 
 		it("Type1|Type2形式的多种类型声明", function() {
-			var spec = new MemberSpec("string|number");
+			var spec = new z.MemberSpec("string|number");
 
 			var pass1 = spec.check({ name: "Poly" }, "name");
 			expect(pass1).toBeTruthy();
@@ -26,7 +26,7 @@ $run(function() {
 		});
 
 		it("[Type1|Type2]形式的多种类型声明", function() {
-			var spec = new MemberSpec("[string|number]");
+			var spec = new z.MemberSpec("[string|number]");
 
 			expect(spec.check({ name: "Poly" }, "name")).toBeTruthy();
 
@@ -38,9 +38,9 @@ $run(function() {
 		});
 	});
 
-	describe("MemberSpec(object)", function() {
+	describe("z.MemberSpec(object)", function() {
 		it("声明required可选项", function() {
-			var spec = new MemberSpec({
+			var spec = new z.MemberSpec({
 				type: String,
 				required: true
 			});
@@ -49,7 +49,7 @@ $run(function() {
 
 			expect(pass).toBeFalsy();
 
-			var spec = new MemberSpec({
+			var spec = new z.MemberSpec({
 				required: false
 			});
 
@@ -58,7 +58,7 @@ $run(function() {
 		});
 
 		it("required为非", function() {
-			var spec = new MemberSpec({
+			var spec = new z.MemberSpec({
 				type: String,
 				required: true
 			});
@@ -66,7 +66,7 @@ $run(function() {
 		});
 
 		it("声明type", function() {
-			var spec = new MemberSpec({
+			var spec = new z.MemberSpec({
 				type: ["string", "number"]
 			});
 
@@ -77,7 +77,7 @@ $run(function() {
 		});
 
 		it("声明ownProperty", function() {
-			var spec = new MemberSpec({
+			var spec = new z.MemberSpec({
 				ownProperty: true
 			});
 

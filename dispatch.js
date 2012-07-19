@@ -89,6 +89,7 @@ $run(function() {
 	function __parseArgs(overfns, args){
 		var argc = args.length;
 		var a0 = args[0];
+		var ArguMap = z.ArguMap;
 		//如果认定第一个参数为key/value参数，就转换成数组形式，以方便和参数接口进行比较
 		if(argc == 1 && typeof a0 == "object"){
 			if(a0 instanceof ArguMap){ 
@@ -139,5 +140,6 @@ $run(function() {
 	}
 
 	$global("$dispatch", $dispatch);
+
 	$global("$overwriter", $overwriter);
 });

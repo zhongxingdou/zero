@@ -11,6 +11,8 @@
 	完成logger
 	是否实现yield
 	把util方法放到相应对象的wrapper中
+	
+	不以$开头的对象放到Zero对象下
 
 实现$range
 

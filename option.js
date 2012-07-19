@@ -92,34 +92,17 @@ $run(function() {
 			this[k] = argsMap[k];
 		}
 	}
+	
+	$class(ArguMap).extend(z.Base);
 
-	function $argumap(hash){
+	function $argu(hash){
 		return new ArguMap(hash);
 	}
 
 
-	/*
-	IOptionSpec = {
-		base: ITypeSpec,
-		member: {
-			value: Object
-		}
-	}
+	z.ArguMap = ArguMap;
 
-	function OptionSpec(spec){
-		this.callBase();
-	}
-
-	function $optionSpec(spec){
-		return new Option(spec);
-	}
-
-	$class(OptionSpec).extend(TypeSpec);
-	*/
-
-
-	$global("$argumap", $argumap);
-	$global("ArguMap", ArguMap);
+	$global("$argu", $argu);
 
 	$global("$option", $option);
 });

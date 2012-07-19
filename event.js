@@ -5,7 +5,7 @@ $run(function(){
 	 * 事件
 	 * @module
 	 */
-	this.MEvent = $module({
+	var MEvent = $module({
 		/**
 		 * 被包含时初始化引用监听者的map
 		 */
@@ -54,5 +54,5 @@ $run(function(){
 		}
 	});
 
-	$global(this);
+	z.MEvent = MEvent;
 });

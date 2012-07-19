@@ -5,7 +5,7 @@ $run(function() {
 	 * 检视对象
 	 * @module
 	 */
-	var Inspect = $module({
+	var MInspect = $module({
 		/**
 		 * 返回对象的所有方法
 		 */
@@ -106,15 +106,18 @@ $run(function() {
 		}
 	});
 
-	$.regist(Inspect, Object, "@inspect");
+	$.regist(MInspect, Object, "@inspect");
 
 	/**
-	 * 检视对象
+	 * 检视对象，返回一个包含了MInspect模块的对象
 	 * @param {Object} o
+	 * @global
 	 */
 	function $inspect(o){
 		return $(o).wrap("@inspect");
 	} 
+
+	z.MInspect = MInspect;
 
 	$global("$inspect", $inspect);
 });

@@ -1,9 +1,9 @@
 $run(function() {
 	eval($global.all);
 	
-	describe("$Object", function(){
+	describe("z.Base", function(){
 		it("set(),get()", function(){
-			var o = new $Object();
+			var o = new z.Base();
 			var value = {};
 			o.set("prop", value);
 			var prop = o.get("prop");
@@ -11,13 +11,13 @@ $run(function() {
 		});
 
 		it("proto()获取对象的原型", function(){
-			var o = new $Object();
-			expect(o.proto()).toBe($Object.prototype);
+			var o = new z.Base();
+			expect(o.proto()).toBe(z.Base.prototype);
 			expect(o.proto().proto()).toBe(Object.prototype);
 		});
 
 		it("property()设置对象属性", function(){
-			var o = new $Object();
+			var o = new z.Base();
 			o.property("name", {get: function(){return name}, set: function(v){name = v}});
 			var name = "jim";
 			o.name = name;
@@ -25,7 +25,7 @@ $run(function() {
 		});
 
 		it("property()提供默认的getter, setter", function(){
-			var o = new $Object();
+			var o = new z.Base();
 			o.property("name");
 			var name = "jim";
 			o.name = name;
@@ -33,7 +33,7 @@ $run(function() {
 		});
 
 		it("property()一次定义多个属性", function(){
-			var o = new $Object();
+			var o = new z.Base();
 			o.property({
 				"name": {},
 				"age": {}
@@ -46,9 +46,9 @@ $run(function() {
 	}); 
 
 
-	describe("$Object.include()", function(){
+	describe("z.Base.include()", function(){
 		it("include一个普通对象", function(){
-			var o = new $Object();
+			var o = new z.Base();
 			var sayHello = function(){};
 			o.include({
 				sayHello: sayHello
@@ -58,7 +58,7 @@ $run(function() {
 		});
 
 		it("include一个普通对象", function(){
-			var o = new $Object();
+			var o = new z.Base();
 			var sayHello = function(){};
 			o.include({
 				sayHello: sayHello
@@ -68,13 +68,13 @@ $run(function() {
 		});
 	}); 
 
-	describe("$Object.callBase()", function() {
+	describe("z.Base.callBase()", function() {
 		it("调用父类的构造函数", function(){
 			var Class = jasmine.createSpy();
 			var Sub = function(){
 				this.callBase();
 			}
-			$class(Class).extend($Object);
+			$class(Class).extend(z.Base);
 			$class(Sub).extend(Class);
 
 			var asub = new Sub();
@@ -90,7 +90,7 @@ $run(function() {
 				sayHi: sayHi
 			}
 
-			$class(BaseBase).extend($Object);
+			$class(BaseBase).extend(z.Base);
 
 			var param = {};
 			var Class = function() {};
@@ -117,7 +117,7 @@ $run(function() {
 				sayHi: sayHi
 			}
 
-			$class(BaseBase).extend($Object);
+			$class(BaseBase).extend(z.Base);
 
 			var Base = function() {};
 			$class(Base).extend(BaseBase);
@@ -146,7 +146,7 @@ $run(function() {
 				sayHi: sayHi
 			}
 
-			$class(BaseBase).extend($Object);
+			$class(BaseBase).extend(z.Base);
 
 			var Base = function() {};
 			Base.prototype = {
@@ -175,7 +175,7 @@ $run(function() {
 			BaseBase.prototype = {
 				sayHi: sayHi
 			}
-			$class(BaseBase).extend($Object);
+			$class(BaseBase).extend(z.Base);
 
 			var Class = function() {};
 			Class.prototype = {

@@ -29,7 +29,8 @@
 
 	/**
 	 * 变量管理类
-	 * @class
+	 * @constructor
+	 * @mixin
 	 */
 	function VariableManager() {
 		this.__member = {};
@@ -169,6 +170,8 @@
 
 	/**
 	 * 注册一个变量，$global.set的快捷方式
+	 * @global
+	 * @mixes VariableManager
 	 */
 	function $global(name, o) {
 		var self = arguments.callee;
@@ -189,7 +192,7 @@
 		$global[p] = hostMan[p];
 	}
 	
-	$global("VariableManager", VariableManager);
+	z.VariableManager = VariableManager;
 
 	host.$global = $global;
 })(this);

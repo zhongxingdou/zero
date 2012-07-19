@@ -95,7 +95,8 @@ $run(function() {
 		}
 	}
 
-	//$global("IMemberSpec", IMemberSpec);
-	$global("MemberSpec", MemberSpec);
+	$class(MemberSpec).extend(z.Base);
+
+	z.MemberSpec = MemberSpec;
 });
 

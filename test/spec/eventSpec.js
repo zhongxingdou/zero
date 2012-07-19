@@ -1,11 +1,11 @@
 $run(function(){
 	eval($global.all);
 
-	describe("event.js MEvent", function(){
+	describe("z.MEvent", function(){
 
 		it("addListener(), getListerners()", function(){
 			var btn = {};
-			$include(MEvent, btn);
+			$include(z.MEvent, btn);
 
 			var listener = function(){};
 			btn.addListener("click", listener); 
@@ -16,7 +16,7 @@ $run(function(){
 
 		it("removeListener()", function(){
 			var btn = {};
-			$include(MEvent, btn);
+			$include(z.MEvent, btn);
 
 			var listener = function(){};
 			btn.addListener("click", listener); 
@@ -28,7 +28,7 @@ $run(function(){
 
 		it("fire()", function(){
 			var btn = {};
-			$include(MEvent, btn);
+			$include(z.MEvent, btn);
 
 			var listener = jasmine.createSpy();
 			btn.addListener("click", listener); 

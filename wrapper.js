@@ -72,5 +72,6 @@ $run(function() {
 
 
 	$.regist(MObjectWrapper, Object, "@object");
+
 	$.setDefault(Object, "@object");
 });

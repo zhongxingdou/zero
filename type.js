@@ -48,7 +48,7 @@ $run(function() {
 		}
 	}
 
-	$class(TypeSpec).extend($Object);
+	$class(TypeSpec).extend(z.Base);
 
 
 	/**
@@ -99,9 +99,9 @@ $run(function() {
 	}
 
 
-	$global("ITypeSpec", ITypeSpec);
+	z.TypeSpec = TypeSpec;
 
-	$global("TypeSpec", TypeSpec);
+	z.ITypeSpec = ITypeSpec;
 
 	$global("$spec", $spec);
 
