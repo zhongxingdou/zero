@@ -72,7 +72,7 @@ $run(function() {
 	 * @param {Function[]} fns 方法数组
 	 * @return Function
 	 */
-	function $overwriter(/*fn1, fn2, fn... */){
+	function $overwrite(/*fn1, fn2, fn... */){
 		var fns = $array(arguments);
 		return function(){
 			var fn = $dispatch(fns);
@@ -141,5 +141,5 @@ $run(function() {
 
 	$global("$dispatch", $dispatch);
 
-	$global("$overwriter", $overwriter);
+	$global("$overwrite", $overwrite);
 });

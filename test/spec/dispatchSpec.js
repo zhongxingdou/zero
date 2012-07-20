@@ -70,7 +70,7 @@ $run(function() {
 			expect(fn({name: "jim", age: 8})).toBe(fnWithStringAndNumber);
 		});
 
-		it("$overwriter生成一个方法，此方法使用$dispatch选择一个重载方法，并执行它", function(){
+		it("$overwrite生成一个方法，此方法使用$dispatch选择一个重载方法，并执行它", function(){
 			var fnWithStringAndNumber = jasmine.createSpy();
 			fnWithStringAndNumber.option = {
 				name: 'string',
@@ -84,7 +84,7 @@ $run(function() {
 				interest: 'string'
 			}
 
-			var fn = $overwriter(fnWithStringAndNumber, fnWithTwoString);
+			var fn = $overwrite(fnWithStringAndNumber, fnWithTwoString);
 			fn("jim", 8);
 
 			//expect(fnWithStringAndNumber).toHaveBeenCalledWith(["jim",8]);
