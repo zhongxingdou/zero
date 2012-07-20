@@ -49,52 +49,6 @@
 	//将转换器设为默认的(它所支持的类型转换)
 	$convert.setDefault(conv)
 
-### 全局变量管理
-
-	//声明全局变量
-	$global("$convert");
-
-	//删除全局变量
-	$global.delete("$convert");
-
-	//查询是否已经定义
-	$global.hasDefined("$convert");
-
-	//查询冲突
-	$global.??
-
-	//列出所有注册的全局变量
-	$global.list();
-
-	//安全使用已注册的全局变量
-	$global.$var
-
-### 利用配置来生成对象的结构
-### 学习ext的配置参数
-
-### 给IE或其它不支持function.name的浏览器增加该属性，以让
-
-### $global
-在声明方法时更简单？！，不需要！！！，因为$global在声明其它的对象时还得这样写
-
-### 我们的代码在干嘛
-	
-	声明设置变量 global
-
-	查找数据 sql
-	收集数据
-
-	转换数据 convert
-
-	调用功能
-	
-	关联对象 link on
-
-	流程控制 $each $eachKey 
-	
-### mixin and merge
-	$(obj).mixin(obj);
-	$(obj).merge(obj); 
 	
 ### delegate
 	$delegate("getCellData")
@@ -102,8 +56,5 @@
 	aObj.__delegateObj = bObj 
 	aObj.setDelegate(bObj);
 	this.getCellData.call();
-### other
-
-	增加Option类，它应该是一个接口对象，option.validate为true时，检查参数
 
 
