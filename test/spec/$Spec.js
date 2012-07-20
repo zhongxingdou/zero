@@ -3,7 +3,7 @@ $run(function() {
 
 	describe("$()", function() {
 		var name = "@myWp";
-		var type = "number";
+		var type = Number;
 		var spy = jasmine.createSpy("aw");
 
 		afterEach(function() {
