@@ -57,6 +57,11 @@ $run(function(){
 	}
 
 	function $(o /*, name */) {
+		var type = typeof o;
+		if(type != "object" && type != "function"){
+			o = new o.constructor(o);
+		}
+
 		var name = arguments[1];
 		var proxy = {target: o};
 
@@ -79,10 +84,18 @@ $run(function(){
 
 
 	function $$(o /* ,name */){
+		var type = typeof o;
+		if(type != "object" && type != "function"){
+			o = new o.constructor(o);
+		}
+
 		var name = arguments[1];
 		$.findWrapper(o, name).reverse().forEach(function(wrapper){
 			$include(wrapper, o);
 		});
+
+		o.target = o;
+
 		return o;
 	}
 
@@ -154,8 +167,6 @@ $run(function(){
 					});
 				}
 			});
-		}else{
-			ws.push($.getWrapper(type, name));
 		}
 
 		return ws;
