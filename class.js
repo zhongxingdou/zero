@@ -66,7 +66,7 @@ $run(function() {
 	/**
 	 * 将构造函数包装成类
 	 */
-	$class = function(fn){
+	var $class = function(fn){
 		return $(fn, "@functionAsClass");
 	}
 
