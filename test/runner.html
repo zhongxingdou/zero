@@ -13,6 +13,7 @@
   <script src="lib/jasmine-1.1.0/jasmine-html.js"></script>
 
   <script src="../lib/es5-shim.js"></script>
+
   <script src="../zero.js"></script>
 
   <script src="../global.js"></script>
@@ -41,13 +42,12 @@
 
   <script src="../event.js"></script>
 
-  <script src="../reflect.js"></script>
+  <script src="../inspect.js"></script>
 
   <script>
-	  $global.exportTo(["$every","everyKey","$trace","$traceProto","$", "$$"]， this);
+	  $global.exportTo($global.list(), this);
   </script>
 
-  <!-- include spec files here... -->
   <script src="spec/globalSpec.js"></script>
 
   <script src="spec/utilSpec.js"></script>
@@ -74,7 +74,7 @@
 
   <script src="spec/eventSpec.js"></script>
 
-  <script src="spec/reflectSpec.js"></script>
+  <script src="spec/inspectSpec.js"></script>
 
   <script >
     (function() {
@@ -104,7 +104,6 @@
 
     })();
   </script>
-
 </head>
 <body>
 </body>
