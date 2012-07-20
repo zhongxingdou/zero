@@ -311,7 +311,7 @@
 	vars.push("$copy", "$merge");
 
 	//工厂
-	vars.push("$slice","$enum","$property", "$array");
+	vars.push("$slice","$enum","$property", "$array", "$fn");
 
 	//反射
 	vars.push("$traceProto", "$callBase");
