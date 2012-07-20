@@ -5,7 +5,8 @@ $run(function() {
 		required: "boolean",
 		type: [Object, Array],
 		ownProperty: "boolean",
-		check: "function(o, name)"
+		check: "function(o, name)",
+		value: Object
 	}
 
 	/**
