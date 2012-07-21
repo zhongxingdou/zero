@@ -78,7 +78,7 @@ $run(function() {
 	describe("$$()", function(){
 		it("$$()包装对象", function(){
 			$.regist({
-				sayHello: function(){},
+				sayHello: function(){}
 			}, Object, "@myWrapper");
 
 			var o = {};
