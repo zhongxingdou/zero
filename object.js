@@ -17,7 +17,7 @@ $run(function() {
 		 */
 		set: "function(name, value)",
 		/**
-		 * 返回对象的原型
+		 * 返回对象的原型，o.__proto__
 		 */
 		proto: "function",
 		/**
@@ -58,7 +58,11 @@ $run(function() {
 					}
 				}else{
 					return function(){
-						return  this.constructor.prototype;
+						if(this.constructor.prototype === this){
+							return this.constructor.baseProto;
+						}else{
+							return this.constructor.prototype;
+						}
 					}
 				}
 			})(), 
@@ -99,10 +103,13 @@ $run(function() {
 			}
 	}
 
+	//手动维护到Object的继承关系
+	Base.prototype.constructor = Base; 
+	Base.baseProto = Object.prototype;
+
 	$class(Base).implement(IBase);
 
 	z.IBase = IBase;
 
 	z.Base = Base;
 });
-

@@ -12,8 +12,8 @@ $run(function() {
 
 		it("proto()获取对象的原型", function(){
 			var o = new z.Base();
-			//expect(o.proto()).toBe(z.Base.prototype);
-			//expect(o.proto().proto()).toBe(Object.prototype);
+			expect(o.proto()).toBe(z.Base.prototype);
+			expect(o.proto().proto()).toBe(Object.prototype);
 		});
 
 		it("property()设置对象属性", function(){
