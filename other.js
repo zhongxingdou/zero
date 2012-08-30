@@ -49,3 +49,24 @@ function $clone(obj) {
    cloneObj.constructor = obj.constructor;
    return cloneObj;
 }
+
+function $clone(o){
+	switch(typeof(o)){
+		case "string":
+		case "number":
+		case "boolean":
+		case "undefined":
+		case null:
+			return o;
+		case "object":
+			if($is(Array, o)){
+				return o.slice(0);
+			}else{
+				 function clone() { } 
+				 clone.prototype = o;
+				 var c = new clone();
+				 c.constructor = clone;
+				 return c;
+			}
+	}
+}
