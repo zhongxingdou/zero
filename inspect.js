@@ -103,6 +103,13 @@ $run(function() {
 		 */
 		creator: function(){
 			return this.target.constructor;
+		},
+		/**
+		 * 返回对象已实现的接口
+		 */
+		implns: function(){
+			var ar = this.__implementions__;
+			return (ar ? [] : ar.slice(0));
 		}
 	});
 
