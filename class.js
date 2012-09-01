@@ -1,10 +1,16 @@
 $run(function() {
 	eval($global.all);
 
-	/*
-	 *定义类对象的接口
-	 */
-	var IClass = { type: "function" };
+	/**
+	* @interface
+	*/
+	var IClass = {
+		type: "function",
+		member: {
+			"baseProto": {type: "object", required: false},
+			"__implementations__": {type: "Array", required: false}
+		}
+	}
 
 	/*
 	 * 原型继承
@@ -31,22 +37,28 @@ $run(function() {
 	 * @module
 	 */
 	var MClass = $module({
+		onIncluded: function() {
+			$implement(this, [IObject, IClass]);
+		},
 		/**
 		 * 继承一个类
 		 * @param {Object} base
 		 */
 		extend: function(base){
 			$extend(this.target, base);
-			delete this.extend;
+			delete this.extend; //防止多继承,只能用一次
 			return this;
 		},
 		/**
 		 * 添加类的实现接口名单
-		 * @param {Array} interfaces
+		 * @param {Object|Array} interfaces
 		 */
-		implement: function(interfaces){
-			var implns = this.target.implns || [];
-			this.target.implns = implns.concat(interfaces);
+		implement: function(ainterface){
+			var proto = this.target.prototype;
+			//是要添加到类的原型对象上，而不是类本身，所以需要原型存在
+			if(proto){
+				$implement(proto, ainterface);
+			}
 			return this;
 		},
 		/**
@@ -55,24 +67,15 @@ $run(function() {
 		 */
 		include: function(module){
 			$include(module, this.target.prototype);
-			if(module.implns){
-				this.implement(module.implns);
-			}
+			return this;
 		}
 	});
 
-	$.regist(MClass, Function, "@functionAsClass");
+	$.regist(MClass, Function, "toClass");
 
-	/**
-	 * 将构造函数包装成类
-	 */
-	var $class = function(fn){
-		return $(fn, "@functionAsClass");
-	}
+	z.IClass = IClass;
 
 	z.MClass = MClass;
-
-	$global("$class", $class);
 
 	$global("$extend", $extend);
 });

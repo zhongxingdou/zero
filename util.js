@@ -1,6 +1,65 @@
 (function(HOST) {
 	eval($global.all);
 
+	/*
+	 * 原型继承
+	 * @param {Class} clazz
+	 * @param {Object} base
+	 */
+	function $extend(clazz, base) {
+		var old = clazz.prototype;
+		
+		var fn = function() {};
+		fn.prototype = base.prototype;
+		clazz.prototype = new fn();
+
+		var proto = clazz.prototype;
+		if(old){
+			$copy(old, proto);
+		}
+
+		proto.constructor = clazz;
+		clazz.baseProto = base.prototype;
+	}
+
+
+	/**
+	* 声明对象实现了某接口，并将接口存入__implementations__中
+	*/
+	function $implement(o, ainterface){
+		var implns = o.__implementations__;
+		if(!implns){ 
+			 o.__implementations__ = ainterface instanceof Array ? ainterface.slice[0] : [ainterface];
+		}else{
+			$uniqPush(implns, ainterface);
+		}
+	}
+	/**
+	* 将一个或一组对象压入目标数组，并且确保目标数组中不包含压入对象
+	* @param {Array} ar 要压入对象的数组
+	* @param {Object|Array} o 要压入的对象
+	*/
+	function $uniqPush(ar, o) {
+		if(o instanceof Array){
+			for(var i=0, l=o.length; i<l; i++){
+				$uniqPush(ar, o[i]);
+			}
+			return;
+		}
+
+		if(ar.indexOf){
+			if(ar.indexOf(o) == -1){
+				ar.push(o);	
+			}
+		}else{
+			var l = ar.length;
+			while(l--){
+				if(ar[l] == o)return;
+			}
+			ar.push(o);
+		}
+	}
+
 	/**
 	 * 遍历数组或集合对象，处理函数返回false将中断遍历
 	 * @param {Array|Object} items 集合对象
@@ -308,7 +367,7 @@
 	var vars = ["$every", "$everyKey", "$trace"];
 
 	//操作与比较
-	vars.push("$copy", "$merge");
+	vars.push("$copy", "$merge", "$uniqPush", "$implement", "$extend");
 
 	//工厂
 	vars.push("$slice","$enum","$property", "$array", "$fn");

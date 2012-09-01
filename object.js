@@ -32,7 +32,15 @@ $run(function() {
 		/**
 		 *定义properties
 		 */
-		property: "function()"
+		property: "function()",
+		/**
+		 * 声明实现一个接口,引声明会加入到对象的已实现接口列表中
+		 */
+		implement: "function(ainterface)",
+		/**
+		 * 获取对象已经实现的接口
+		 */
+		getImplns: "function()"
 	}
 
 	/**
@@ -40,7 +48,13 @@ $run(function() {
 	 * @class
 	 * @description 对象系统的基础类，建议所有对象都以此类作为超类
 	 */
-	function Base() {}
+	function Base() {
+		//这里是Base的实例的“已实现接口列表”，而不是Base自己的
+		this.__implementations__ = [IBase];
+	}
+
+	//声明Base这个类对象本身实现IClass接口
+	$implement(Base, z.IClass);
 
     Base.prototype = {
 			get: function(name) {
@@ -100,14 +114,23 @@ $run(function() {
 			property: function(){
 				$property.apply(this, [this].concat($slice(arguments)));
 				return this;
+			},
+			implement: function(ainterface){
+				$implement(this, ainterface);
+				return this;
+			},
+			getImplns: function(){
+				return this.__implementations__.slice(0);
 			}
 	}
+
+	$implement(Base.prototype, IBase);
 
 	//手动维护到Object的继承关系
 	Base.prototype.constructor = Base; 
 	Base.baseProto = Object.prototype;
 
-	$class(Base).implement(IBase);
+	$$(Base).toClass();
 
 	z.IBase = IBase;
 

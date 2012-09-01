@@ -193,6 +193,25 @@ $run(function() {
 
 			expect(sayHi).toHaveBeenCalledWith();
 		});
+
+		it("对象添加实现的接口成功", function(){
+			var o = new z.Base();
+			var a = {};
+			o.implement(a);
+
+			expect(o.__implementations__).toContain(a);
+			expect(o.getImplns()).toContain(a);
+
+			var b = {};
+			var c = {};
+			o.implement([c, b]);
+
+			expect(o.__implementations__).toContain(c);
+			expect(o.__implementations__).toContain(b);
+
+			expect(o.getImplns()).toContain(c);
+			expect(o.getImplns()).toContain(b);
+		})
 	});
 });
 

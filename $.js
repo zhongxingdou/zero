@@ -12,24 +12,24 @@ $run(function(){
 			/**
 			 * 注册一个wrapper
 			 * @param {Module} wrapper
-			 * @param {Interface} interface
+			 * @param {Interface} ainterface
 			 * @param {String} name
 			 */
-			regist: "function(wrapper, interface, name)",
+			regist: "function(wrapper, ainterface, name)",
 
 			/**
 			 * 反注册一个wrapper
-			 * @param {Interface} interface
+			 * @param {Interface} ainterface
 			 * @param {String} name
 			 */
-			unregist: "function(interface, name)",
+			unregist: "function(ainterface, name)",
 
 			/**
 			 * 根据interface获取一个wrapper
-			 * @param {Interface} interface
+			 * @param {Interface} ainterface
 			 * @param {String} name
 			 */
-			getWrapper: "function(interface, name)",
+			getWrapper: "function(ainterface, name)",
 
 			/**
 			 * 查找对象的wrapper
@@ -40,10 +40,10 @@ $run(function(){
 
 			/**
 			 * 设置某个接口的默认wrapper
-			 * @param {Interface} interface
+			 * @param {Interface} ainterface
 			 * @param {String} name
 			 */
-			setDefault: "function(interface, name)"
+			setDefault: "function(ainterface, name)"
 		}
 	};
 
@@ -57,9 +57,13 @@ $run(function(){
 	}
 
 	function $(o /*, name */) {
+		if(o == null)return;
+
 		var type = typeof o;
+
 		if(type != "object" && type != "function"){
-			o = new o.constructor(o);
+			var clazz = eval(type.charAt(0).toUpperCase() + type.slice(1));
+			o = new clazz(o);
 		}
 
 		var name = arguments[1];
@@ -84,6 +88,8 @@ $run(function(){
 
 
 	function $$(o /* ,name */){
+		if(o == null)return;
+
 		var type = typeof o;
 		if(type != "object" && type != "function"){
 			o = new o.constructor(o);
@@ -99,52 +105,52 @@ $run(function(){
 		return o;
 	}
 
-	var DEFAULT = "@default";
+	var DEFAULT = "default";
 
 	$.__wrapper = {};
 
-	$.regist = function(wrapper, interface, name) {
+	$.regist = function(wrapper, ainterface, name) {
 		if(name  === DEFAULT)return;
 
-		if(interface instanceof Array){
-			interface.forEach(function(face){
+		if(ainterface instanceof Array){
+			ainterface.forEach(function(face){
 				$.regist(wrapper, face, name);
 			});
 		}else{
-			var map = this.__wrapper[interface];
+			var map = this.__wrapper[ainterface];
 			if(!map){
-				map = this.__wrapper[interface] = {"@default": null};
+				map = this.__wrapper[ainterface] = {"default": null};
 			}
 
-			this.__wrapper[interface][name] = wrapper;
+			this.__wrapper[ainterface][name] = wrapper;
 		}
 	}
 
-	$.setDefault = function(interface, name){
-		var wp = this.getWrapper(interface, name);
+	$.setDefault = function(ainterface, name){
+		var wp = this.getWrapper(ainterface, name);
 		if(wp){
-			this.__wrapper[interface][DEFAULT] = wp;
+			this.__wrapper[ainterface][DEFAULT] = wp;
 		}
 	}
 
-	$.unregist = function(interface, name) {
-		if(!(interface && name))return;
+	$.unregist = function(ainterface, name) {
+		if(!(ainterface && name))return;
 
-		if(interface instanceof Array){
-			interface.forEach(function(face){
+		if(ainterface instanceof Array){
+			ainterface.forEach(function(face){
 				$.unregist(face, name);
 			});
 		}else{
-			if(this.__wrapper[interface][DEFAULT] ==  this.getWrapper(interface, name)){
-				this.setDefault(interface, null);
+			if(this.__wrapper[ainterface][DEFAULT] ==  this.getWrapper(ainterface, name)){
+				this.setDefault(ainterface, null);
 			}
-			delete this.__wrapper[interface][name];
+			delete this.__wrapper[ainterface][name];
 		}
 	}
 
-	$.getWrapper = function(interface, name) {
+	$.getWrapper = function(ainterface, name) {
 		name = name || DEFAULT;
-		var map = this.__wrapper[interface];
+		var map = this.__wrapper[ainterface];
 		if(map){
 			return map[name];
 		}
@@ -160,9 +166,9 @@ $run(function(){
 				var w = $.getWrapper(clazz, name);
 				w && ws.push(w);
 
-				if(clazz.implns){
-					clazz.implns.each(function(interface){
-						w= $.getWrapper(interface, name)
+				if(clazz.__implementations__){
+					clazz.__implementations__.each(function(ainterface){
+						w= $.getWrapper(ainterface, name)
 						w && ws.push(w);
 					});
 				}
@@ -171,6 +177,9 @@ $run(function(){
 
 		return ws;
 	}
+
+	$implement($, I$);
+	$implement($$, I$$);
 
 	$global("$", $);
 	$global("$$", $$);

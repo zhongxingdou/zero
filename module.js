@@ -1,5 +1,14 @@
 $run(function(){
 	eval($global.all);
+
+	/**
+	* IObject
+	* @interface
+	*/
+	var IObject = {
+		__implementations__: Array
+	}
+
 	/**
 	 * IModule
 	 * @interface
@@ -26,28 +35,29 @@ $run(function(){
 			module.onIncluded.call(toObj);
 		}
 
-		//让调用include的一方来决定是否把module.implns复制过去
-		//if(module.implns){
-			//if(!toObj.implns){
-				//toObj.implns = [].concat(module.implns);
-			//}else{
-				//@todo 去除重复的
-				//toObj.implns.concat(module.implns);
-			//}
-		//}
+		//只给包含__implementations__成员的对象加入模块实现的接口
+		var definedImplns = toObj.__implementations__ != null;
+		if(definedImplns){
+			var ainterface = module.getImplns ? module.getImplns() : module.__implementations__;
+			if(ainterface){
+				$implement(toObj, ainterface);
+			}
+		}
 	}
 
-	/**
-	 * 声明一个模块
-	 * @param {Object} o 模块
-	 */
-	function $module(o){
-		return o;
+	var MModule = {
+		onIncluded: function () {
+			$implement(this, [IObject, IModule]);
+		}
 	}
+
+	$.regist(MModule, Object, "toModule");
+
+	z.IObject = IObject;
 
 	z.IModule = IModule;
 
-	$global("$module", $module);
+	z.MModule = MModule;
 
 	$global("$include", $include);
 });
