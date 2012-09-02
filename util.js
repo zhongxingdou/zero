@@ -45,13 +45,14 @@
 	/**
 	* 声明对象实现了某接口，并将接口存入__implementations__中
 	*/
-	function $implement(o, ainterface){
+	function $implement(ainterface, o){
 		var implns = o.__implementations__;
 		if(!implns){ 
 			 o.__implementations__ = ainterface instanceof Array ? ainterface.slice[0] : [ainterface];
 		}else{
 			$uniqPush(implns, ainterface);
 		}
+		return o;
 	}
 	/**
 	* 将一个或一组对象压入目标数组，并且确保目标数组中不包含压入对象

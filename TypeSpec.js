@@ -20,6 +20,8 @@ $run(function() {
 	function TypeSpec(spec) {
 		this.callBase();
 
+		this.implement(ITypeSpec);
+
 		var t = typeof spec;
 
 		switch(t){
@@ -48,8 +50,7 @@ $run(function() {
 		}
 	}
 
-	$class(TypeSpec).extend(z.Base);
-
+	$$(TypeSpec).toClass().extend(z.Base);
 
 	/**
 	 * new $Type()的别名
@@ -97,7 +98,6 @@ $run(function() {
 
 		return true;
 	}
-
 
 	z.TypeSpec = TypeSpec;
 

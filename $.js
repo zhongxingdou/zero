@@ -43,7 +43,21 @@ $run(function(){
 			 * @param {Interface} ainterface
 			 * @param {String} name
 			 */
-			setDefault: "function(ainterface, name)"
+			setDefault: "function(ainterface, name)",
+
+			/**
+			 * 查找除exceptName外的对象的所有wrapper
+			 * @param {Object} o
+			 * @param {String} exceptName
+			 */
+			findWrapperNamesExcept: "function(o, exceptName)",
+
+			/**
+			 * 根据interface获取exceptName外的所有wrapper
+			 * @param {Interface} ainterface
+			 * @param {String} exceptName
+			 */
+			getWrapperNamesExcept: "function(ainterface, exceptName)"
 		}
 	};
 
@@ -69,29 +83,29 @@ $run(function(){
 		var name = arguments[1];
 		var proxy = {target: o};
 
-		//copy function member
+		//复制所有成员方法到代理对象上
 		$everyKey(o, function(key, value) {
 			if(typeof value == "function"){
 				proxy[key] = value.bind(proxy.target);
 			}
 		});
 
-		//include wrapper
 		//module中this.x＝xx不会设置到target上，要设置到target请使用this.set(x, xx);
-		//!!! @todo 考虑要不要给Module.onIncluded方法传递$(target),考虑include到对象时是否绑定到$(target),避免直接操作target对象
-		$.findWrapper(o, name).reverse().forEach(function(wrapper){
+		$.findWrapper(o, name).forEach(function(wrapper){
 			$include(wrapper, proxy);
 		}); 
 
-		!name && $.findWrapperNamesExcept(o, name).reverse().forEach(function(wrapperName){
-			//不要覆盖对象的原有成员，要wrap还可以通过o.wrap(wrapperName)来实现
-			if(!proxy[wrapperName]){
-				proxy[wrapperName] = function(){
-					$(proxy, wrapperName);
-					return proxy;
+		if(!name){
+			$.findWrapperNamesExcept(o, name).forEach(function(wrapperName){
+				//不要覆盖对象的原有成员，要wrap还可以通过o.wrap(wrapperName)来实现
+				if(!proxy[wrapperName]){
+					proxy[wrapperName] = function(){
+						$(proxy, wrapperName);
+						return proxy;
+					}
 				}
-			}
-		});
+			});
+		}
 
 		return proxy;
 	}
@@ -126,18 +140,19 @@ $run(function(){
 			$traceProto(o, function(proto){
 				var clazz = proto.constructor;
 				var w = $.getWrapperNamesExcept(clazz, exceptName);
-				ws = ws.concat(w);
+				$uniqPush(ws, w);
 
-				if(clazz.__implementations__){
-					clazz.__implementations__.each(function(ainterface){
-						w= $.getWrapperNamesExcept(ainterface, exceptName)
-						ws = ws.concat(w);
+				var interfaces = proto.__implementations__;
+				if(interfaces){
+					interfaces = interfaces.slice[0];
+					interfaces.each(function(ainterface){
+						w = $.getWrapperNamesExcept(ainterface, exceptName)
+						$uniqPush(ws, w);
 					});
 				}
 			});
 		}
-
-		return ws;
+		return ws.reverse();
 	}
 
 
@@ -145,27 +160,51 @@ $run(function(){
 		if(o == null)return;
 
 		var type = typeof o;
+
 		if(type != "object" && type != "function"){
-			o = new o.constructor(o);
+			var clazz = eval(type.charAt(0).toUpperCase() + type.slice(1));
+			o = new clazz(o);
 		}
 
+		//备份扩展过程中要覆盖的成员
+		var overwrites = ["__origin__", "target"];
+		var defined__origin__ = o.__origin__ != null;
+		o.__origin__ = defined__origin__ ? {__origin__: o.__origin__} : {};
+
+		if(o.target)o.__origin__.target = o.target;
 		o.target = o;
 
 		var name = arguments[1];
-		$.findWrapper(o, name).reverse().forEach(function(wrapper){
+		$.findWrapper(o, name).forEach(function(wrapper){
 			$include(wrapper, o);
 		});
 
-		!name && $.findWrapperNamesExcept(o, name).reverse().forEach(function(wrapperName){
-			//不要覆盖对象的原有成员，要wrap还可以通过o.wrap(wrapperName)来实现
-			if(!o[wrapperName]){
-				o[wrapperName] = function(){
-					$$(o, wrapperName);
-					return o;
-				}
-			}
-		});
+		var __origin__ = o.__origin__;
+		//删除覆盖的
+		for(var i=0, l=overwrites.length; i<l; i++){
+			delete o[overwrites[i]];
+		}
+		//恢复原有的
+		for(var k in __origin__){
+			o[k] = __origin__[k];
+		}
 
+		if(!name){
+			$.findWrapperNamesExcept(o, name).forEach(function(wrapperName){
+				//不要覆盖对象的原有成员，要wrap还可以通过o.wrap(wrapperName)来实现
+				if(!o[wrapperName]){
+					o[wrapperName] = function(){
+						$$(o, wrapperName);
+						return o;
+					}
+				}
+			});
+		}
+
+		if(o.target){
+			o.__origin__ = {target: o.target};
+		}
+		o.target = o;
 		return o;
 	}
 
@@ -231,22 +270,24 @@ $run(function(){
 			$traceProto(o, function(proto){
 				var clazz = proto.constructor;
 				var w = $.getWrapper(clazz, name);
-				w && ws.push(w);
+				w && $uniqPush(ws, w);
 
-				if(clazz.__implementations__){
-					clazz.__implementations__.each(function(ainterface){
+				var interfaces = proto.__implementations__;
+				if(interfaces){
+					interfaces = interfaces.slice[0];
+					interfaces.each(function(ainterface){
 						w= $.getWrapper(ainterface, name)
-						w && ws.push(w);
+						w && $uniqPush(ws, w);
 					});
 				}
 			});
 		}
 
-		return ws;
+		return ws.reverse();
 	}
 
-	$implement($, I$);
-	$implement($$, I$$);
+	$implement(I$, $);
+	$implement(I$$, $$);
 
 	$global("$", $);
 	$global("$$", $$);

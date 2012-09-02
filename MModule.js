@@ -19,7 +19,7 @@ $run(function(){
 
 	var MModule = {
 		onIncluded: function () {
-			$implement(this, IModule);
+			$implement(IModule, this);
 		}
 	}
 

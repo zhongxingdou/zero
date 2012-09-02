@@ -59,7 +59,7 @@ $run(function() {
 		return spec;
 	}
 
-	MemberSpec.prototype = {
+	MemberSpec.prototype = $implement(IMemberSpec, {
 		/**
 		 * 检查对象成员是否符合成员规格
 		 * @param {Object} o 成员的拥有者
@@ -94,9 +94,9 @@ $run(function() {
 
 			return true;
 		}
-	}
+	});
 
-	$class(MemberSpec).extend(z.Base);
+	$$(MemberSpec).toClass().extend(z.Base);
 
 	z.MemberSpec = MemberSpec;
 });

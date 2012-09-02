@@ -12,27 +12,6 @@ $run(function() {
 		}
 	}
 
-	/*
-	 * 原型继承
-	 * @param {Class} clazz
-	 * @param {Object} base
-	 */
-	function $extend(clazz, base) {
-		var old = clazz.prototype;
-		
-		var fn = function() {};
-		fn.prototype = base.prototype;
-		clazz.prototype = new fn();
-
-		var proto = clazz.prototype;
-		if(old){
-			$copy(old, proto);
-		}
-
-		proto.constructor = clazz;
-		clazz.baseProto = base.prototype;
-	}
-
 	/**
 	 * @module
 	 */
@@ -57,7 +36,7 @@ $run(function() {
 			var proto = this.target.prototype;
 			//是要添加到类的原型对象上，而不是类本身，所以需要原型存在
 			if(proto){
-				$implement(proto, ainterface);
+				$implement(ainterface, proto);
 			}
 			return this;
 		},
