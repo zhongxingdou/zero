@@ -50,7 +50,7 @@ $run(function() {
 	 */
 	function Base() {
 		//这里是Base的实例的“已实现接口列表”，而不是Base自己的
-		this.__implementations__ = [IBase];
+		this.implement(IBase);
 	}
 
 	//声明Base这个类对象本身实现IClass接口
@@ -123,8 +123,6 @@ $run(function() {
 				return this.__implementations__.slice(0);
 			}
 	}
-
-	$implement(Base.prototype, IBase);
 
 	//手动维护到Object的继承关系
 	Base.prototype.constructor = Base; 

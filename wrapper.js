@@ -4,7 +4,7 @@ $run(function() {
 	/**
 	 * Object的默认包装器
 	 */
-	var IObjectWrapper = {
+	var IObject = {
 		target: 'object',
 		/**
 		 * 返回对象的成员
@@ -38,12 +38,20 @@ $run(function() {
 		apply: 'function(funcName, thisp, args)',
 		/**
 		 * 使用wrapper包装自己
-		 * @param {Module} wrapper
+		 * @param {String} wrapperName 包装模块的名称
 		 */
-		wrap: 'function(wrapper)'
+		wrap: 'function(wrapperName)',
+		/**
+		 * 声明对象实现了指定接口
+		 * @param {IInterface|IInterface[]} 接口
+		 */
+		implement: 'function(ainterface)'
 	};
 
-	var MObjectWrapper = $module({
+	var MObject = {
+		onIncluded: function(){
+			this.implement(IObject);
+		},
 		get: function(member) {
 			return this.target[member];
 		},
@@ -60,18 +68,19 @@ $run(function() {
 		apply: function(funcName, thisp, args){ 
 			return this.target[funcName].apply(thisp, args);
 		},
-		wrap: function(wrapper){
-			var ws = $.findWrapper(this.target, wrapper);
+		wrap: function(wrapperName){
+			var ws = $.findWrapper(this.target, wrapperName);
 			var w;
 			while(w=ws.pop()){
 				$include(w, this);
 			}
 			return this;
+		},
+		implement: function(ainterface){
+			$implement(this.target, ainterface);
+			return this;
 		}
-	});
+	}
 
-
-	$.regist(MObjectWrapper, Object, "@object");
-
-	$.setDefault(Object, "@object");
+	$.regist(MObject, Object);
 });

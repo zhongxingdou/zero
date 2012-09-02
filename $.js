@@ -83,7 +83,61 @@ $run(function(){
 			$include(wrapper, proxy);
 		}); 
 
+		!name && $.findWrapperNamesExcept(o, name).reverse().forEach(function(wrapperName){
+			//不要覆盖对象的原有成员，要wrap还可以通过o.wrap(wrapperName)来实现
+			if(!proxy[wrapperName]){
+				proxy[wrapperName] = function(){
+					$(proxy, wrapperName);
+					return proxy;
+				}
+			}
+		});
+
 		return proxy;
+	}
+
+	function _keysExcept(obj, except){
+		var ar = [];
+		for(var k in obj){
+			var m = obj[k];
+			if(except !== k){
+				ar.push(k);
+			}
+		}
+		return ar;
+	}
+
+	$.getWrapperNamesExcept = function(ainterface, exceptName){
+		exceptName = exceptName || DEFAULT;
+		var map = this.__wrapper[ainterface];
+		var ws = [];
+		if(map){
+			ws = _keysExcept(map, exceptName);
+		}
+		return ws;
+	}
+
+	$.findWrapperNamesExcept = function(o, exceptName){
+		exceptName = exceptName || DEFAULT;
+		var type = typeof(o);
+		var ws = [];
+
+		if(type === "object" || type === "function"){
+			$traceProto(o, function(proto){
+				var clazz = proto.constructor;
+				var w = $.getWrapperNamesExcept(clazz, exceptName);
+				ws = ws.concat(w);
+
+				if(clazz.__implementations__){
+					clazz.__implementations__.each(function(ainterface){
+						w= $.getWrapperNamesExcept(ainterface, exceptName)
+						ws = ws.concat(w);
+					});
+				}
+			});
+		}
+
+		return ws;
 	}
 
 
@@ -95,12 +149,22 @@ $run(function(){
 			o = new o.constructor(o);
 		}
 
+		o.target = o;
+
 		var name = arguments[1];
 		$.findWrapper(o, name).reverse().forEach(function(wrapper){
 			$include(wrapper, o);
 		});
 
-		o.target = o;
+		!name && $.findWrapperNamesExcept(o, name).reverse().forEach(function(wrapperName){
+			//不要覆盖对象的原有成员，要wrap还可以通过o.wrap(wrapperName)来实现
+			if(!o[wrapperName]){
+				o[wrapperName] = function(){
+					$$(o, wrapperName);
+					return o;
+				}
+			}
+		});
 
 		return o;
 	}
@@ -110,7 +174,7 @@ $run(function(){
 	$.__wrapper = {};
 
 	$.regist = function(wrapper, ainterface, name) {
-		if(name  === DEFAULT)return;
+		name = name || DEFAULT;
 
 		if(ainterface instanceof Array){
 			ainterface.forEach(function(face){
@@ -122,6 +186,9 @@ $run(function(){
 				map = this.__wrapper[ainterface] = {"default": null};
 			}
 
+			if(this.__wrapper[ainterface][name]){
+				throw "name '" + name + "' has been registed.";
+			}
 			this.__wrapper[ainterface][name] = wrapper;
 		}
 	}

@@ -36,9 +36,9 @@ $run(function() {
 	/**
 	 * @module
 	 */
-	var MClass = $module({
+	var MClass = {
 		onIncluded: function() {
-			$implement(this, [IObject, IClass]);
+			this.implement(IClass);
 		},
 		/**
 		 * 继承一个类
@@ -69,13 +69,13 @@ $run(function() {
 			$include(module, this.target.prototype);
 			return this;
 		}
-	});
+	}
+
+	$$(MClass).toModule();
 
 	$.regist(MClass, Function, "toClass");
 
 	z.IClass = IClass;
 
 	z.MClass = MClass;
-
-	$global("$extend", $extend);
 });

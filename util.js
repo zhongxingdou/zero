@@ -1,6 +1,25 @@
 (function(HOST) {
 	eval($global.all);
 
+	/**
+	 * 包含一个module到对象
+	 * @param {IModule} module 
+	 * @param {Object} toObj 
+	 */
+	function $include(module, toObj, exclude) {
+		var exclude = exclude || [];
+		exclude = exclude.concat("onIncluded","__implementations__");
+		$everyKey(module, function(k, v){
+			if(exclude.indexOf(k) == -1){
+				toObj[k] = v;
+			}
+		});
+
+		if(module.onIncluded){
+			module.onIncluded.call(toObj);
+		}
+	}
+
 	/*
 	 * 原型继承
 	 * @param {Class} clazz
@@ -366,8 +385,11 @@
 	//遍历
 	var vars = ["$every", "$everyKey", "$trace"];
 
+	//OO
+	vars.push("$implement", "$extend", "$include");
+
 	//操作与比较
-	vars.push("$copy", "$merge", "$uniqPush", "$implement", "$extend");
+	vars.push("$copy", "$merge", "$uniqPush");
 
 	//工厂
 	vars.push("$slice","$enum","$property", "$array", "$fn");
