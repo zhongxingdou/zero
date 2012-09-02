@@ -12,6 +12,8 @@ $run(function() {
 		this.freeze = false;
 		this.type = type || Object; //type可以为Object或Function，如是其它的，可以通过base来指定
 		this.member = member;
+
+		this.implement(IInterface);
 		var MemberSpec = z.MemberSpec;
 
 		if(member.member){//说明为hash形式的参数
@@ -56,7 +58,7 @@ $run(function() {
 		}
 	}
 
-	$class(Interface).extend(z.Base);
+	$$(Interface).toClass().extend(z.Base);
 
 	/**
 	 * 定义一个接口
@@ -67,10 +69,8 @@ $run(function() {
 	 */
 	function $interface(member, type) {
 		if(member instanceof Interface)return member;
-
 		return new Interface(member, type);
 	}
-
 
 	$interface(z.IBase);
 
