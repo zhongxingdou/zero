@@ -23,14 +23,14 @@ $run(function() {
 
 		var t = typeof spec;
 		if (t == "string") {//字符表达式的形式表示MemberSpec.option
-			$copy(self.__parse(spec), this);
+			z._copy(self.__parse(spec), this);
 		}else if(t == "object"){
-			$copy(spec, this);
+			z._copy(spec, this);
 		}else if(t == "function"){ //声明此成员的constructor
 			this.type = spec;
 		}
 
-		$merge(arguments.callee.option, this);
+		z._merge(arguments.callee.option, this);
 	}
 
 	MemberSpec.option = {
@@ -96,7 +96,7 @@ $run(function() {
 		}
 	});
 
-	$$(MemberSpec).toClass().extend(z.Base);
+	$class(MemberSpec).extend(z.Base);
 
 	z.MemberSpec = MemberSpec;
 });
