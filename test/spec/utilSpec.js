@@ -2,21 +2,21 @@ $run(function() {
 	eval($global.all);
 
 	describe("util.js", function() {
-		it("$every将在处理函数返回false时中断", function() {
+		it("z._every将在处理函数返回false时中断", function() {
 			var i;
-			$every([1, 2, 3], function(n) {
+			z._every([1, 2, 3], function(n) {
 				i = n;
 				if (n === 2) return false;
 			});
 			expect(i).toBe(2);
 		});
 
-		it("$every遍历完数组时返回true", function() {
-			var b = $every([1, 2, 3], function(n) {});
+		it("z._every遍历完数组时返回true", function() {
+			var b = z._every([1, 2, 3], function(n) {});
 			expect(b).toBe(true);
 		});
 
-		it("$everyKey", function() {
+		it("z._everyKey", function() {
 			var o = {
 				key1: "key1",
 				key2: "key2"
@@ -24,7 +24,7 @@ $run(function() {
 
 			var keys = [];
 			var values = [];
-			$everyKey(o, function(key, v) {
+			z._everyKey(o, function(key, v) {
 				keys.push(key);
 				values.push(v);
 			});
@@ -36,7 +36,7 @@ $run(function() {
 			expect(values).toContain("key2");
 		});
 
-		it("$everyKey()如果处理函数返回false将中断遍历", function() {
+		it("z._everyKey()如果处理函数返回false将中断遍历", function() {
 			var o = {
 				key1: "key1",
 				key2: "key2",
@@ -45,7 +45,7 @@ $run(function() {
 
 			var keys = [];
 			var values = [];
-			$everyKey(o, function(key, v) {
+			z._everyKey(o, function(key, v) {
 				keys.push(key);
 				values.push(v);
 				if (key === "key2") return false;
@@ -55,7 +55,7 @@ $run(function() {
 			expect(values).toNotContain("key3");
 		});
 
-		it("$trace", function() {
+		it("z._trace", function() {
 			var a = {
 				name: 'a'
 			};
@@ -68,7 +68,7 @@ $run(function() {
 				parent: b
 			};
 			var names = [];
-			$trace(c, 'parent', function(item) {
+			z._trace(c, 'parent', function(item) {
 				names.push(item.name);
 			});
 
@@ -78,7 +78,7 @@ $run(function() {
 			exp.toContain('c');
 		});
 
-		it("$traceProto", function() {
+		it("z._traceProto", function() {
 			function A() {};
 			A.prototype = {
 				a1: {}
@@ -90,7 +90,7 @@ $run(function() {
 
 			var b = new B();
 			var ms = [];
-			$traceProto(b, function(proto) {
+			z._traceProto(b, function(proto) {
 				ms.push(proto);
 			});
 
@@ -98,9 +98,9 @@ $run(function() {
 			expect(ms[1]).toBeDefined("b1");
 		});
 
-		it("$slice将fn.arguments转换成Array", function() {
+		it("z._slice将fn.arguments转换成Array", function() {
 			function fn(a1, a2) {
-				var args = $slice(fn.arguments);
+				var args = z._slice(fn.arguments);
 				return args;
 			}
 
@@ -108,9 +108,9 @@ $run(function() {
 			expect(args.constructor).toBe(Array);
 		});
 
-		it("$slice从指定位置开始转换", function() {
+		it("z._slice从指定位置开始转换", function() {
 			function fn(a1, a2, a3) {
-				var args = $slice(fn.arguments, 1);
+				var args = z._slice(fn.arguments, 1);
 				return args;
 			}
 
@@ -120,18 +120,18 @@ $run(function() {
 			expect(args[1]).toBe(3);
 		});
 
-		it("$copy会复制不存在成员", function() {
+		it("z._copy会复制不存在成员", function() {
 			var a = {
 				p1: 'pa'
 			};
 			var b = {};
 
-			$copy(a, b);
+			z._copy(a, b);
 
 			expect(b.p1).toBeDefined();
 		});
 
-		it("$copy会覆盖已经存在的成员", function() {
+		it("z._copy会覆盖已经存在的成员", function() {
 			var a = {
 				p1: 'pa'
 			};
@@ -139,12 +139,12 @@ $run(function() {
 				p1: "pb"
 			};
 
-			$copy(a, b);
+			z._copy(a, b);
 
 			expect(b.p1).toBe("pa");
 		});
 
-		it("$merge会复制不存在的成员", function() {
+		it("z._merge会复制不存在的成员", function() {
 			var a = {
 				p1: 'pa',
 				p2: 'p2'
@@ -153,12 +153,12 @@ $run(function() {
 				p1: "pb"
 			};
 
-			$merge(a, b);
+			z._merge(a, b);
 
 			expect(b.p2).toBeDefined();
 		});
 
-		it("$merge不会覆盖已经存在的成员", function() {
+		it("z._merge不会覆盖已经存在的成员", function() {
 			var a = {
 				p1: 'pa'
 			};
@@ -166,7 +166,7 @@ $run(function() {
 				p1: "pb"
 			};
 
-			$merge(a, b);
+			z._merge(a, b);
 
 			expect(b.p1).toBe("pb");
 		});
@@ -188,9 +188,9 @@ $run(function() {
 		});
 		*/
 
-		it("$keys", function() {
+		it("z._keys", function() {
 			var o = {a: 'a', b: 'b'}
-			var ms = $keys(o)
+			var ms = z._keys(o)
 			expect(ms).toContain('a');
 			expect(ms).toContain('b');
 		});
@@ -255,16 +255,16 @@ $run(function() {
 			fn();
 		});
 
-		it("$containsAll()", function(){
+		it("z._containsAll()", function(){
 			var set = [1, 2];
 
-			expect($containsAll(set, [1,2])).toBeTruthy();
+			expect(z._containsAll(set, [1,2])).toBeTruthy();
 
-			expect($containsAll(set, [1])).toBeTruthy();
+			expect(z._containsAll(set, [1])).toBeTruthy();
 
-			expect($containsAll(set, [3])).toBeFalsy();
+			expect(z._containsAll(set, [3])).toBeFalsy();
 
-			expect($containsAll(set, [])).toBeFalsy();
+			expect(z._containsAll(set, [])).toBeFalsy();
 		});
 	});
 });
