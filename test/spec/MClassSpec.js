@@ -2,55 +2,6 @@ $run(function() {
 	eval($global.all);
 
 	describe("$class()", function() {
-		/*
-		it("创建类无参数", function() {
-			expect($support(IClass, $class())).toBeTruthy();
-		});
-
-		it("创建类只提供类名称", function() {
-			expect($support(IClass, $class("TestClass"))).toBeTruthy();
-		});
-
-		it("创建类define参数为{}", function() {
-			expect($support(IClass, $class("TestClass", {}))).toBeTruthy();
-		});
-
-		it("创建类只有一个参数且这个参数作为define参数", function() {
-			var define = {
-				prototype: {
-					action: 'action'
-				}
-			}
-			var C = $class(define);
-			expect(C.prototype.action).toBeDefined();
-		});
-
-		it("使用匿名构造函数来创建一个匿名类", function() {
-			var cls = $class(function() {});
-			expect($support(IClass, cls)).toBeTruthy();
-		});
-
-
-		it("提供完整的参数来创建一个类", function() {
-			function TestClass() {};
-
-			var define = {
-				properties: {
-					name: "@RW"
-				},
-				prototype: {
-					sayHello: function() {}
-				}
-			};
-
-			$class(TestClass, define);
-
-			expect($support(IClass, TestClass)).toBeTruthy();
-
-			//expect(TestClass.name).toBe("TestClass");
-		});
-		*/
-
 		it("创建类后构造函数的原有prototype没变", function() {
 			function Clazz() {};
 			Clazz.prototype = {
