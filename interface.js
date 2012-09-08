@@ -6,10 +6,12 @@ $run(function() {
 	 * 定义了instanceOf的时候
 	 */
 	var IInterface = $interface({
-		base: "[object]",
-		member: "[object]",
-		type: z.ITypeSpec,
-		freeze: "[boolean]"
+		member: {
+			base: "[object]",
+			member: "[object]",
+			type: z.ITypeSpec,
+			freeze: "[boolean]"
+		}
 	});
 
 	/**
@@ -62,6 +64,7 @@ $run(function() {
 	function $interface(member, type) {
 		var o = parseInterface(member, type);
 		$implement(IInterface, o);
+		return o;
 	}
 
 	/**
@@ -70,7 +73,9 @@ $run(function() {
 	 * @param {Object} o 被检测的对象
 	 */
 	function $support(spec, o) {
-		if (!$is(Interface, spec))spec = $interface(spec);
+		if(!spec.__implementations__ || spec.__implementations__.indexOf(IInterface) == -1){
+			spec = $interface(spec);
+		}
 
 		if (spec.base && !$support(spec.base, o))return false;
 
