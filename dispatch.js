@@ -72,10 +72,10 @@ $run(function() {
 	 * @param {Function[]} fns 方法数组
 	 * @return Function
 	 */
-	function $overwrite(/*fn1, fn2, fn... */){
+	function $dispatch(/*fn1, fn2, fn... */){
 		var fns = $array(arguments);
 		return function(){
-			var fn = $dispatch(fns);
+			var fn = _dispatch(fns);
 			fn && fn.apply(this, arguments);
 		}
 	}
@@ -96,9 +96,9 @@ $run(function() {
 				args = __objToArray(a0);
 			}else{
 				//只要第一个参数能够符合重载方法中其中一个的参数接口，就认为第一参数为key/value的参数
-				$every(overfns, function(fn){
+				z._every(overfns, function(fn){
 					var opt = fn.option;
-					if(opt && $containsAll(Object.keys(opt), Object.keys(a0))){
+					if(opt && z._containsAll(Object.keys(opt), Object.keys(a0))){
 						args = __objToArray(a0);
 						return false; //break the loop
 					}
@@ -113,7 +113,7 @@ $run(function() {
 	 * @param {Function[]} fns 一组方法
 	 * @param {Object} args arguments
 	 */
-	function $dispatch(overfns, args){
+	function _dispatch(overfns, args){
 		var caller = $thisFn().caller,
 			args = __parseArgs(overfns, args || caller.arguments),
 			argc = args.length;
@@ -141,5 +141,5 @@ $run(function() {
 
 	$global("$dispatch", $dispatch);
 
-	$global("$overwrite", $overwrite);
+	// $global("$overwrite", $overwrite);
 });
