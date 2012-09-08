@@ -1,7 +1,7 @@
 $run(function(){
 	eval($global.all);
 
-	describe("ObjectWrapper", function(){
+	describe("MObject", function(){
 		it("get()", function(){
 			var o = {p: {}};
 			expect($(o).get).toBeDefined();
@@ -18,34 +18,34 @@ $run(function(){
 			expect(o.p).toBe(p);
 		});
 
-		it("invoke()调用对象的方法", function(){
+		it("invokeFn()调用对象的方法", function(){
 			var spy = jasmine.createSpy();
 			var o = {method: spy};
 
 			var param = {};
-			$(o).invoke("method", [param]);
+			$(o).invokeFn("method", [param]);
 
 			expect(spy).toHaveBeenCalledWith(param);
 		});
 
-		it("call()调用对象的方法", function(){
+		it("callFn()调用对象的方法", function(){
 			var spy = jasmine.createSpy();
 			var o = {method: spy};
 			
 			var param = {};
 			var thisp = {};
-			$(o).call("method", thisp, param);
+			$(o).callFn("method", thisp, param);
 
 			expect(spy).toHaveBeenCalledWith(param);
 		});
 
-		it("apply()调用对象的方法", function(){
+		it("applyFn()调用对象的方法", function(){
 			var spy = jasmine.createSpy();
 			var o = {method: spy};
 			
 			var param = {};
 			var thisp = {};
-			$(o).apply("method", thisp, [param]);
+			$(o).applyFn("method", thisp, [param]);
 
 			expect(spy).toHaveBeenCalledWith(param);
 		});
