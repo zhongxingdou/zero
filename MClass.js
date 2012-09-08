@@ -32,7 +32,7 @@ $run(function() {
 		 * 添加类的实现接口名单
 		 * @param {Object|Array} interfaces
 		 */
-		implement: function(ainterface){
+		implementToProto: function(ainterface){
 			var proto = this.target.prototype;
 			//是要添加到类的原型对象上，而不是类本身，所以需要原型存在
 			if(proto){
@@ -44,7 +44,7 @@ $run(function() {
 		 * 包含一个模块
 		 * @param {Module} module
 		 */
-		include: function(module){
+		includeToProto: function(module){
 			$include(module, this.target.prototype);
 			return this;
 		}
@@ -57,4 +57,9 @@ $run(function() {
 	z.IClass = IClass;
 
 	z.MClass = MClass;
+
+	function $class(m){
+		return $$(m).toClass();	
+	}
+	$global("$class", $class);
 });
