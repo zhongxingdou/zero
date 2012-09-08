@@ -1,7 +1,7 @@
 $run(function(){
 	eval($global.all);
 
-	var IObserver = {
+	var IEvent = {
 		addListener: "function(event, listener)",
 		on: "function(event, listener)",
 		removeListener: "function(event, listener)",
@@ -14,7 +14,7 @@ $run(function(){
 	 * 事件
 	 * @module
 	 */
-	var MObserver = {
+	var MEvent = {
 		/**
 		 * 被包含时初始化引用监听者的map
 		 */
@@ -63,7 +63,7 @@ $run(function(){
 		}
 	}
 
-	$$(MObserver).toModule().implement(IObserver);
+	$$(MEvent).toModule().implement(IEvent);
 
-	z.MObserver = MObserver;
+	z.MEvent = MEvent;
 });
