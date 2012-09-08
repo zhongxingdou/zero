@@ -2,31 +2,6 @@ $run(function() {
 	eval($global.all);
 
 	describe("typeSpec.js", function() {
-		it("$spec(string)", function() {
-			var string = "object";
-			var type = $spec(string);
-			expect(type.typeOf).toBeDefined();
-			expect(type.typeOf).toBe(string);
-		});
-
-		it("$spec(fn)", function() {
-			var fn = function() {};
-			var type = $spec(fn);
-			expect(type.instanceOf).toBeDefined();
-			expect(type.instanceOf).toBe(fn);
-		});
-
-		it("$typdef(o)", function() {
-			var o = {
-				name: 'hello',
-				typeOf: 'string'
-			};
-			var type = $spec(o);
-			expect($support(z.ITypeSpec, type));
-			expect(type.name).toBeDefined();
-			expect(type.typeOf).toBe('string');
-		});
-
 		it("$is()检验值类型", function() {
 			expect($is('string', '')).toBeTruthy();
 			expect($is('string', 'abc')).toBeTruthy();
@@ -91,10 +66,10 @@ $run(function() {
 			B.prototype = new A();
 			B.prototype.constructor = B();
 
-			var t = $spec({
+			var t = {
 				"instanceOf": B,
 				"prototypeOf": Object.prototype
-			});
+			}
 
 			expect($is(t, new B)).toBeTruthy();
 		});
