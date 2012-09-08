@@ -7,9 +7,13 @@
 	 * @param {Object} toObj 
 	 */
 	function $include(module, toObj, exclude) {
+		var _origin_target = toObj.target;
+		toObj.target = toObj;
+		
 		var exclude = exclude || [];
 		exclude = exclude.concat("onIncluded","__implementations__");
-		$everyKey(module, function(k, v){
+
+		z._everyKey(module, function(k, v){
 			if(exclude.indexOf(k) == -1){
 				toObj[k] = v;
 			}
@@ -17,6 +21,12 @@
 
 		if(module.onIncluded){
 			module.onIncluded.call(toObj);
+		}
+
+		if(_origin_target){
+			toObj.target = _origin_target;
+		}else{
+			delete toObj.target;
 		}
 	}
 
@@ -34,7 +44,7 @@
 
 		var proto = clazz.prototype;
 		if(old){
-			$copy(old, proto);
+			z._copy(old, proto);
 		}
 
 		proto.constructor = clazz;
@@ -50,7 +60,7 @@
 		if(!implns){ 
 			 o.__implementations__ = ainterface instanceof Array ? ainterface.slice[0] : [ainterface];
 		}else{
-			$uniqPush(implns, ainterface);
+			z._uniqPush(implns, ainterface);
 		}
 		return o;
 	}
@@ -59,10 +69,10 @@
 	* @param {Array} ar 要压入对象的数组
 	* @param {Object|Array} o 要压入的对象
 	*/
-	function $uniqPush(ar, o) {
+	function _uniqPush(ar, o) {
 		if(o instanceof Array){
 			for(var i=0, l=o.length; i<l; i++){
-				$uniqPush(ar, o[i]);
+				_uniqPush(ar, o[i]);
 			}
 			return;
 		}
@@ -87,7 +97,7 @@
 	 * @param {Object} thisp 让处理函数执行时this指向它
 	 * @return Boolean
 	 */
-	function $every(items, fn, thisp) {
+	function _every(items, fn, thisp) {
 		if (!items) return true;
 		for (var i = 0, l = items.length; i < l; i++) {
 			if (fn.apply(thisp, [items[i]]) === false) return false;
@@ -103,7 +113,7 @@
 	 * @param {Object} thisp 让处理函数执行时this指向它
 	 * @return Boolean
 	 */
-	function $everyKey(o, fn, thisp){
+	function _everyKey(o, fn, thisp){
 		if(typeof fn != "function")return false;
 
 		for(p in o){ 
@@ -121,7 +131,7 @@
 	 * @param {Object} thisp 让处理函数执行时this指向它
 	 * @return Boolean
 	 */
-	function $trace(o, prop, fn, thisp){
+	function _trace(o, prop, fn, thisp){
 		var a = o;
 		while(a){
 			if(fn.apply(thisp, [a]) === false)return false;
@@ -139,11 +149,11 @@
 	 * @param {Object} thisp 让处理函数执行时this指向它
 	 */
 	if(SUPPORTED_PROTO){
-		function $traceProto(o, fn, thisp) {
-				return $trace(o.__proto__, '__proto__', fn, thisp);
+		function _traceProto(o, fn, thisp) {
+				return _trace(o.__proto__, '__proto__', fn, thisp);
 		}
 	}else{
-		function $traceProto(o, fn, thisp) {
+		function _traceProto(o, fn, thisp) {
 			var proto = o.constructor.prototype;
 			if(proto == o){
 				proto = o.constructor.baseProto;
@@ -166,7 +176,7 @@
 	 * @param {Object} start=0 从第几项开始转换 
 	 * @return Array
 	 */
-	function $slice(items, start) {
+	function _slice(items, start) {
 		return Array.prototype.slice.call(items, start || 0);
 	}
 
@@ -185,7 +195,7 @@
 	 * @param {Object} from
 	 * @param {Object} to
 	 */
-	function $copy(from, to) {
+	function _copy(from, to) {
 		var p;
 
 		for (p in from) {
@@ -200,7 +210,7 @@
 	 * @param {Object} from
 	 * @param {Object} to
 	 */
-	function $merge(from, to) {
+	function _merge(from, to) {
 		var p;
 
 		for (p in from) {
@@ -218,7 +228,7 @@
 	 * @param {Object} o
 	 * @return Array
 	 */
-	function $keys(o){
+	function _keys(o){
 		var p, keys = [];
 		for(p in o){ 
 			keys.push(p);
@@ -254,7 +264,7 @@
 			}
 			Object.defineProperty(obj, name, config);
 		}else if(t == "object"){
-			$everyKey(args[1], function(name, config){
+			z._everyKey(args[1], function(name, config){
 				$property(obj, name, config);
 			});
 		}
@@ -270,7 +280,7 @@
 		//此处不能用caller.name，因为caller.name可能不是它在对象中的key
 		var fnName = (caller == obj.constructor) ? "constructor" : undefined;
 		if(!fnName){
-			$everyKey(obj, function(k){
+			z._everyKey(obj, function(k){
 				if(obj[k] == caller){
 					fnName = k;
 				}
@@ -279,7 +289,7 @@
 
 
 		var protoFn = null;
-		$traceProto(obj.__proto__ || obj.constructor.prototype, function(proto){
+		_traceProto(obj.__proto__ || obj.constructor.prototype, function(proto){
 			var o = proto[fnName];
 			if(o){
 				protoFn = o;
@@ -314,7 +324,7 @@
 		}
 
 		var o = {};
-		$every(arguments, function(k){
+		z._every(arguments, function(k){
 			o[k] = {};
 		});
 		return o;
@@ -364,7 +374,7 @@
 	 * @param {Object} set 主集合
 	 * @param {Object} sub 子集合
 	 */
-	function $containsAll(set, sub) {
+	function _containsAll(set, sub) {
 		var k,
 			count = 0;
 
@@ -383,22 +393,24 @@
 	HOST.$run = $run;
 
 
-	//遍历
-	var vars = ["$every", "$everyKey", "$trace"];
+	z._every = _every;
+	z._everyKey = _everyKey;
 
-	//OO
-	vars.push("$implement", "$extend", "$include");
+	z._trace = _trace;
+	z._traceProto = _traceProto;
 
-	//操作与比较
-	vars.push("$copy", "$merge", "$uniqPush");
+	z._uniqPush = _uniqPush;
+	z._slice = _slice;
+	z._copy = _copy;
+	z._merge = _merge;
 
-	//工厂
-	vars.push("$slice","$enum","$property", "$array", "$fn");
-
-	//反射
-	vars.push("$traceProto", "$callBase");
-
-	vars.push("$isPrivate", "$keys", "$thisFn", "$containsAll");
+	z._keys = _keys;
+	z._containsAll = _containsAll;
+	
+	var vars = [];
+	vars.push("$implement", "$extend", "$callBase","$include");
+	vars.push("$enum","$property", "$array", "$fn");
+	vars.push("$isPrivate", "$thisFn");
 
 	var name;
 	while(name = vars.pop()){
