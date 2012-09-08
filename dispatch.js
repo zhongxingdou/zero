@@ -73,7 +73,14 @@ $run(function() {
 	 * @return Function
 	 */
 	function $dispatch(/*fn1, fn2, fn... */){
-		var fns = $array(arguments);
+		var fns;
+		var arg0 = arguments[0];
+		if($is(Array, arg0)){
+			fns = arg0;
+		}else{
+			fns = $array(arguments);
+		}
+		
 		return function(){
 			var fn = _dispatch(fns);
 			fn && fn.apply(this, arguments);
