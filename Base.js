@@ -56,6 +56,12 @@ $run(function() {
 	}
 
     Base.prototype = $implement(IBase, {
+    		get: function(name){
+    			return this[name];
+    		},
+    		set: function(name, value){
+    			this[name] = value;
+    		},
 			proto: (function(){
 				var SUPPORT_PROTO = {}.__proto__ != undefined;
 				if(SUPPORT_PROTO){
@@ -104,6 +110,15 @@ $run(function() {
 				return this;
 			},
 
+			include: function(module){
+				$include(module, this);
+				return this;
+			},
+
+			implement: function(ainterface){
+				$implement(ainterface, this);
+			},
+
 			getOwnImplns: function(){
 				if(this.hasOwnProperty("__implementations__")){
 					return this.__implementations__.slice(0);
@@ -127,7 +142,7 @@ $run(function() {
 	Base.prototype.constructor = Base; 
 	Base.baseProto = Object.prototype;
 
-	$class(Base).includeToProto(z.MObject);
+	$class(Base);
 
 	z.IBase = IBase;
 
