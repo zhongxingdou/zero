@@ -72,7 +72,7 @@ $run(function() {
 		 * 返回对象的所有成员的名称
 		 */
 		allKeys: function(){
-			return $keys(this.target);
+			return z._keys(this.target);
 		},
 		/**
 		 * 返回对象的typeof值
@@ -85,7 +85,7 @@ $run(function() {
 		 */
 		protoLink: function(){
 			var protos = [];
-			$traceProto(this.target, function(p){
+			z._traceProto(this.target, function(p){
 				protos.push(p);
 			});
 			return protos;
@@ -115,18 +115,19 @@ $run(function() {
 
 	$$(MInspect).toModule();
 
+	z.MInspect = MInspect;
+
+	$.regist(MInspect, Object, "inspect");
+
 	/**
 	 * 检视对象，返回一个包含了MInspect模块的对象
 	 * @param {Object} o
 	 * @global
 	 */
 	function $inspect(o){
-		var proxy = {target: o};
-		$include(MInspect, proxy);
-		return proxy;
-	} 
+		return $(o).inspect();
+	}
 
-	z.MInspect = MInspect;
 	$global("$inspect", $inspect);
 });
 
