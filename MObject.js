@@ -42,6 +42,11 @@ $run(function() {
 		 */
 		wrap: 'function(wrapperName)',
 		/**
+		 * 包含一个模块
+		 * @param {Module} module
+		 */
+		include: "function(module)",
+		/**
 		 * 声明对象实现了指定接口
 		 * @param {IInterface|IInterface[]} 接口
 		 */
@@ -50,7 +55,7 @@ $run(function() {
 
 	var MObject = {
 		onIncluded: function(){
-			this.implement(IMObject);
+			$implement(IMObject, this);
 		},
 		get: function(member) {
 			return this.target[member];
@@ -63,7 +68,7 @@ $run(function() {
 			return this.target[funcName].apply(this.target, args);
 		},
 		callFn: function(funcName, thisp/*, arg1, arg2,...**/) {
-			return this.target[funcName].apply(thisp, $slice(arguments, 2));
+			return this.target[funcName].apply(thisp, z._slice(arguments, 2));
 		},
 		applyFn: function(funcName, thisp, args){ 
 			return this.target[funcName].apply(thisp, args);
@@ -73,9 +78,13 @@ $run(function() {
 			return this;
 		},
 		implement: function(ainterface){
-			$implement(ainterface, this);
+			$implement(ainterface, this.target);
 			return this;
-		}
+		},
+		include: function(module) {
+			$include(module, this.target);
+			return this;
+		},
 	}
 
 	$.regist(MObject, Object);
