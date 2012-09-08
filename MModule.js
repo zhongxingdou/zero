@@ -34,5 +34,9 @@ $run(function(){
 
 	z.MModule = MModule;
 
+	function $module(m){
+		return $$(m).toModule();	
+	}
+	$global("$module", $module);
 });
 
