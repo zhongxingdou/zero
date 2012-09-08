@@ -43,7 +43,7 @@ $run(function() {
 			} else {
 				var arg0Keys = Object.keys(arg0);
 				var deftKeys = Object.keys(member);
-				if ($containsAll(deftKeys, arg0Keys)) { //如果方法的接口成员包含第一个参数的所有成员，就将第一个参数作为key/value参数
+				if (z._containsAll(deftKeys, arg0Keys)) { //如果方法的接口成员包含第一个参数的所有成员，就将第一个参数作为key/value参数
 					argsmap = arg0;
 				} else { //作为第一个参数
 					var key0 = deftKeys[0];

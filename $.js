@@ -84,7 +84,7 @@ $run(function(){
 		var proxy = {target: o};
 
 		//复制所有成员方法到代理对象上
-		$everyKey(o, function(key, value) {
+		z._everyKey(o, function(key, value) {
 			if(typeof value == "function"){
 				proxy[key] = value.bind(proxy.target);
 			}
@@ -137,17 +137,17 @@ $run(function(){
 		var ws = [];
 
 		if(type === "object" || type === "function"){
-			$traceProto(o, function(proto){
+			z._traceProto(o, function(proto){
 				var clazz = proto.constructor;
 				var w = $.getWrapperNamesExcept(clazz, exceptName);
-				$uniqPush(ws, w);
+				z._uniqPush(ws, w);
 
 				var interfaces = proto.__implementations__;
 				if(interfaces){
 					interfaces = interfaces.slice[0];
 					interfaces.each(function(ainterface){
 						w = $.getWrapperNamesExcept(ainterface, exceptName)
-						$uniqPush(ws, w);
+						z._uniqPush(ws, w);
 					});
 				}
 			});
@@ -267,17 +267,17 @@ $run(function(){
 		var ws = [];
 
 		if(type === "object" || type === "function"){
-			$traceProto(o, function(proto){
+			z._traceProto(o, function(proto){
 				var clazz = proto.constructor;
 				var w = $.getWrapper(clazz, name);
-				w && $uniqPush(ws, w);
+				w && z._uniqPush(ws, w);
 
 				var interfaces = proto.__implementations__;
 				if(interfaces){
 					interfaces = interfaces.slice[0];
 					interfaces.each(function(ainterface){
 						w= $.getWrapper(ainterface, name)
-						w && $uniqPush(ws, w);
+						w && z._uniqPush(ws, w);
 					});
 				}
 			});
