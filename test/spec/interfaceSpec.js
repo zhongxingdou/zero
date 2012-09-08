@@ -16,22 +16,7 @@ $run(function() {
 			var face = $interface({
 				m1: {}
 			})
-
 			expect(face.member.m1).toBeDefined();
-		});
-
-		it("addMember()给接口添加成员描述", function(){
-			var face = $interface({m1: {}});
-
-			face.addMember("m2", {});
-			expect(face.member.m2).toBeDefined();
-		});
-
-		it("removeMember()给接口移除成员描述", function(){
-			var face = $interface({m1: {}});
-			face.removeMember("m1");
-			
-			expect(face.member.m1).toBeUndefined();
 		});
 	});
 
