@@ -13,50 +13,29 @@ $run(function() {
 	}
 	
 	/**
-	 * 类型规格
-	 * @class
-	 * @param {Object|String|Function} spec 
+	 * 解析ITypeSpec对象
+	 * @param {ITypeSpec} spec 
 	 */
-	function TypeSpec(spec) {
-		this.callBase();
-
-		this.implement(ITypeSpec);
-
+	function _parseTypeSpec(spec) {
+		var o = {};
 		var t = typeof spec;
+		if(t == "object")return spec;
 
 		switch(t){
-			case "object":
-				var thisFn = $thisFn();
-				if(spec instanceof thisFn){
-					return spec
-				}else{
-					if(spec !== null){
-						var k;
-						for(k in spec){
-							this[k] = spec[k];
-						}
-					}
-				}
-				break;
 			case "string":
-				this.typeOf = spec;
+				o.typeOf = spec;
 				break;
 			case "function":
-				this.instanceOf = spec;
+				o.instanceOf = spec;
 				break;
 			case "undefined":
-				this.typeOf = t;
+				o.typeOf = t;
 				break;
 		}
-	}
 
-	$$(TypeSpec).toClass().extend(z.Base);
+		$implement(ITypeSpec, o);
 
-	/**
-	 * new $Type()的别名
-	 */
-	function $spec(typeSpec) {
-		return (new TypeSpec(typeSpec));
+		return o;
 	}
 
 	/**
@@ -67,10 +46,8 @@ $run(function() {
 	function $is(type, o) {
 		if(type === null)return type === o; // 检查对象是否为null
 
-		//确保type是TypeSpec实例
-		if(!(type instanceof TypeSpec)){
-			type = $spec(type);
-		}
+		//确保type是ITypeSpec对象
+		type = _parseTypeSpec(type);
 
 		//typeof 判断
 		var t = type.typeOf;
@@ -88,7 +65,7 @@ $run(function() {
 		var proto = type.prototypeOf;
 		if (proto) {
 			if(proto instanceof Array){
-				if(!$every(proto, function(aproto){
+				if(!z._every(proto, function(aproto){
 					return aproto.isPrototypeOf(o);
 				}))return false;
 			}else{
@@ -99,11 +76,8 @@ $run(function() {
 		return true;
 	}
 
-	z.TypeSpec = TypeSpec;
-
 	z.ITypeSpec = ITypeSpec;
-
-	$global("$spec", $spec);
+	z.parseTypeSpec = _parseTypeSpec; 
 
 	$global("$is", $is);
 });
