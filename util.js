@@ -7,9 +7,6 @@
 	 * @param {Object} toObj 
 	 */
 	function $include(module, toObj, exclude) {
-		var _origin_target = toObj.target;
-		toObj.target = toObj;
-		
 		var exclude = exclude || [];
 		exclude = exclude.concat("onIncluded","__implementations__");
 
@@ -21,12 +18,6 @@
 
 		if(module.onIncluded){
 			module.onIncluded.call(toObj);
-		}
-
-		if(_origin_target){
-			toObj.target = _origin_target;
-		}else{
-			delete toObj.target;
 		}
 	}
 
