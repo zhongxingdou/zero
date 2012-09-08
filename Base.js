@@ -56,13 +56,6 @@ $run(function() {
 	}
 
     Base.prototype = $implement(IBase, {
-			get: function(name) {
-				return this[name];
-			},
-			set: function(name, value) {
-				this[name] = value;
-				return this;
-			},
 			proto: (function(){
 				var SUPPORT_PROTO = {}.__proto__ != undefined;
 				if(SUPPORT_PROTO){
@@ -85,7 +78,7 @@ $run(function() {
 				//此处不能用caller.name，因为caller.name可能不是它在对象中的key
 				var funcName = (caller == this.constructor) ? "constructor" : undefined; 
 				if(!funcName){
-					$everyKey(this, function(k){
+					z._everyKey(this, function(k){
 						if(this[k] == caller){
 							funcName = k;
 						}
@@ -94,7 +87,7 @@ $run(function() {
 
 
 				var protoFn = null;
-				$traceProto(this.proto(), function(proto){
+				z._traceProto(this.proto(), function(proto){
 					var o = proto[funcName];
 					if(o){
 						protoFn = o;
@@ -106,18 +99,11 @@ $run(function() {
 					return protoFn.apply(this, arguments);
 				}
 			},
-			include: function(module) {
-				$global.get("$include")(module, this);
-				return this;
-			},
 			property: function(){
-				$property.apply(this, [this].concat($slice(arguments)));
+				$property.apply(this, [this].concat(z._slice(arguments)));
 				return this;
 			},
-			implement: function(ainterface){
-				$implement(ainterface, this);
-				return this;
-			},
+
 			getOwnImplns: function(){
 				if(this.hasOwnProperty("__implementations__")){
 					return this.__implementations__.slice(0);
@@ -127,7 +113,7 @@ $run(function() {
 			},
 			getImplns: function(){
 				var ar = this.getOwnImplns();
-				$traceProto(this, function(proto){
+				z._traceProto(this, function(proto){
 					if(proto.hasOwnProperty("__implementations__")){
 						var ainterface = proto.__implementations__;
 						if(ainterface)ar = ar.concat(ainterface);
@@ -141,7 +127,7 @@ $run(function() {
 	Base.prototype.constructor = Base; 
 	Base.baseProto = Object.prototype;
 
-	$$(Base).toClass();
+	$class(Base).includeToProto(z.MObject);
 
 	z.IBase = IBase;
 
