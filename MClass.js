@@ -15,7 +15,7 @@ $run(function() {
 	/**
 	 * @module
 	 */
-	var MClass = {
+	var MClass = $module({
 		onIncluded: function() {
 			this.implement(IClass);
 		},
@@ -48,9 +48,7 @@ $run(function() {
 			$include(module, this.target.prototype);
 			return this;
 		}
-	}
-
-	$$(MClass).toModule();
+	});
 
 	$.regist(MClass, Function, "toClass");
 

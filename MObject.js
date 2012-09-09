@@ -51,9 +51,9 @@ $run(function() {
 		 * @param {IInterface|IInterface[]} 接口
 		 */
 		implement: 'function(ainterface)'
-	};
+	}
 
-	var MObject = {
+	var MObject = $module({
 		onIncluded: function(){
 			$implement(IMObject, this);
 		},
@@ -85,7 +85,7 @@ $run(function() {
 			$include(module, this.target);
 			return this;
 		},
-	}
+	});
 
 	$.regist(MObject, Object);
 
