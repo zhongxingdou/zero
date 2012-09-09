@@ -70,7 +70,7 @@ $run(function(){
 		type: "function(o)"
 	}
 
-	function $(o /*, name */) {
+	function $(o /*, name, isProxy*/) {
 		if(o == null)return;
 
 		var type = typeof o;
@@ -81,14 +81,17 @@ $run(function(){
 		}
 
 		var name = arguments[1];
-		var proxy = {target: o};
+		var isProxy = arguments[2] === true;
+		var proxy = isProxy ? o : {target: o};
 
 		//复制所有成员方法到代理对象上
-		z._everyKey(o, function(key, value) {
-			if(typeof value == "function"){
-				proxy[key] = value.bind(proxy.target);
-			}
-		});
+		if(!isProxy){
+			z._everyKey(o, function(key, value) {
+				if(typeof value == "function"){
+					proxy[key] = value.bind(proxy.target);
+				}
+			});
+		}
 
 		//module中this.x＝xx不会设置到target上，要设置到target请使用this.set(x, xx);
 		$.findWrapper(o, name).forEach(function(wrapper){
@@ -100,7 +103,7 @@ $run(function(){
 				//不要覆盖对象的原有成员，要wrap还可以通过o.wrap(wrapperName)来实现
 				if(!proxy[wrapperName]){
 					proxy[wrapperName] = function(){
-						$(proxy, wrapperName);
+						$(proxy, wrapperName, true);
 						return proxy;
 					}
 				}
@@ -167,11 +170,8 @@ $run(function(){
 		}
 
 		//备份扩展过程中要覆盖的成员
-		var overwrites = ["__origin__", "target"];
-		var defined__origin__ = o.__origin__ != null;
-		o.__origin__ = defined__origin__ ? {__origin__: o.__origin__} : {};
+		if(o.target)o.originTarget = o.target; 
 
-		if(o.target)o.__origin__.target = o.target;
 		o.target = o;
 
 		var name = arguments[1];
@@ -179,15 +179,6 @@ $run(function(){
 			$include(wrapper, o);
 		});
 
-		var __origin__ = o.__origin__;
-		//删除覆盖的
-		for(var i=0, l=overwrites.length; i<l; i++){
-			delete o[overwrites[i]];
-		}
-		//恢复原有的
-		for(var k in __origin__){
-			o[k] = __origin__[k];
-		}
 
 		if(!name){
 			$.findWrapperNamesExcept(o, name).forEach(function(wrapperName){
@@ -201,10 +192,6 @@ $run(function(){
 			});
 		}
 
-		if(o.target){
-			o.__origin__ = {target: o.target};
-		}
-		o.target = o;
 		return o;
 	}
 
