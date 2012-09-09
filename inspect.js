@@ -5,7 +5,7 @@ $run(function() {
 	 * 检视对象
 	 * @module
 	 */
-	var MInspect = {
+	var MInspect = $module({
 		/**
 		 * 返回对象的所有方法
 		 */
@@ -22,7 +22,7 @@ $run(function() {
 		publicMethods: function(){
 			var keys = this.methods();
 			return keys.filter(function(k){
-				return !$isPrivate(k);
+				return !z._isPrivate(k);
 			});
 		},
 		/**
@@ -31,7 +31,7 @@ $run(function() {
 		privateMethods: function(){
 			var keys = this.methods();
 			return keys.filter(function(k){
-				return $isPrivate(k);
+				return z._isPrivate(k);
 			});
 		},
 		/**
@@ -50,7 +50,7 @@ $run(function() {
 		publicFields: function(){
 			var keys = this.fields();
 			return keys.filter(function(k){
-				return !$isPrivate(k);
+				return !z._isPrivate(k);
 			});
 		},
 		/**
@@ -59,7 +59,7 @@ $run(function() {
 		privateFields: function(){
 			var keys = this.fields();
 			return keys.filter(function(k){
-				return $isPrivate(k);
+				return z._isPrivate(k);
 			});
 		},
 		/**
@@ -111,9 +111,8 @@ $run(function() {
 			var ar = this.__implementions__;
 			return (ar ? [] : ar.slice(0));
 		}
-	}
+	});
 
-	$$(MInspect).toModule();
 
 	z.MInspect = MInspect;
 
