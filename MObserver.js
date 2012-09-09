@@ -14,12 +14,13 @@ $run(function(){
 	 * 事件
 	 * @module
 	 */
-	var MEvent = {
+	var MEvent = $module({
 		/**
 		 * 被包含时初始化引用监听者的map
 		 */
 		onIncluded: function(){
-			this.target.__listeners = {};
+			this.__listeners = {};
+			$implement(IEvent, this);
 		},
 		/**
 		 * 添加监听者
@@ -27,8 +28,8 @@ $run(function(){
 		 * @param {Object} listener
 		 */
 		addListener: function(eventName, listener){
-			var all = this.target.__listeners[eventName];
-			if(!all)all = this.target.__listeners[eventName] = [];
+			var all = this.__listeners[eventName];
+			if(!all)all = this.__listeners[eventName] = [];
 			all.push(listener);
 			return this;
 		},
@@ -38,9 +39,9 @@ $run(function(){
 		 * @param {Object} listener
 		 */
 		removeListener: function(eventName, listener){
-			var all = this.target.__listeners[eventName];
+			var all = this.__listeners[eventName];
 			if(!all)return;
-			this.target.__listeners[eventName] = all.filter(function(item){return item != listener});
+			this.__listeners[eventName] = all.filter(function(item){return item != listener});
 			return this;
 		},
 		/**
@@ -48,7 +49,7 @@ $run(function(){
 		 * @param {String} eventName 事件名
 		 */
 		getListerners: function(eventName){
-			return this.target.__listeners[eventName];
+			return this.__listeners[eventName];
 		},
 		/**
 		 * 触发事件
@@ -56,14 +57,12 @@ $run(function(){
 		 * @param {Array} args 传递给事件监听者的参数
 		 */
 		fire: function(eventName, args){
-			this.target.getListerners(eventName).forEach(function(listener){
+			this.getListerners(eventName).forEach(function(listener){
 				listener(args);
 			});
 			return this;
 		}
-	}
-
-	$$(MEvent).toModule().implement(IEvent);
+	});
 
 	z.MEvent = MEvent;
 });
