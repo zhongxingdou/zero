@@ -266,8 +266,8 @@
 	 * @param {Object} o
 	 * @param {Array} args 参数
 	 */
-	function $callBase(obj, args){
-		var caller = $callBase.caller;
+	function $callbase(obj, args){
+		var caller = $callbase.caller;
 		//此处不能用caller.name，因为caller.name可能不是它在对象中的key
 		var fnName = (caller == obj.constructor) ? "constructor" : undefined;
 		if(!fnName){
@@ -337,15 +337,15 @@
 	 * @param {String} name
 	 * @return Boolean
 	 */
-	function $isPrivate(name){
-		return name.toString().match(/^__/);
+	function _isPrivate(name){
+		return name.toString().match(/^_/);
 	}
 
 	/**
 	 * 在方法内部调用，返回方法自身，避免使用方法名来引用自身
 	 */
-	function $thisFn(){
-		return $thisFn.caller;
+	function $fnself(){
+		return $fnself.caller;
 	}
 
 	/**
@@ -397,11 +397,12 @@
 
 	z._keys = _keys;
 	z._containsAll = _containsAll;
+	z._isPrivate = _isPrivate;
 	
 	var vars = [];
-	vars.push("$implement", "$extend", "$callBase","$include");
+	vars.push("$implement", "$extend", "$callbase","$include");
 	vars.push("$enum","$property", "$array", "$fn");
-	vars.push("$isPrivate", "$thisFn");
+	vars.push("$fnself");
 
 	var name;
 	while(name = vars.pop()){

@@ -197,14 +197,14 @@ $run(function() {
 
 		it("$property", function() {});
 
-		it("$callBase(this)将调用父原型的构造函数", function() {
+		it("$callbase(this)将调用父原型的构造函数", function() {
 			var i = 0;
 			function A() {
 				i++;
 			}
 
 			function B() {
-				$callBase(this);
+				$callbase(this);
 			}
 			$extend(B, A);
 
@@ -212,7 +212,7 @@ $run(function() {
 			expect(i).toBe(1);
 		});
 
-		it("$callBase(this)将调用父原型的方法", function() {
+		it("$callbase(this)将调用父原型的方法", function() {
 			function A() {}
 
 			var spy = jasmine.createSpy();
@@ -222,12 +222,12 @@ $run(function() {
 			}
 
 			function B() {
-				$callBase(this);
+				$callbase(this);
 			}
 
 			B.prototype = {
 				action: function() {
-					$callBase(this);
+					$callbase(this);
 				}
 			}
 
@@ -247,9 +247,9 @@ $run(function() {
 
 		});
 
-		it("$thisFn()", function(){
+		it("$fnself()", function(){
 			var fn = function(){
-				expect($thisFn()).toBe(fn);
+				expect($fnself()).toBe(fn);
 			}
 
 			fn();

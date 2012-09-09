@@ -8,7 +8,7 @@ $run(function() {
 	 */
 	function $option(/*params, paramSpec*/) {
 		var args       = arguments,
-			realFn     = $thisFn().caller,
+			realFn     = $fnself().caller,
 			params     = args[0] || realFn.arguments[0] || {},
 			paramSpec  = $interface(args[1] || realFn.option);
 
