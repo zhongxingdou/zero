@@ -99,18 +99,14 @@ $run(function() {
 		var ArguMap = z.ArguMap;
 		//如果认定第一个参数为key/value参数，就转换成数组形式，以方便和参数接口进行比较
 		if(argc == 1 && typeof a0 == "object"){
-			if(a0 instanceof ArguMap){ 
-				args = __objToArray(a0);
-			}else{
-				//只要第一个参数能够符合重载方法中其中一个的参数接口，就认为第一参数为key/value的参数
-				z._every(overfns, function(fn){
-					var opt = fn.option;
-					if(opt && z._containsAll(Object.keys(opt), Object.keys(a0))){
-						args = __objToArray(a0);
-						return false; //break the loop
-					}
-				});
-			}
+			//只要第一个参数能够符合重载方法中其中一个的参数接口，就认为第一参数为key/value的参数
+			z._every(overfns, function(fn){
+				var opt = fn.option;
+				if(opt && z._containsAll(Object.keys(opt), Object.keys(a0))){
+					args = __objToArray(a0);
+					return false; //break the loop
+				}
+			});
 		}
 		return args;
 	}
@@ -121,7 +117,7 @@ $run(function() {
 	 * @param {Object} args arguments
 	 */
 	function _dispatch(overfns, args){
-		var caller = $thisFn().caller,
+		var caller = $fnself().caller,
 			args = __parseArgs(overfns, args || caller.arguments),
 			argc = args.length;
 
@@ -150,3 +146,11 @@ $run(function() {
 
 	// $global("$overwrite", $overwrite);
 });
+
+
+/*
+$dispatch({
+	[Object]: [fn1, fn2], 
+	[String]: fn2
+});
+*/
