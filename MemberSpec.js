@@ -34,7 +34,7 @@ $run(function() {
 	}
 
 	MemberSpec.option = {
-		required: false, //字符串表达式可用[]括住的表示非必须required=false
+		required: true, //字符串表达式可用[]括住的表示非必须required=false
 		type: null, //字符表达式可用|分隔多种不同的类型
 		ownProperty: false
 	}
