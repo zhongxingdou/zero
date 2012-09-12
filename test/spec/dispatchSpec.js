@@ -1,95 +1,90 @@
 $run(function() {
-	eval($global.all);
+    eval($global.all);
 
-	describe("$dispatch()", function(){
-		it("找到参数数量一样的方法", function(){
-			var fnWithOne = jasmine.createSpy();
-			fnWithOne.option = { name: 'string' }
+    describe("$overload()", function() {
+        it("找到参数数量一样的方法", function() {
+            var fnWithOne = jasmine.createSpy();
+            fnWithOne.option = {
+                name: 'string'
+            }
 
-			var fnWithTwo = jasmine.createSpy();
-			fnWithTwo.option = {
-				name: 'string',
-				interest: 'string'
-			}
+            var fnWithTwo = jasmine.createSpy();
+            fnWithTwo.option = {
+                name: 'string',
+                interest: 'string'
+            }
 
-			var fn = $dispatch(fnWithOne, fnWithTwo);
+            var fn = $overload(fnWithOne, fnWithTwo);
 
-			fn("jim");
-			expect(fnWithOne).toHaveBeenCalledWith("jim");
+            var param1 = {
+                name: "jim"
+            };
+            fn(param1);
+            expect(fnWithOne).toHaveBeenCalledWith(param1);
 
-			fn("jim","lily");
-			expect(fnWithTwo).toHaveBeenCalledWith("jim","lily");
-		});
+            var param2 = {
+                name: "jim",
+                interest: "swimming"
+            };
+            fn(param2);
+            expect(fnWithTwo).toHaveBeenCalledWith(param2);
+        });
 
-		it("找到类型相同的方法", function(){
-			var fnWithStringAndNumber = jasmine.createSpy();
-			fnWithStringAndNumber.option = {
-				name: 'string',
-				age: 'number'
-			}
+        it("找到类型相同的方法", function() {
+            var fnWithStringAndNumber = jasmine.createSpy();
+            fnWithStringAndNumber.option = {
+                name: 'string',
+                age: 'number'
+            }
 
-			var fnWithTwoString = jasmine.createSpy();
-			fnWithTwoString.option = {
-				name: 'string',
-				interest: 'string'
-			}
+            var fnWithTwoString = jasmine.createSpy();
+            fnWithTwoString.option = {
+                name: 'string',
+                interest: 'string'
+            }
 
-			var fn = $dispatch([fnWithStringAndNumber, fnWithTwoString]);
+            var fn = $overload(fnWithStringAndNumber, fnWithTwoString);
 
-			fn("jim",8);
-			expect(fnWithStringAndNumber).toHaveBeenCalled();
-			fnWithStringAndNumber.reset();
+            fn({
+                name: "jim",
+                age: 8
+            });
+            expect(fnWithStringAndNumber).toHaveBeenCalled();
+            fnWithStringAndNumber.reset();
 
-			fn("jim","lily");
-			expect(fnWithTwoString).toHaveBeenCalled();
-			fnWithTwoString.reset();
+            fn({
+                name: "jim",
+                interest: "swimming"
+            });
+            expect(fnWithTwoString).toHaveBeenCalled();
+            fnWithTwoString.reset();
 
-			//没有匹配到
-			fn(true,"lily");
-			expect(fnWithTwoString).wasNotCalled();
-			expect(fnWithStringAndNumber).wasNotCalled();
-		});
+            //没有匹配到
+            fn({
+                name: true,
+                interest: "swimming"
+            });
+            expect(fnWithTwoString).wasNotCalled();
+            expect(fnWithStringAndNumber).wasNotCalled();
+        });
 
-		it("key/value参数", function(){
-			var fnWithStringAndNumber = jasmine.createSpy();
-			fnWithStringAndNumber.option = {
-				name: 'string',
-				age: 'number'
-			}
+        it("根据形参的数量不同找到目标方法", function() {
+            var fnTwo = jasmine.createSpy();
+            var fnTwo2 = jasmine.createSpy();
+            var fnOne = jasmine.createSpy();
 
-			var fnWithTwoString = jasmine.createSpy();
-			fnWithTwoString.option = {
-				name: 'string',
-				interest: 'string'
-			}
+            var fn = $overload([fnTwo, [String, String]], [fnOne, [String]]);
 
-			var fn = $dispatch([fnWithStringAndNumber, fnWithTwoString]);
+            fn("abc");
+            expect(fnOne).toHaveBeenCalled();
 
-			var params = {name: "jim", age: 8};
-			fn(params);
-			expect(fnWithStringAndNumber).toHaveBeenCalledWith(params);
-		});
+            fn("abc", "abc");
+            expect(fnTwo).toHaveBeenCalled();
 
-		it("$dispatch生成一个方法，并执行它", function(){
-			var fnWithStringAndNumber = jasmine.createSpy();
-			fnWithStringAndNumber.option = {
-				name: 'string',
-				age: 'number'
-			}
+			fn.overload([fnTwo2, [String, Number]]);
+			fn("abc",3);
+            expect(fnTwo2).toHaveBeenCalled();
+        });
 
-			function fnWithTwoString(){
-			}
-			fnWithTwoString.option = {
-				name: 'string',
-				interest: 'string'
-			}
-
-			var fn = $dispatch(fnWithStringAndNumber, fnWithTwoString);
-			fn("jim", 8);
-
-			//expect(fnWithStringAndNumber).toHaveBeenCalledWith(["jim",8]);
-			expect(fnWithStringAndNumber).toHaveBeenCalled();
-			
-		});
-	});
+    });
 });
