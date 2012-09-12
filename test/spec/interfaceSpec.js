@@ -57,27 +57,24 @@ $run(function() {
 		});
 
 		it("验证[]是Array和Object的实例", function() {
-			var baseFace = $interface({
-				type: {
-					instanceOf: Object
-				}
-			});
-
+			var baseFace = $interface({}, Object); 
 			var face = $interface({
 				base: baseFace,
 				type: {
 					instanceOf: Array
-				}
+				},
+				member: {}
 			});
 
 			expect($support(face, [])).toBeTruthy();
-			expect($support({
+
+			var face2 = {
 				type: Array,
-				base: {
-					type: Object
-				}
-			},
-			[])).toBeTruthy();
+				base: { type: Object, member: {} },
+				member: {}
+			}
+
+			expect($support(face2, [])).toBeTruthy();
 		});
 	});
 });
