@@ -266,6 +266,28 @@ $run(function() {
 
 			expect(z._containsAll(set, [])).toBeFalsy();
 		});
+
+		it("z._isPlainObject()", function(){
+			expect(z._isPlainObject({})).toBeTruthy();
+			expect(z._isPlainObject(new Object)).toBeTruthy();
+
+			expect(z._isPlainObject(window)).toBeFalsy();
+
+			expect(z._isPlainObject(document.body)).toBeFalsy();
+
+			expect(z._isPlainObject([])).toBeFalsy();
+
+			var fn = new Function;
+			expect(z._isPlainObject(new fn)).toBeFalsy();
+
+			expect(z._isPlainObject(new Date)).toBeFalsy();
+
+			expect(z._isPlainObject(new Boolean)).toBeFalsy();
+
+			expect(z._isPlainObject(new Array)).toBeFalsy();
+
+			expect(z._isPlainObject("object")).toBeFalsy();
+		});
 	});
 });
 
