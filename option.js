@@ -1,6 +1,25 @@
 $run(function() {
 	eval($global.all);
 
+	function _setRequiredWithFalse(option){
+		var k, a, t;
+		for(k in option){
+			a = option[k];
+			t = typeof a;
+			if(t == "object"){
+				if(!a.hasOwnProperty["required"]){
+					a.required = false;
+				}
+			}else if(t == "object"){
+				option[k] = {
+					type: t,
+					required: false
+				}
+			}
+		}
+		return option;
+	}
+
 	/**
 	 * 合并参数
 	 * @param {Object} params 手动指定对象作为key/value参数，此参数通常从方法参数获取
@@ -9,8 +28,13 @@ $run(function() {
 	function $option(/*params, paramSpec*/) {
 		var args       = arguments,
 			realFn     = $fnself().caller,
-			params     = args[0] || realFn.arguments[0] || {},
-			paramSpec  = $interface(args[1] || realFn.option);
+			params     = args[0] || realFn.arguments[0] || {};
+
+		var option = args[1] || realFn.option;
+
+		option = _setRequiredWithFalse(option);
+
+		var	paramSpec  = $interface(option);
 
 		if($support(paramSpec, params)){
 			return __mergeOption(params, paramSpec.member);
