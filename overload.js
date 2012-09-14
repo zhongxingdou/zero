@@ -13,8 +13,17 @@ $run(function() {
 
 		main.fnMap = _makeFnMap(arguments);
 
-		main.overload = function(){
-			_makeFnMap(arguments, this.fnMap);
+		main.overload = function(fn, argsSpec){
+			if(!fn)return;
+
+			var args = [];
+			if(fn && argsSpec){
+				args.push([fn, argsSpec]);
+			}else{
+				args.push(fn);
+			} 
+
+			_makeFnMap(args, this.fnMap);
 		}
 
 		return main;
@@ -122,5 +131,6 @@ $run(function() {
 	}
 
 	$global("$overload", $overload);
+
 });
 

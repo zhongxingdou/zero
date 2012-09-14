@@ -81,7 +81,7 @@ $run(function() {
             fn("abc", "abc");
             expect(fnTwo).toHaveBeenCalled();
 
-			fn.overload([fnTwo2, [String, Number]]);
+			fn.overload(fnTwo2, [String, Number]);
 			fn("abc",3);
             expect(fnTwo2).toHaveBeenCalled();
         });
