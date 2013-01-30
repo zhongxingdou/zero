@@ -304,6 +304,24 @@ $run(function(){
 		}
 	};
 
+	$.unwrap = function(o, name){
+		var wrapper = $.getWrapper(o, DEFAULT);
+		if(wrapper){
+			delete wrapper[name];
+		}
+	};
+
+	$.onceWrap = function(o, action, /* name, */ fn){
+		var name = action.name;
+		if(typeof arguments[2] == "string"){
+			name = arguments[2];
+			fn = arguments[3];
+		}
+		$.wrap(o, action, name);
+		fn();
+		$.unwrap(o, name);
+	};
+
 	$implement(I$, $);
 	$implement(I$$, $$);
 
