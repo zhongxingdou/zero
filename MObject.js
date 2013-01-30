@@ -22,7 +22,7 @@ $run(function() {
 		 * @param {String} funcName
 		 * @param {Array} args
 		 */
-		invokeFn: 'function(funcName, args)',
+		invoke: 'function(funcName, args)',
 		/**
 		 * 调用对象的一个方法，并可指定作为this的对象
 		 * @param {String} funcName
@@ -64,7 +64,7 @@ $run(function() {
 			this.target[member] = value;
 			return this;
 		},
-		invokeFn: function(funcName, args){
+		invoke: function(funcName, args){
 			return this.target[funcName].apply(this.target, args);
 		},
 		callFn: function(funcName, thisp/*, arg1, arg2,...**/) {
@@ -84,7 +84,7 @@ $run(function() {
 		include: function(module) {
 			$include(module, this.target);
 			return this;
-		},
+		}
 	});
 
 	$.regist(MObject, Object);

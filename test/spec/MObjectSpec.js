@@ -23,7 +23,7 @@ $run(function(){
 			var o = {method: spy};
 
 			var param = {};
-			$(o).invokeFn("method", [param]);
+			$(o).invoke("method", [param]);
 
 			expect(spy).toHaveBeenCalledWith(param);
 		});

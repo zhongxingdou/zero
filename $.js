@@ -68,7 +68,7 @@ $run(function(){
 	 */
 	var I$$ = {
 		type: "function(o)"
-	}
+	};
 
 	function $(o /*, name, isProxy*/) {
 		if(o == null)return;
@@ -86,6 +86,23 @@ $run(function(){
 
 		//复制所有成员方法到代理对象上
 		if(!isProxy){
+			//复制原型上的方法到代理对象上，但并不能复制不能枚举的原型方法
+			var firstProto = true;
+			z._traceProto(o, function(proto){
+				z._everyKey(proto, function(k, v){
+					if(typeof v == "function"){
+						if(proxy[k]){
+							if(firstProto){//overwrite
+								proxy[k] = v.bind(proxy.target);
+							}
+						}else{
+							proxy[k] = v.bind(proxy.target);
+						}
+					}
+				});
+				if(firstProto)firstProto = false;
+			});
+
 			z._everyKey(o, function(key, value) {
 				if(typeof value == "function"){
 					proxy[key] = value.bind(proxy.target);
@@ -96,7 +113,7 @@ $run(function(){
 		//module中this.x＝xx不会设置到target上，要设置到target请使用this.set(x, xx);
 		$.findWrapper(o, name).forEach(function(wrapper){
 			$include(wrapper, proxy);
-		}); 
+		});
 
 		if(!name){
 			$.findWrapperNamesExcept(o, name).forEach(function(wrapperName){
@@ -105,7 +122,7 @@ $run(function(){
 					proxy[wrapperName] = function(){
 						$(proxy, wrapperName, true);
 						return proxy;
-					}
+					};
 				}
 			});
 		}
@@ -132,7 +149,7 @@ $run(function(){
 			ws = _keysExcept(map, exceptName);
 		}
 		return ws;
-	}
+	};
 
 	$.findWrapperNamesExcept = function(o, exceptName){
 		exceptName = exceptName || DEFAULT;
@@ -149,14 +166,14 @@ $run(function(){
 				if(interfaces){
 					interfaces = interfaces.slice[0];
 					interfaces.each(function(ainterface){
-						w = $.getWrapperNamesExcept(ainterface, exceptName)
+						w = $.getWrapperNamesExcept(ainterface, exceptName);
 						z._uniqPush(ws, w);
 					});
 				}
 			});
 		}
 		return ws.reverse();
-	}
+	};
 
 
 	function $$(o /* ,name */){
@@ -187,7 +204,7 @@ $run(function(){
 					o[wrapperName] = function(){
 						$$(o, wrapperName);
 						return o;
-					}
+					};
 				}
 			});
 		}
@@ -217,14 +234,14 @@ $run(function(){
 			}
 			this.__wrapper[ainterface][name] = wrapper;
 		}
-	}
+	};
 
 	$.setDefault = function(ainterface, name){
 		var wp = this.getWrapper(ainterface, name);
 		if(wp){
 			this.__wrapper[ainterface][DEFAULT] = wp;
 		}
-	}
+	};
 
 	$.unregist = function(ainterface, name) {
 		if(!(ainterface && name))return;
@@ -239,7 +256,7 @@ $run(function(){
 			}
 			delete this.__wrapper[ainterface][name];
 		}
-	}
+	};
 
 	$.getWrapper = function(ainterface, name) {
 		name = name || DEFAULT;
@@ -247,7 +264,7 @@ $run(function(){
 		if(map){
 			return map[name];
 		}
-	}
+	};
 
 	$.findWrapper = function(o, name) {
 		var type = typeof(o);
@@ -263,7 +280,7 @@ $run(function(){
 				if(interfaces){
 					interfaces = interfaces.slice[0];
 					interfaces.each(function(ainterface){
-						w= $.getWrapper(ainterface, name)
+						w= $.getWrapper(ainterface, name);
 						w && z._uniqPush(ws, w);
 					});
 				}
@@ -271,7 +288,21 @@ $run(function(){
 		}
 
 		return ws.reverse();
-	}
+	};
+
+	$.wrap = function(o, action/*, name */){
+		var name = arguments[2] || action.name;
+		if(!name)return;
+
+		var wrapper = $.getWrapper(o, DEFAULT);
+		if(!wrapper){
+			var m = {};
+			m[name] = action;
+			$.regist($module(m), o);
+		}else{
+			wrapper[name] = action;
+		}
+	};
 
 	$implement(I$, $);
 	$implement(I$$, $$);
