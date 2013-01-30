@@ -290,8 +290,8 @@ $run(function(){
 		return ws.reverse();
 	};
 
-	$.wrap = function(o, action/*, name */){
-		var name = arguments[2] || action.name;
+	$.wrap = function(o, action, name){
+		var name = name || action.name;
 		if(!name)return;
 
 		var wrapper = $.getWrapper(o, DEFAULT);
@@ -311,15 +311,16 @@ $run(function(){
 		}
 	};
 
-	$.onceWrap = function(o, action, /* name, */ fn){
-		var name = action.name;
-		if(typeof arguments[2] == "string"){
-			name = arguments[2];
-			fn = arguments[3];
-		}
-		$.wrap(o, action, name);
-		fn();
-		$.unwrap(o, name);
+	$.sandbox = function(o, action, name){
+		name = name || action.name;
+		var sandbox = function(fn){
+			if(!fn)return;
+			$.wrap(o, action, name);
+			var result = fn();
+			$.unwrap(o, name);
+			return result;
+		};
+		return sandbox;
 	};
 
 	$implement(I$, $);
