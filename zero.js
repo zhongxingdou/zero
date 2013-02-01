@@ -1,4 +1,4 @@
 /**
 * @global
 */
-var z = {};
+// var z = {};
