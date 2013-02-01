@@ -8,7 +8,8 @@ $run(function() {
 		type: "function",
 		member: {
 			"baseProto": {type: "object", required: false},
-			"__implementations__": {type: "Array", required: false}
+			"__implns__": {type: "Array", required: false},
+			"__cls_implns__": {type: "Array", required: false}
 		}
 	}
 
@@ -17,6 +18,7 @@ $run(function() {
 	 */
 	var MClass = $module({
 		onIncluded: function() {
+			this.__cls_implns__ = [];
 			this.implement(IClass);
 		},
 		/**
@@ -28,25 +30,13 @@ $run(function() {
 			delete this.extend; //防止多继承,只能用一次
 			return this;
 		},
-		/**
-		 * 添加类的实现接口名单
-		 * @param {Object|Array} interfaces
-		 */
-		implementToProto: function(ainterface){
-			var proto = this.target.prototype;
-			//是要添加到类的原型对象上，而不是类本身，所以需要原型存在
-			if(proto){
-				$implement(ainterface, proto);
-			}
-			return this;
+		classImplement: function(ainterface){
+			if(!this.target.__cls_implns__)this.target.__cls_implns__ = [];
+			z._uniqPush(this.target.__cls_implns__, ainterface);
+			return this.target;
 		},
-		/**
-		 * 包含一个模块
-		 * @param {Module} module
-		 */
-		includeToProto: function(module){
-			$include(module, this.target.prototype);
-			return this;
+		getClassImplns: function() {
+			return this.target.__cls_implns__;
 		}
 	});
 

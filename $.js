@@ -87,6 +87,7 @@ $run(function(){
 		//复制所有成员方法到代理对象上
 		if(!isProxy){
 			//复制原型上的方法到代理对象上，但并不能复制不能枚举的原型方法
+			/*
 			var firstProto = true;
 			z._traceProto(o, function(proto){
 				z._everyKey(proto, function(k, v){
@@ -102,6 +103,7 @@ $run(function(){
 				});
 				if(firstProto)firstProto = false;
 			});
+			*/
 
 			z._everyKey(o, function(key, value) {
 				if(typeof value == "function"){
@@ -162,10 +164,10 @@ $run(function(){
 				var w = $.getWrapperNamesExcept(clazz, exceptName);
 				z._uniqPush(ws, w);
 
-				var interfaces = proto.__implementations__;
+				var interfaces = proto.__implns__;
 				if(interfaces){
-					interfaces = interfaces.slice[0];
-					interfaces.each(function(ainterface){
+					interfaces = interfaces.slice(0);
+					interfaces.forEach(function(ainterface){
 						w = $.getWrapperNamesExcept(ainterface, exceptName);
 						z._uniqPush(ws, w);
 					});
@@ -276,10 +278,10 @@ $run(function(){
 				var w = $.getWrapper(clazz, name);
 				w && z._uniqPush(ws, w);
 
-				var interfaces = proto.__implementations__;
+				var interfaces = proto.__implns__;
 				if(interfaces){
-					interfaces = interfaces.slice[0];
-					interfaces.each(function(ainterface){
+					interfaces = interfaces.slice(0);
+					interfaces.forEach(function(ainterface){
 						w= $.getWrapper(ainterface, name);
 						w && z._uniqPush(ws, w);
 					});

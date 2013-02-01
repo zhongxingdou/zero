@@ -6,7 +6,7 @@ $run(function(){
 	* @interface
 	*/
 	var IObject = {
-		__implementations__: Array
+		__implns__: Array
 	}
 
 	/**

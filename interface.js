@@ -73,7 +73,7 @@ $run(function() {
 	 * @param {Object} o 被检测的对象
 	 */
 	function $support(spec, o) {
-		if(!spec.__implementations__ || spec.__implementations__.indexOf(IInterface) == -1){
+		if(!spec.__implns__ || spec.__implns__.indexOf(IInterface) == -1){
 			spec = $interface(spec);
 		}
 
