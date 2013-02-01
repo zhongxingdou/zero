@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+     <script src="zero_all.js"></script>
+     <script>
+        $run(function(){
+            eval($global.all); //导出所有$global管理和"全局"变量，此"全局"变量只在此方法内可用
+
+            var print = function(v){
+                console.info(v);
+            };
+
+            var IAnimal = $interface({
+                sayHello: "function",
+                name: "string"
+            });
+
+            var Animal = function(){
+                console.info("Animal() callee");
+                this.base();
+                this.age = 0;
+            }
+            Animal.prototype = {
+                sayHello: function(){
+                    return "Animal-hello i'm " + this.name;
+                },
+                sayHi: function () {
+                    return "Animal hi";
+                }
+            }
+            $class(Animal).extend(z.Base).classImplement(IAnimal);
+
+            var Person = function(){
+                console.info("Person() callee");
+                this.base();
+                this.age = 18;
+                this.property("name");
+            };
+            Person.prototype = {
+                sayHello: function(){
+                    return "hello i'm " + this.name;
+                },
+                sayHi: function () {
+                    return this.base() + "person hi";
+                }
+            }
+
+            //继承类和实现接口
+            $class(Person).extend(Animal);
+
+            var hanmeimei = new Person();
+            hanmeimei.name = "Han Meimei";
+            print(hanmeimei.sayHello());
+
+
+            var Girl = function(){
+                console.info("Girl() callee");
+                this.base();
+            };
+            Girl.prototype = {
+                //overwrite父类方法
+                sayHello: function(){
+                    //this.base()调用父类的sayHello
+                    return this.base() + "\n and i'm a girl";
+                }
+            }
+            $class(Girl).extend(Person).classImplement(IAnimal);
+
+            var lily = new Girl();
+            lily.name = "Lily";
+            lily.sayHi = function(){
+                return this.base() + "\n lily hi";
+            }
+            print(lily.sayHello());
+            print(lily.sayHi());
+
+
+            //判断对象是否支持接口
+            if($support(IAnimal, lily)){
+                print("person:" + lily.name + " supported IAnimal");
+            }
+
+            lily.name = 8;
+            if(!$support(IAnimal, lily)){
+                print("person:" + lily.name + " do not supported IAnimal");
+            }
+            lily.name = "Lily";
+
+            var Animal = function(){
+                this.age = 1;
+                //this.base();
+                this.property("name");
+            };
+            Animal.prototype = {
+                sayHello: function(){
+                    return "Animal sayHello: " + this.name;
+                }
+            }
+            $class(Animal).extend(z.Base).classImplement(IAnimal);
+
+            var duck = new Animal();
+            duck.name = "gaga";
+            print(duck.sayHello());
+
+            var move = $module({
+                move: function(){
+                    return this.target.name + " is moving";
+                }
+            });
+
+            $.regist(move, IAnimal);
+
+            print($(hanmeimei).move());
+            print($(lily).move());
+            print($(duck).move());
+        });
+     </script>
+</head>
+<body>
+
+</body>
+</html>
