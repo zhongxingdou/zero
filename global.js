@@ -192,7 +192,17 @@
 		$global[p] = hostMan[p];
 	}
 	
+	var z = {};
+
 	z.VariableManager = VariableManager;
 
+	$global("z", z);
+
 	host.$global = $global;
+
+    host.$run = function(fn) {
+        var thisObj = {};
+        fn.apply(thisObj, arguments);
+        return thisObj;
+    };
 })(this);
