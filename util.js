@@ -1,4 +1,4 @@
-(function(HOST) {
+$run(function(){
     eval($global.all);
 
     function _isPlainObject(o) {
@@ -25,7 +25,7 @@
      */
     function $include(module, toObj, exclude) {
         var exclude = exclude || [];
-        exclude = exclude.concat("onIncluded", "__implementations__");
+        exclude = exclude.concat("onIncluded", "__implns__");
 
         z._everyKey(module, function(k, v) {
             if (exclude.indexOf(k) == -1) {
@@ -61,12 +61,12 @@
 
 
     /**
-     * 声明对象实现了某接口，并将接口存入__implementations__中
+     * 声明对象实现了某接口，并将接口存入__implns__中
      */
     function $implement(ainterface, o) {
-        var implns = o.__implementations__;
+        var implns = o.__implns__;
         if (!implns) {
-            o.__implementations__ = ainterface instanceof Array ? ainterface.slice[0] : [ainterface];
+            o.__implns__ = ainterface instanceof Array ? ainterface.slice(0) : [ainterface];
         } else {
             z._uniqPush(implns, ainterface);
         }
@@ -244,15 +244,6 @@
         return keys;
     }
 
-
-    function _makeSetter(name) {
-        return Function(name + "=arguments[0]");
-    }
-
-    function _makeGetter(name) {
-        return Function("return " + name);
-    }
-
     /**
      * Object.definedProperties的快捷方式
      */
@@ -264,11 +255,8 @@
         if (t == "string") {
             var name = args[1];
             var config = args[2] || {};
-            if (!config.set) {
-                config.set = _makeSetter(name);
-            }
-            if (!config.get) {
-                config.get = _makeGetter(name);
+            if(!config.hasOwnProperty("writable") && !config.set && !config.get){
+                config.writable = true;
             }
             Object.defineProperty(obj, name, config);
         } else if (t == "object") {
@@ -338,17 +326,6 @@
         return o;
     }
 
-    /***
-     * 运行一个方法，避免产生全局变量
-     * @param {Function} fn 要运行的方法
-     */
-    function $run(fn) {
-        var thisObj = {};
-        fn.apply(thisObj, arguments);
-        return thisObj;
-    }
-
-
     /**
      * 判断一个成员的名字是否符合表示私有
      * @param {String} name
@@ -396,9 +373,6 @@
         return count > 0;
     }
 
-    $global("$run", $run);
-    HOST.$run = $run;
-
 
     z._every = _every;
     z._everyKey = _everyKey;
@@ -426,4 +400,4 @@
     while (name = vars.pop()) {
         $global(name, eval(name));
     }
-})(this);
+});
