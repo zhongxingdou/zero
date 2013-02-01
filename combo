@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+cat zero.js global.js util.js $.js module.js MObject.js  MClass.js Base.js is.js MemberSpec.js interface.js option.js overload.js MEvent.js inspect.js  > zero_all.js
