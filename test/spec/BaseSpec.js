@@ -18,10 +18,13 @@ $run(function() {
 
 		it("property()设置对象属性", function(){
 			var o = new z.Base();
-			o.property("name", {get: function(){return name}, set: function(v){name = v}});
-			var name = "jim";
-			o.name = name;
-			expect(o.name).toBe(name);
+			var name = "";
+			o.property("name", {
+				get: function(){return name}, 
+				set: function(v){name = v + v}
+			});
+			o.name = "jim";
+			expect(o.name).toBe("jimjim");
 		});
 
 		it("property()提供默认的getter, setter", function(){
@@ -68,11 +71,11 @@ $run(function() {
 		});
 	}); 
 
-	describe("z.Base.callBase()", function() {
+	describe("z.Base.base()", function() {
 		it("调用父类的构造函数", function(){
 			var Class = jasmine.createSpy();
 			var Sub = function(){
-				this.callBase();
+				this.base();
 			}
 			$class(Class).extend(z.Base);
 			$class(Sub).extend(Class);
@@ -96,7 +99,7 @@ $run(function() {
 			var Class = function() {};
 			Class.prototype = {
 				sayHi: function(){
-					this.callBase(param);
+					this.base(param);
 				}
 			}
 			$class(Class).extend(BaseBase);
@@ -125,7 +128,7 @@ $run(function() {
 			var Class = function() {};
 			Class.prototype = {
 				sayHi: function(){
-					this.callBase();
+					this.base();
 				}
 			}
 			$class(Class).extend(Base);
@@ -158,7 +161,7 @@ $run(function() {
 			var Class = function() {};
 			Class.prototype = {
 				sayHi: function(){
-					this.callBase();
+					this.base();
 				}
 			}
 			$class(Class).extend(Base);
@@ -180,14 +183,14 @@ $run(function() {
 			var Class = function() {};
 			Class.prototype = {
 				sayHi: function(){
-					this.callBase();
+					this.base();
 				}
 			}
 			$class(Class).extend(BaseBase);
 
 			var ac = new Class();
 			ac.sayHi = function(){
-				this.callBase();
+				this.base();
 			}
 			ac.sayHi();
 
@@ -199,15 +202,15 @@ $run(function() {
 			var a = {};
 			o.implement(a);
 
-			expect(o.__implementations__).toContain(a);
+			expect(o.__implns__).toContain(a);
 			expect(o.getImplns()).toContain(a);
 
 			var b = {};
 			var c = {};
 			o.implement([c, b]);
 
-			expect(o.__implementations__).toContain(c);
-			expect(o.__implementations__).toContain(b);
+			expect(o.__implns__).toContain(c);
+			expect(o.__implns__).toContain(b);
 
 			expect(o.getImplns()).toContain(c);
 			expect(o.getImplns()).toContain(b);
