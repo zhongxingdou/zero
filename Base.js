@@ -2,7 +2,7 @@ $run(function() {
 	eval($global.all);
 
 	/**
-	 * @interface
+	 * @protocol
 	 */
 	var IBase = {
 		/**
@@ -36,7 +36,7 @@ $run(function() {
 		/**
 		 * 声明实现一个接口,引声明会加入到对象的已实现接口列表中
 		 */
-		implement: "function(ainterface)",
+		implement: "function(protocol)",
 		/**
 		 * 获取对象已经实现的接口
 		 */
@@ -144,8 +144,8 @@ $run(function() {
 				}
 			}
 		},
-		implement: function(ainterface) {
-			$implement(ainterface, this);
+		implement: function(protocol) {
+			$implement(protocol, this);
 		},
 		getOwnImplns: function() {
 			if(this.hasOwnProperty("__implns__")) {
@@ -165,8 +165,8 @@ $run(function() {
 			}
 			z._traceProto(this, function(proto) {
 				if(proto.hasOwnProperty("__implns__")) {
-					var ainterface = proto.__implns__;
-					if(ainterface) ar = ar.concat(ainterface);
+					var protocol = proto.__implns__;
+					if(protocol) ar = ar.concat(protocol);
 				}
 			});
 			return ar;

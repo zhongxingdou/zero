@@ -1,19 +1,19 @@
 $run(function() {
 	eval($global.all);
 
-	describe("$interface()", function() {
-		it("创建interface符合IInterface接口", function() {
+	describe("$protocol()", function() {
+		it("创建protocol符合IInterface接口", function() {
 			var option = {
 				member: {},
 				type: Object
 			}
 
-			var face = $interface(option);
+			var face = $protocol(option);
 			expect($support(z.IInterface, face)).toBeTruthy();
 		});
 
-		it("使用普通对象创建interface", function(){
-			var face = $interface({
+		it("使用普通对象创建protocol", function(){
+			var face = $protocol({
 				m1: {}
 			})
 			expect(face.member.m1).toBeDefined();
@@ -28,7 +28,7 @@ $run(function() {
 				birthday: new Date("1988/3/1")
 			}
 
-			var face = $interface({
+			var face = $protocol({
 				name: "string",
 				score: "number",
 				birthday: {
@@ -40,7 +40,7 @@ $run(function() {
 		});
 
 		it("验证freeze声明", function() {
-			var face = $interface({
+			var face = $protocol({
 				member: {
 					a1: "[string]"
 				},
@@ -57,8 +57,8 @@ $run(function() {
 		});
 
 		it("验证[]是Array和Object的实例", function() {
-			var baseFace = $interface({}, Object); 
-			var face = $interface({
+			var baseFace = $protocol({}, Object); 
+			var face = $protocol({
 				base: baseFace,
 				type: {
 					instanceOf: Array

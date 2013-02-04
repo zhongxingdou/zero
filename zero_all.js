@@ -101,7 +101,7 @@
 		 * @param {Object} target 导出目标对象
 		 *
 		 * @example
-		 * exportTo(["$interface", "$module"], window);
+		 * exportTo(["$protocol", "$module"], window);
 		 */
 		exportTo: function(list, target) {
 			if(typeof list == "string"){
@@ -275,12 +275,12 @@ $run(function(){
     /**
      * 声明对象实现了某接口，并将接口存入__implns__中
      */
-    function $implement(ainterface, o) {
+    function $implement(protocol, o) {
         var implns = o.__implns__;
         if (!implns) {
-            o.__implns__ = ainterface instanceof Array ? ainterface.slice(0) : [ainterface];
+            o.__implns__ = protocol instanceof Array ? protocol.slice(0) : [protocol];
         } else {
-            z._uniqPush(implns, ainterface);
+            z._uniqPush(implns, protocol);
         }
         return o;
     }
@@ -456,15 +456,6 @@ $run(function(){
         return keys;
     }
 
-
-    function _makeSetter(name) {
-        return Function( name + "=arguments[0]");
-    }
-
-    function _makeGetter(name) {
-        return Function("return " + name);
-    }
-
     /**
      * Object.definedProperties的快捷方式
      */
@@ -547,17 +538,6 @@ $run(function(){
         return o;
     }
 
-    /***
-     * 运行一个方法，避免产生全局变量
-     * @param {Function} fn 要运行的方法
-     */
-    function $run(fn) {
-        var thisObj = {};
-        fn.apply(thisObj, arguments);
-        return thisObj;
-    }
-
-
     /**
      * 判断一个成员的名字是否符合表示私有
      * @param {String} name
@@ -605,9 +585,6 @@ $run(function(){
         return count > 0;
     }
 
-    // $global("$run", $run);
-    // HOST.$run = $run;
-
 
     z._every = _every;
     z._everyKey = _everyKey;
@@ -650,24 +627,24 @@ $run(function(){
 			/**
 			 * 注册一个wrapper
 			 * @param {Module} wrapper
-			 * @param {Interface} ainterface
+			 * @param {Interface} protocol
 			 * @param {String} name
 			 */
-			regist: "function(wrapper, ainterface, name)",
+			regist: "function(wrapper, protocol, name)",
 
 			/**
 			 * 反注册一个wrapper
-			 * @param {Interface} ainterface
+			 * @param {Interface} protocol
 			 * @param {String} name
 			 */
-			unregist: "function(ainterface, name)",
+			unregist: "function(protocol, name)",
 
 			/**
-			 * 根据interface获取一个wrapper
-			 * @param {Interface} ainterface
+			 * 根据protocol获取一个wrapper
+			 * @param {Interface} protocol
 			 * @param {String} name
 			 */
-			getWrapper: "function(ainterface, name)",
+			getWrapper: "function(protocol, name)",
 
 			/**
 			 * 查找对象的wrapper
@@ -678,10 +655,10 @@ $run(function(){
 
 			/**
 			 * 设置某个接口的默认wrapper
-			 * @param {Interface} ainterface
+			 * @param {Interface} protocol
 			 * @param {String} name
 			 */
-			setDefault: "function(ainterface, name)",
+			setDefault: "function(protocol, name)",
 
 			/**
 			 * 查找除exceptName外的对象的所有wrapper
@@ -691,11 +668,11 @@ $run(function(){
 			findWrapperNamesExcept: "function(o, exceptName)",
 
 			/**
-			 * 根据interface获取exceptName外的所有wrapper
-			 * @param {Interface} ainterface
+			 * 根据protocol获取exceptName外的所有wrapper
+			 * @param {Interface} protocol
 			 * @param {String} exceptName
 			 */
-			getWrapperNamesExcept: "function(ainterface, exceptName)"
+			getWrapperNamesExcept: "function(protocol, exceptName)"
 		}
 	};
 
@@ -781,9 +758,9 @@ $run(function(){
 		return ar;
 	}
 
-	$.getWrapperNamesExcept = function(ainterface, exceptName){
+	$.getWrapperNamesExcept = function(protocol, exceptName){
 		exceptName = exceptName || DEFAULT;
-		var map = this.__wrapper[ainterface];
+		var map = this.__wrapper[protocol];
 		var ws = [];
 		if(map){
 			ws = _keysExcept(map, exceptName);
@@ -802,11 +779,11 @@ $run(function(){
 				var w = $.getWrapperNamesExcept(clazz, exceptName);
 				z._uniqPush(ws, w);
 
-				var interfaces = proto.__implns__;
-				if(interfaces){
-					interfaces = interfaces.slice(0);
-					interfaces.forEach(function(ainterface){
-						w = $.getWrapperNamesExcept(ainterface, exceptName);
+				var protocols = proto.__implns__;
+				if(protocols){
+					protocols = protocols.slice(0);
+					protocols.forEach(function(protocol){
+						w = $.getWrapperNamesExcept(protocol, exceptName);
 						z._uniqPush(ws, w);
 					});
 				}
@@ -856,51 +833,51 @@ $run(function(){
 
 	$.__wrapper = {};
 
-	$.regist = function(wrapper, ainterface, name) {
+	$.regist = function(wrapper, protocol, name) {
 		name = name || DEFAULT;
 
-		if(ainterface instanceof Array){
-			ainterface.forEach(function(face){
+		if(protocol instanceof Array){
+			protocol.forEach(function(face){
 				$.regist(wrapper, face, name);
 			});
 		}else{
-			var map = this.__wrapper[ainterface];
+			var map = this.__wrapper[protocol];
 			if(!map){
-				map = this.__wrapper[ainterface] = {"default": null};
+				map = this.__wrapper[protocol] = {"default": null};
 			}
 
-			if(this.__wrapper[ainterface][name]){
+			if(this.__wrapper[protocol][name]){
 				throw "name '" + name + "' has been registed.";
 			}
-			this.__wrapper[ainterface][name] = wrapper;
+			this.__wrapper[protocol][name] = wrapper;
 		}
 	};
 
-	$.setDefault = function(ainterface, name){
-		var wp = this.getWrapper(ainterface, name);
+	$.setDefault = function(protocol, name){
+		var wp = this.getWrapper(protocol, name);
 		if(wp){
-			this.__wrapper[ainterface][DEFAULT] = wp;
+			this.__wrapper[protocol][DEFAULT] = wp;
 		}
 	};
 
-	$.unregist = function(ainterface, name) {
-		if(!(ainterface && name))return;
+	$.unregist = function(protocol, name) {
+		if(!(protocol && name))return;
 
-		if(ainterface instanceof Array){
-			ainterface.forEach(function(face){
+		if(protocol instanceof Array){
+			protocol.forEach(function(face){
 				$.unregist(face, name);
 			});
 		}else{
-			if(this.__wrapper[ainterface][DEFAULT] ==  this.getWrapper(ainterface, name)){
-				this.setDefault(ainterface, null);
+			if(this.__wrapper[protocol][DEFAULT] ==  this.getWrapper(protocol, name)){
+				this.setDefault(protocol, null);
 			}
-			delete this.__wrapper[ainterface][name];
+			delete this.__wrapper[protocol][name];
 		}
 	};
 
-	$.getWrapper = function(ainterface, name) {
+	$.getWrapper = function(protocol, name) {
 		name = name || DEFAULT;
-		var map = this.__wrapper[ainterface];
+		var map = this.__wrapper[protocol];
 		if(map){
 			return map[name];
 		}
@@ -916,11 +893,11 @@ $run(function(){
 				var w = $.getWrapper(clazz, name);
 				w && z._uniqPush(ws, w);
 
-				var interfaces = proto.__implns__;
-				if(interfaces){
-					interfaces = interfaces.slice(0);
-					interfaces.forEach(function(ainterface){
-						w= $.getWrapper(ainterface, name);
+				var protocols = proto.__implns__;
+				if(protocols){
+					protocols = protocols.slice(0);
+					protocols.forEach(function(protocol){
+						w= $.getWrapper(protocol, name);
 						w && z._uniqPush(ws, w);
 					});
 				}
@@ -974,7 +951,7 @@ $run(function(){
 
 	/**
 	* IObject
-	* @interface
+	* @protocol
 	*/
 	var IObject = {
 		__implns__: Array
@@ -982,7 +959,7 @@ $run(function(){
 
 	/**
 	 * IModule
-	 * @interface
+	 * @protocol
 	 */
 	var IModule = {
 		onIncluded: "[function()]"
@@ -1053,7 +1030,7 @@ $run(function() {
 		 * 声明对象实现了指定接口
 		 * @param {IInterface|IInterface[]} 接口
 		 */
-		implement: 'function(ainterface)'
+		implement: 'function(protocol)'
 	}
 
 	var MObject = $module({
@@ -1080,8 +1057,8 @@ $run(function() {
 			$$(this, wrapperName);
 			return this;
 		},
-		implement: function(ainterface){
-			$implement(ainterface, this.target);
+		implement: function(protocol){
+			$implement(protocol, this.target);
 			return this;
 		},
 		include: function(module) {
@@ -1099,7 +1076,7 @@ $run(function() {
 	eval($global.all);
 
 	/**
-	* @interface
+	* @protocol
 	*/
 	var IClass = {
 		type: "function",
@@ -1127,9 +1104,9 @@ $run(function() {
 			delete this.extend; //防止多继承,只能用一次
 			return this;
 		},
-		classImplement: function(ainterface){
+		classImplement: function(protocol){
 			if(!this.target.__cls_implns__)this.target.__cls_implns__ = [];
-			z._uniqPush(this.target.__cls_implns__, ainterface);
+			z._uniqPush(this.target.__cls_implns__, protocol);
 			return this.target;
 		},
 		getClassImplns: function() {
@@ -1152,7 +1129,7 @@ $run(function() {
 	eval($global.all);
 
 	/**
-	 * @interface
+	 * @protocol
 	 */
 	var IBase = {
 		/**
@@ -1186,7 +1163,7 @@ $run(function() {
 		/**
 		 * 声明实现一个接口,引声明会加入到对象的已实现接口列表中
 		 */
-		implement: "function(ainterface)",
+		implement: "function(protocol)",
 		/**
 		 * 获取对象已经实现的接口
 		 */
@@ -1239,6 +1216,7 @@ $run(function() {
 			}
 		})(),
 		base: function() {
+			// !!!此处不能用caller.name，因为caller.name可能不是它在对象中的key
 			var caller = this.base.caller;
 			var currProto = null;
 			var funcName = null;
@@ -1272,7 +1250,7 @@ $run(function() {
 					});
 				}
 			}else{//有方法名，确定当前调用在原型链的位置
-				/*
+				/* 保留
 				if(this[funcName] == caller){
 					currProto = this.constructor.baseProto;
 				}else{
@@ -1292,54 +1270,9 @@ $run(function() {
 					return fn.apply(this, arguments);
 				}
 			}
-
-
-			/*
-			//此处不能用caller.name，因为caller.name可能不是它在对象中的key
-			var initializer = this.constructor;
-			var funcName = null;
-			*/
-
-			/*
-			while(initializer){
-				if(caller === initializer){
-					funcName = "constructor";
-					proto = initializer.baseProto;
-					break;
-				}
-				if(initializer.baseProto){
-					initializer = initializer.baseProto.constructor;
-				}else{
-					initializer = null;
-				}
-			}
-
-			if(!funcName) {
-				z._everyKey(this, function(k) {
-					if(this[k] == caller) {
-						funcName = k;
-					}
-				}, this);
-			}
-
-			var protoFn =  proto ? proto[funcName] : null;
-			if(!protoFn){
-				z._traceProto(proto || this.proto(), function(proto) {
-					var fn = proto[funcName];
-					if(fn && fn != caller) {
-						protoFn = fn;
-						return false; //break;
-					}
-				});
-			}
-
-			if(typeof protoFn == "function") {
-				return protoFn.apply(this, arguments);
-			}
-			*/
 		},
-		implement: function(ainterface) {
-			$implement(ainterface, this);
+		implement: function(protocol) {
+			$implement(protocol, this);
 		},
 		getOwnImplns: function() {
 			if(this.hasOwnProperty("__implns__")) {
@@ -1359,8 +1292,8 @@ $run(function() {
 			}
 			z._traceProto(this, function(proto) {
 				if(proto.hasOwnProperty("__implns__")) {
-					var ainterface = proto.__implns__;
-					if(ainterface) ar = ar.concat(ainterface);
+					var protocol = proto.__implns__;
+					if(protocol) ar = ar.concat(protocol);
 				}
 			});
 			return ar;
@@ -1570,7 +1503,7 @@ $run(function() {
 	 * 接口对象的接口
 	 * 定义了instanceOf的时候
 	 */
-	var IInterface = $interface({
+	var IInterface = $protocol({
 		member: {
 			base: "[object]",
 			member: "[object]",
@@ -1626,7 +1559,7 @@ $run(function() {
 	 * @param {Object} .base 父接口
 	 * @param {Boolean} .freeze = false 是否可以拥有member定义以外的成员
 	 */
-	function $interface(member, type) {
+	function $protocol(member, type) {
 		var o = parseInterface(member, type);
 		$implement(IInterface, o);
 		return o;
@@ -1639,7 +1572,7 @@ $run(function() {
 	 */
 	function $support(spec, o) {
 		if(!spec.__implns__ || spec.__implns__.indexOf(IInterface) == -1){
-			spec = $interface(spec);
+			spec = $protocol(spec);
 		}
 
 		if (spec.base && !$support(spec.base, o))return false;
@@ -1669,7 +1602,7 @@ $run(function() {
 
 	z.IInterface = IInterface;
 
-	$global("$interface", $interface);
+	$global("$protocol", $protocol);
 
 	$global("$support", $support);
 });
@@ -1710,7 +1643,7 @@ $run(function() {
 
 		option = _setRequiredWithFalse(option);
 
-		var	paramSpec  = $interface(option);
+		var	paramSpec  = $protocol(option);
 
 		if($support(paramSpec, params)){
 			return __mergeOption(params, paramSpec.member);
@@ -1745,7 +1678,7 @@ $run(function() {
 			if(fn){
 				return fn.apply(this, arguments);
 			}
-		}
+		};
 
 		main.fnMap = _makeFnMap(arguments);
 
@@ -1757,10 +1690,10 @@ $run(function() {
 				args.push([fn, argsSpec]);
 			}else{
 				args.push(fn);
-			} 
+			}
 
 			_makeFnMap(args, this.fnMap);
-		}
+		};
 
 		return main;
 	}
@@ -1770,7 +1703,7 @@ $run(function() {
 		params: Array,
 		fn: Function,
 		useOption: Boolean
-	}
+	};
 
 	/**
 	 * 建立一个形参个数对应IFuncBox的map
@@ -1781,15 +1714,24 @@ $run(function() {
 		var map = map || {};
 		var fns = [];
 
-		var a,t,i,l,params;
+		var a,t,i,l;
 		for(i=0,l=args.length; i<l; i++){
 			a = args[i];
 			t = typeof a;
 			if(t == "function"){
-				if(!a.option)throw "function did not defined option property"
-				fns.push({params: [Object], fn: a, useOption: true });
+				if(!a.option){
+					fns.push({params: [], fn: a, useOption: false});
+				}else{
+					fns.push({params: [Object], fn: a, useOption: true });
+				}
 			}else if($is(Array, a)){
-				fns.push({params: a[1], fn: a[0], useOption: false});
+				var a1 = a[1];
+				if($is(Array, a1)){
+					fns.push({params: a1, fn: a[0], useOption: false});
+				}else if(z._isPlainObject(a1)){
+					a[0].option = a[1];
+					fns.push({params: [Object], fn: a[0], useOption: true});
+				}
 			}
 		}
 
@@ -1814,14 +1756,14 @@ $run(function() {
 		var tt = typeof type; //string: 值类型, function: IClass, object: ITypeSpec
 
 		if(tt !== "string" || type === "object"){//形参声明为引用类型
-			if(pt === "object" || pt === "function"){ //实参为引用类型 
+			if(pt === "object" || pt === "function"){//实参为引用类型
 				if($is(type, param)){ return true; }
 			}else{ //如果实参是值类型,但形参是其值类型对应的引用类型,则也算通过
 				var map = {
 					"string": String,
 					"number": Number,
 					"boolean": Boolean
-				}
+				};
 				if(map[pt] === type){ return true; }
 			}
 		}else{ //形参声明为值类型
@@ -1840,7 +1782,7 @@ $run(function() {
 		var arg0 = args[0];
 		var isConfig = args.length == 1 && typeof arg0 === "object";
 
-		var i=0, l, j, k, fnBox, fn, params, option, arg0;
+		var i=0, l, j, k, fnBox, fn, params, option;
 		for(i=0,l=fns.length; i<l; i++){
 			fnBox = fns[i];
 			fn = fnBox.fn;
@@ -1849,7 +1791,7 @@ $run(function() {
 			if(fnBox.useOption){
 				if(isConfig && z._isPlainObject(arg0)){
 					option = fn.option;
-					var argsCountLessThanOption = z._keys(option).length >= z._keys(arg0).length; 
+					var argsCountLessThanOption = z._keys(option).length >= z._keys(arg0).length;
 					if(argsCountLessThanOption && $support(option, arg0)){
 						return fn;
 					}

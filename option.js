@@ -34,7 +34,7 @@ $run(function() {
 
 		option = _setRequiredWithFalse(option);
 
-		var	paramSpec  = $interface(option);
+		var	paramSpec  = $protocol(option);
 
 		if($support(paramSpec, params)){
 			return __mergeOption(params, paramSpec.member);

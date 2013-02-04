@@ -5,7 +5,7 @@ $run(function() {
 	 * 接口对象的接口
 	 * 定义了instanceOf的时候
 	 */
-	var IInterface = $interface({
+	var IInterface = $protocol({
 		member: {
 			base: "[object]",
 			member: "[object]",
@@ -61,7 +61,7 @@ $run(function() {
 	 * @param {Object} .base 父接口
 	 * @param {Boolean} .freeze = false 是否可以拥有member定义以外的成员
 	 */
-	function $interface(member, type) {
+	function $protocol(member, type) {
 		var o = parseInterface(member, type);
 		$implement(IInterface, o);
 		return o;
@@ -74,7 +74,7 @@ $run(function() {
 	 */
 	function $support(spec, o) {
 		if(!spec.__implns__ || spec.__implns__.indexOf(IInterface) == -1){
-			spec = $interface(spec);
+			spec = $protocol(spec);
 		}
 
 		if (spec.base && !$support(spec.base, o))return false;
@@ -104,7 +104,7 @@ $run(function() {
 
 	z.IInterface = IInterface;
 
-	$global("$interface", $interface);
+	$global("$protocol", $protocol);
 
 	$global("$support", $support);
 });

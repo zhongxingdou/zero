@@ -7,7 +7,7 @@ a JavaScript object oriented framework.
 
 1. keyword method
 	
-	zero提供一系列的以$为前缀的类关键字方法,如$class,$module,$interface...
+	zero提供一系列的以$为前缀的类关键字方法,如$class,$module,$protocol...
 	
 
 2. global
@@ -137,7 +137,7 @@ a JavaScript object oriented framework.
 		$is(spec, obj); //复合判断
 	
 				
-7. interface
+7. protocol
 	
 	由于动态语言的对象的成员是可变化的,并不能从其类或者构造函数或者原型链来确定它的成员是否存在和是否可用,因此通过显式的接口和对象直接进行比较,更能准确的确定对象是属于某种'类型'.
 	
@@ -145,10 +145,10 @@ a JavaScript object oriented framework.
 	
 	此外接口还可用于方法的参数验证,方法的重载等其他地方.
 	
-	接口并不需要一定使用$interface来声明,符合IInteface接口的普通对象也可
+	接口并不需要一定使用$protocol来声明,符合IInteface接口的普通对象也可
 
 		
-		var IBase = $interface({
+		var IBase = $protocol({
 			member: {
 				prop: String, //声明此成员的类型
 				method: "function(p1, p2)", //声明此成员的类型为function,其后签名只起文档的作用
@@ -170,7 +170,7 @@ a JavaScript object oriented framework.
 		})
 		
 		//如果只定义member和type,可以用更简单的写法
-		var IBase = $interface({
+		var IBase = $protocol({
 			prop: String,
 			method: "function(p1,p2)"
 		}, Object)
@@ -179,7 +179,7 @@ a JavaScript object oriented framework.
 
 8. function option
 	
-	zero约定方法的option属性表示方法参数的interface,有了这个接口,可以方便的实现参数验证,同时支持普通参数传递形式和key/value对象传递参数,还有方法重载,参数组默认值和当前设定的合并.
+	zero约定方法的option属性表示方法参数的protocol,有了这个接口,可以方便的实现参数验证,同时支持普通参数传递形式和key/value对象传递参数,还有方法重载,参数组默认值和当前设定的合并.
 	
 	zero建议给超过2个参数的方法设定参数接口
 

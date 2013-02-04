@@ -50,7 +50,7 @@ $run(function() {
 		 * 声明对象实现了指定接口
 		 * @param {IInterface|IInterface[]} 接口
 		 */
-		implement: 'function(ainterface)'
+		implement: 'function(protocol)'
 	}
 
 	var MObject = $module({
@@ -77,8 +77,8 @@ $run(function() {
 			$$(this, wrapperName);
 			return this;
 		},
-		implement: function(ainterface){
-			$implement(ainterface, this.target);
+		implement: function(protocol){
+			$implement(protocol, this.target);
 			return this;
 		},
 		include: function(module) {

@@ -12,24 +12,24 @@ $run(function(){
 			/**
 			 * 注册一个wrapper
 			 * @param {Module} wrapper
-			 * @param {Interface} ainterface
+			 * @param {Interface} protocol
 			 * @param {String} name
 			 */
-			regist: "function(wrapper, ainterface, name)",
+			regist: "function(wrapper, protocol, name)",
 
 			/**
 			 * 反注册一个wrapper
-			 * @param {Interface} ainterface
+			 * @param {Interface} protocol
 			 * @param {String} name
 			 */
-			unregist: "function(ainterface, name)",
+			unregist: "function(protocol, name)",
 
 			/**
-			 * 根据interface获取一个wrapper
-			 * @param {Interface} ainterface
+			 * 根据protocol获取一个wrapper
+			 * @param {Interface} protocol
 			 * @param {String} name
 			 */
-			getWrapper: "function(ainterface, name)",
+			getWrapper: "function(protocol, name)",
 
 			/**
 			 * 查找对象的wrapper
@@ -40,10 +40,10 @@ $run(function(){
 
 			/**
 			 * 设置某个接口的默认wrapper
-			 * @param {Interface} ainterface
+			 * @param {Interface} protocol
 			 * @param {String} name
 			 */
-			setDefault: "function(ainterface, name)",
+			setDefault: "function(protocol, name)",
 
 			/**
 			 * 查找除exceptName外的对象的所有wrapper
@@ -53,11 +53,11 @@ $run(function(){
 			findWrapperNamesExcept: "function(o, exceptName)",
 
 			/**
-			 * 根据interface获取exceptName外的所有wrapper
-			 * @param {Interface} ainterface
+			 * 根据protocol获取exceptName外的所有wrapper
+			 * @param {Interface} protocol
 			 * @param {String} exceptName
 			 */
-			getWrapperNamesExcept: "function(ainterface, exceptName)"
+			getWrapperNamesExcept: "function(protocol, exceptName)"
 		}
 	};
 
@@ -143,9 +143,9 @@ $run(function(){
 		return ar;
 	}
 
-	$.getWrapperNamesExcept = function(ainterface, exceptName){
+	$.getWrapperNamesExcept = function(protocol, exceptName){
 		exceptName = exceptName || DEFAULT;
-		var map = this.__wrapper[ainterface];
+		var map = this.__wrapper[protocol];
 		var ws = [];
 		if(map){
 			ws = _keysExcept(map, exceptName);
@@ -164,11 +164,11 @@ $run(function(){
 				var w = $.getWrapperNamesExcept(clazz, exceptName);
 				z._uniqPush(ws, w);
 
-				var interfaces = proto.__implns__;
-				if(interfaces){
-					interfaces = interfaces.slice(0);
-					interfaces.forEach(function(ainterface){
-						w = $.getWrapperNamesExcept(ainterface, exceptName);
+				var protocols = proto.__implns__;
+				if(protocols){
+					protocols = protocols.slice(0);
+					protocols.forEach(function(protocol){
+						w = $.getWrapperNamesExcept(protocol, exceptName);
 						z._uniqPush(ws, w);
 					});
 				}
@@ -218,51 +218,51 @@ $run(function(){
 
 	$.__wrapper = {};
 
-	$.regist = function(wrapper, ainterface, name) {
+	$.regist = function(wrapper, protocol, name) {
 		name = name || DEFAULT;
 
-		if(ainterface instanceof Array){
-			ainterface.forEach(function(face){
+		if(protocol instanceof Array){
+			protocol.forEach(function(face){
 				$.regist(wrapper, face, name);
 			});
 		}else{
-			var map = this.__wrapper[ainterface];
+			var map = this.__wrapper[protocol];
 			if(!map){
-				map = this.__wrapper[ainterface] = {"default": null};
+				map = this.__wrapper[protocol] = {"default": null};
 			}
 
-			if(this.__wrapper[ainterface][name]){
+			if(this.__wrapper[protocol][name]){
 				throw "name '" + name + "' has been registed.";
 			}
-			this.__wrapper[ainterface][name] = wrapper;
+			this.__wrapper[protocol][name] = wrapper;
 		}
 	};
 
-	$.setDefault = function(ainterface, name){
-		var wp = this.getWrapper(ainterface, name);
+	$.setDefault = function(protocol, name){
+		var wp = this.getWrapper(protocol, name);
 		if(wp){
-			this.__wrapper[ainterface][DEFAULT] = wp;
+			this.__wrapper[protocol][DEFAULT] = wp;
 		}
 	};
 
-	$.unregist = function(ainterface, name) {
-		if(!(ainterface && name))return;
+	$.unregist = function(protocol, name) {
+		if(!(protocol && name))return;
 
-		if(ainterface instanceof Array){
-			ainterface.forEach(function(face){
+		if(protocol instanceof Array){
+			protocol.forEach(function(face){
 				$.unregist(face, name);
 			});
 		}else{
-			if(this.__wrapper[ainterface][DEFAULT] ==  this.getWrapper(ainterface, name)){
-				this.setDefault(ainterface, null);
+			if(this.__wrapper[protocol][DEFAULT] ==  this.getWrapper(protocol, name)){
+				this.setDefault(protocol, null);
 			}
-			delete this.__wrapper[ainterface][name];
+			delete this.__wrapper[protocol][name];
 		}
 	};
 
-	$.getWrapper = function(ainterface, name) {
+	$.getWrapper = function(protocol, name) {
 		name = name || DEFAULT;
-		var map = this.__wrapper[ainterface];
+		var map = this.__wrapper[protocol];
 		if(map){
 			return map[name];
 		}
@@ -278,11 +278,11 @@ $run(function(){
 				var w = $.getWrapper(clazz, name);
 				w && z._uniqPush(ws, w);
 
-				var interfaces = proto.__implns__;
-				if(interfaces){
-					interfaces = interfaces.slice(0);
-					interfaces.forEach(function(ainterface){
-						w= $.getWrapper(ainterface, name);
+				var protocols = proto.__implns__;
+				if(protocols){
+					protocols = protocols.slice(0);
+					protocols.forEach(function(protocol){
+						w= $.getWrapper(protocol, name);
 						w && z._uniqPush(ws, w);
 					});
 				}

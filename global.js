@@ -97,7 +97,7 @@
 		 * @param {Object} target 导出目标对象
 		 *
 		 * @example
-		 * exportTo(["$interface", "$module"], window);
+		 * exportTo(["$protocol", "$module"], window);
 		 */
 		exportTo: function(list, target) {
 			if(typeof list == "string"){

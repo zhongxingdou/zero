@@ -44,7 +44,7 @@ Finally: run `test.sh` to test all tests (specs) included with the `jstestdriver
 Directory Layout
 ----------------
  
- - src: The adapter source code. Intent is to match interface with interface.
+ - src: The adapter source code. Intent is to match protocol with protocol.
  - src-test: The test files that verifies that the adapter works as intended.
 
 Caveats

@@ -3,7 +3,7 @@ $run(function(){
 
 	/**
 	* IObject
-	* @interface
+	* @protocol
 	*/
 	var IObject = {
 		__implns__: Array
@@ -11,7 +11,7 @@ $run(function(){
 
 	/**
 	 * IModule
-	 * @interface
+	 * @protocol
 	 */
 	var IModule = {
 		onIncluded: "[function()]"

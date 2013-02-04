@@ -2,7 +2,7 @@ $run(function() {
 	eval($global.all);
 
 	/**
-	* @interface
+	* @protocol
 	*/
 	var IClass = {
 		type: "function",
@@ -30,9 +30,9 @@ $run(function() {
 			delete this.extend; //防止多继承,只能用一次
 			return this;
 		},
-		classImplement: function(ainterface){
+		classImplement: function(protocol){
 			if(!this.target.__cls_implns__)this.target.__cls_implns__ = [];
-			z._uniqPush(this.target.__cls_implns__, ainterface);
+			z._uniqPush(this.target.__cls_implns__, protocol);
 			return this.target;
 		},
 		getClassImplns: function() {

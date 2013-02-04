@@ -4,5 +4,5 @@ load:
   - ../jasmine-1.1.0/jasmine.js
   - src/JasmineAdapter.js
   - ../../../zero.js
-  - ../../spec/interfaceSpec.js
+  - ../../spec/protocolSpec.js
   - ../../spec/classSpec.js

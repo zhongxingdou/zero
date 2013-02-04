@@ -10,7 +10,7 @@
                 console.info(v);
             };
 
-            var IAnimal = $interface({
+            var IAnimal = $protocol({
                 sayHello: "function",
                 name: "string"
             });
@@ -113,6 +113,23 @@
             print($(hanmeimei).move());
             print($(lily).move());
             print($(duck).move());
+
+            duck.sayHi = $overload(
+                [function(name, gendor){
+                    return "my name is " + name + " and I'm a " + gendor;
+                },[String, String]], 
+                function (){
+                    return "gaga";
+                } 
+            );
+            duck.sayHi.overload(function(){
+                    var option = $option();
+                    return "my name is " + option.name + " and I'm " + option.age; 
+            }, {name:"string", age: "number"});
+
+            print(duck.sayHi());
+            print(duck.sayHi("Gaga", "gril"));
+            print(duck.sayHi({name: "Gaga", age: 8}));
         });
      </script>
 </head>

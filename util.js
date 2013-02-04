@@ -63,12 +63,12 @@ $run(function(){
     /**
      * 声明对象实现了某接口，并将接口存入__implns__中
      */
-    function $implement(ainterface, o) {
+    function $implement(protocol, o) {
         var implns = o.__implns__;
         if (!implns) {
-            o.__implns__ = ainterface instanceof Array ? ainterface.slice(0) : [ainterface];
+            o.__implns__ = protocol instanceof Array ? protocol.slice(0) : [protocol];
         } else {
-            z._uniqPush(implns, ainterface);
+            z._uniqPush(implns, protocol);
         }
         return o;
     }
