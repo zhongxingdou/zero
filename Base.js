@@ -90,12 +90,12 @@ $run(function() {
 		})(),
 		base: function() {
 			// !!!此处不能用caller.name，因为caller.name可能不是它在对象中的key
-			var caller = this.base.caller;
+			var self = this;
+			var caller = self.base.caller;
 			var currProto = null;
 			var funcName = null;
 
 			if(!funcName) {
-				var self = this;
 				//尝试从当前对象本身获取方法名
 				z._everyKey(self, function(k) {
 					if(self[k] == caller) {
@@ -103,11 +103,11 @@ $run(function() {
 						currProto = self.constructor.baseProto;
 						return false;
 					}
-				}, this);
+				});
 
 				//尝试从原型链上获取方法名
 				if(!funcName){
-					z._traceProto(this, function(proto){
+					z._traceProto(self, function(proto){
 						z._everyKey(proto, function(k){
 							if(proto.hasOwnProperty(k) && proto[k] == caller){
 								currProto = proto.constructor.baseProto;
@@ -122,25 +122,12 @@ $run(function() {
 						if(currProto)return false;
 					});
 				}
-			}else{//有方法名，确定当前调用在原型链的位置
-				/* 保留
-				if(this[funcName] == caller){
-					currProto = this.constructor.baseProto;
-				}else{
-					z._traceProto(this, function(proto){
-						if(proto[funcName] == caller){
-							currProto = proto.baseProto;
-							return false;
-						}
-						if(currProto)return false;
-					});
-				}*/
 			}
 
 			if(funcName && currProto){
 				var fn = currProto[funcName];
 				if(fn && typeof fn == "function"){
-					return fn.apply(this, arguments);
+					return fn.apply(self, arguments);
 				}
 			}
 		},

@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-     <script src="zero_all-min.js"></script>
+     <script src="zero_all.js"></script>
      <script>
         $run(function(){
             eval($global.all); //导出所有$global管理和"全局"变量，此"全局"变量只在此方法内可用
@@ -16,7 +16,7 @@
                 console.info("Animal() callee");
                 this.base();
                 this.age = 0;
-            }
+            };
             Animal.prototype = {
                 sayHello: function(){
                     return "Animal-hello i'm " + this.name;
@@ -24,7 +24,7 @@
                 sayHi: function () {
                     return "Animal hi";
                 }
-            }
+            };
             //继承类和实现协议
             $class(Animal).extend(z.Base).classImplement(IAnimal);
 
@@ -41,7 +41,7 @@
                 sayHi: function () {
                     return this.base() + "person hi";
                 }
-            }
+            };
 
             $class(Person).extend(Animal);
 
@@ -60,7 +60,7 @@
                     //this.base()调用父类的sayHello
                     return this.base() + "\n and i'm a girl";
                 }
-            }
+            };
             $class(Girl).extend(Person).classImplement(IAnimal);
 
             var lily = new Girl();
@@ -92,7 +92,7 @@
                 sayHello: function(){
                     return "Animal sayHello: " + this.name;
                 }
-            }
+            };
             $class(Duck).extend(z.Base).classImplement(IAnimal);
 
             var duck = new Duck();
