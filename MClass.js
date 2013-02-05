@@ -40,7 +40,7 @@ $run(function() {
 		}
 	});
 
-	$.regist(MClass, Function, "toClass");
+	$.regWrapper(MClass, Function, "toClass");
 
 	z.IClass = IClass;
 

@@ -1,14 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-     <script src="zero_all.js"></script>
+    <meta charset="utf-8">
+     <script src="zero_all-min.js"></script>
      <script>
         $run(function(){
             eval($global.all); //导出所有$global管理和"全局"变量，此"全局"变量只在此方法内可用
-
-            var print = function(v){
-                console.info(v);
-            };
 
             var IAnimal = $protocol({
                 sayHello: "function",
@@ -28,6 +25,7 @@
                     return "Animal hi";
                 }
             }
+            //继承类和实现协议
             $class(Animal).extend(z.Base).classImplement(IAnimal);
 
             var Person = function(){
@@ -45,12 +43,11 @@
                 }
             }
 
-            //继承类和实现接口
             $class(Person).extend(Animal);
 
             var hanmeimei = new Person();
             hanmeimei.name = "Han Meimei";
-            print(hanmeimei.sayHello());
+            $log(hanmeimei.sayHello());
 
 
             var Girl = function(){
@@ -71,49 +68,50 @@
             lily.sayHi = function(){
                 return this.base() + "\n lily hi";
             }
-            print(lily.sayHello());
-            print(lily.sayHi());
+            $log(lily.sayHello());
+            $log(lily.sayHi());
 
 
             //判断对象是否支持接口
             if($support(IAnimal, lily)){
-                print("person:" + lily.name + " supported IAnimal");
+                $log("person:" + lily.name + " supported IAnimal");
             }
 
             lily.name = 8;
             if(!$support(IAnimal, lily)){
-                print("person:" + lily.name + " do not supported IAnimal");
+                $log("person:" + lily.name + " do not supported IAnimal");
             }
             lily.name = "Lily";
 
-            var Animal = function(){
+            var Duck = function(){
                 this.age = 1;
                 //this.base();
                 this.property("name");
             };
-            Animal.prototype = {
+            Duck.prototype = {
                 sayHello: function(){
                     return "Animal sayHello: " + this.name;
                 }
             }
-            $class(Animal).extend(z.Base).classImplement(IAnimal);
+            $class(Duck).extend(z.Base).classImplement(IAnimal);
 
-            var duck = new Animal();
+            var duck = new Duck();
             duck.name = "gaga";
-            print(duck.sayHello());
+            $log(duck.sayHello());
 
-            var move = $module({
+            var MMove = $module({
                 move: function(){
                     return this.target.name + " is moving";
                 }
             });
 
-            $.regist(move, IAnimal);
+            $.make(IAnimal).can(MMove);
 
-            print($(hanmeimei).move());
-            print($(lily).move());
-            print($(duck).move());
+            $log($(hanmeimei).move());
+            $log($(lily).move());
+            $log($(duck).move());
 
+            //overload
             duck.sayHi = $overload(
                 [function(name, gendor){
                     return "my name is " + name + " and I'm a " + gendor;
@@ -127,9 +125,22 @@
                     return "my name is " + option.name + " and I'm " + option.age; 
             }, {name:"string", age: "number"});
 
-            print(duck.sayHi());
-            print(duck.sayHi("Gaga", "gril"));
-            print(duck.sayHi({name: "Gaga", age: 8}));
+            $log(duck.sayHi());
+            $log(duck.sayHi("Gaga", "gril"));
+            $log(duck.sayHi({name: "Gaga", age: 8}));
+
+            $.make(Duck).can({
+                "fly": function(){
+                   $log("I can fly;"); 
+                }
+            });
+
+            $.make(Duck).can("run", function(){
+                   $log("I'm running!"); 
+            });
+
+            $(duck).fly();
+            $(duck).run();
         });
      </script>
 </head>

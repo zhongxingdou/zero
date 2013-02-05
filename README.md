@@ -102,9 +102,9 @@ a JavaScript object oriented framework.
 			next: function(){ return this.target.valueOf() + 1; }
 		});
 		
-		$.regist(StringWrapper, String, "stringWrapper");
+		$.regWrapper(StringWrapper, String, "stringWrapper");
 		
-		$.regist(NumberWrapper, Number, "numberWrapper");
+		$.regWrapper(NumberWrapper, Number, "numberWrapper");
 		
 		$.setDefault(String, "stringWrapper");
 	

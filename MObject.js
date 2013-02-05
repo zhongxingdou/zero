@@ -24,23 +24,10 @@ $run(function() {
 		 */
 		invoke: 'function(funcName, args)',
 		/**
-		 * 调用对象的一个方法，并可指定作为this的对象
-		 * @param {String} funcName
-		 * @param {Object} thisp
-		 */
-		callFn: 'function(funcName, thisp/*, arg1, arg2,...**/)',
-		/**
-		 * 调用对象的一个方法，并可指定作为this的对象
-		 * @param {String} funcName
-		 * @param {Object} thisp
-		 * @param {Array} args
-		 */
-		applyFn: 'function(funcName, thisp, args)',
-		/**
 		 * 使用wrapper包装自己
 		 * @param {String} wrapperName 包装模块的名称
 		 */
-		wrap: 'function(wrapperName)',
+		wrapWith: 'function(wrapperName)',
 		/**
 		 * 包含一个模块
 		 * @param {Module} module
@@ -51,7 +38,7 @@ $run(function() {
 		 * @param {IInterface|IInterface[]} 接口
 		 */
 		implement: 'function(protocol)'
-	}
+	};
 
 	var MObject = $module({
 		onIncluded: function(){
@@ -67,13 +54,7 @@ $run(function() {
 		invoke: function(funcName, args){
 			return this.target[funcName].apply(this.target, args);
 		},
-		callFn: function(funcName, thisp/*, arg1, arg2,...**/) {
-			return this.target[funcName].apply(thisp, z._slice(arguments, 2));
-		},
-		applyFn: function(funcName, thisp, args){ 
-			return this.target[funcName].apply(thisp, args);
-		},
-		wrap: function(wrapperName){
+		wrapWith: function(wrapperName){
 			$$(this, wrapperName);
 			return this;
 		},
@@ -87,7 +68,7 @@ $run(function() {
 		}
 	});
 
-	$.regist(MObject, Object);
+	$.regWrapper(MObject, Object);
 
 	z.IMObject = IMObject;
 	z.MObject = MObject;

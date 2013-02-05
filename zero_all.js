@@ -657,14 +657,14 @@ $run(function(){
 			 * @param {Interface} protocol
 			 * @param {String} name
 			 */
-			regist: "function(wrapper, protocol, name)",
+			regWrapper: "function(wrapper, protocol, name)",
 
 			/**
 			 * 反注册一个wrapper
 			 * @param {Interface} protocol
 			 * @param {String} name
 			 */
-			unregist: "function(protocol, name)",
+			removeWrapper: "function(protocol, name)",
 
 			/**
 			 * 根据protocol获取一个wrapper
@@ -729,23 +729,7 @@ $run(function(){
 		//复制所有成员方法到代理对象上
 		if(!isProxy){
 			//复制原型上的方法到代理对象上，但并不能复制不能枚举的原型方法
-			/*
-			var firstProto = true;
-			z._traceProto(o, function(proto){
-				z._everyKey(proto, function(k, v){
-					if(typeof v == "function"){
-						if(proxy[k]){
-							if(firstProto){//overwrite
-								proxy[k] = v.bind(proxy.target);
-							}
-						}else{
-							proxy[k] = v.bind(proxy.target);
-						}
-					}
-				});
-				if(firstProto)firstProto = false;
-			});
-			*/
+	
 
 			z._everyKey(o, function(key, value) {
 				if(typeof value == "function"){
@@ -860,12 +844,12 @@ $run(function(){
 
 	$.__wrapper = {};
 
-	$.regist = function(wrapper, protocol, name) {
+	$.regWrapper = function(wrapper, protocol, name) {
 		name = name || DEFAULT;
 
 		if(protocol instanceof Array){
 			protocol.forEach(function(face){
-				$.regist(wrapper, face, name);
+				$.regWrapper(wrapper, face, name);
 			});
 		}else{
 			var map = this.__wrapper[protocol];
@@ -874,7 +858,7 @@ $run(function(){
 			}
 
 			if(this.__wrapper[protocol][name]){
-				throw "name '" + name + "' has been registed.";
+				throw "name '" + name + "' has been registered.";
 			}
 			this.__wrapper[protocol][name] = wrapper;
 		}
@@ -887,12 +871,12 @@ $run(function(){
 		}
 	};
 
-	$.unregist = function(protocol, name) {
+	$.removeWrapper = function(protocol, name) {
 		if(!(protocol && name))return;
 
 		if(protocol instanceof Array){
 			protocol.forEach(function(face){
-				$.unregist(face, name);
+				$.removeWrapper(face, name);
 			});
 		}else{
 			if(this.__wrapper[protocol][DEFAULT] ==  this.getWrapper(protocol, name)){
@@ -967,7 +951,7 @@ $run(function(){
 		if(!wrapper){
 			var m = {};
 			m[name] = action;
-			$.regist(m, o);
+			$.regWrapper(m, o);
 		}else{
 			wrapper[name] = action;
 		}
@@ -980,16 +964,24 @@ $run(function(){
 		}
 	};
 
-	$.sandbox = function(o, wrapper){ 
-		name = name || action.name;
+	$.createSandbox = function(o, wrapper){
 		var sandbox = function(fn){
 			if(!fn)return;
-			$.wrap(o, action, name);
-			var result = fn();
-			$.unwrap(o, name);
+			$.make(o).can(wrapper);
+			var result;
+			try{
+				result = fn();
+			}finally{
+				$.make(o).lose(wrapper);
+			}
 			return result;
 		};
 		return sandbox;
+	};
+
+	$.onceWrap = function(o, wrapper, fn){
+		var box = $.makeSandbox(o, wrapper);
+		return box(fn);
 	};
 
 	$implement(I$, $);
@@ -1056,23 +1048,10 @@ $run(function() {
 		 */
 		invoke: 'function(funcName, args)',
 		/**
-		 * 调用对象的一个方法，并可指定作为this的对象
-		 * @param {String} funcName
-		 * @param {Object} thisp
-		 */
-		callFn: 'function(funcName, thisp/*, arg1, arg2,...**/)',
-		/**
-		 * 调用对象的一个方法，并可指定作为this的对象
-		 * @param {String} funcName
-		 * @param {Object} thisp
-		 * @param {Array} args
-		 */
-		applyFn: 'function(funcName, thisp, args)',
-		/**
 		 * 使用wrapper包装自己
 		 * @param {String} wrapperName 包装模块的名称
 		 */
-		wrap: 'function(wrapperName)',
+		wrapWith: 'function(wrapperName)',
 		/**
 		 * 包含一个模块
 		 * @param {Module} module
@@ -1083,7 +1062,7 @@ $run(function() {
 		 * @param {IInterface|IInterface[]} 接口
 		 */
 		implement: 'function(protocol)'
-	}
+	};
 
 	var MObject = $module({
 		onIncluded: function(){
@@ -1099,13 +1078,7 @@ $run(function() {
 		invoke: function(funcName, args){
 			return this.target[funcName].apply(this.target, args);
 		},
-		callFn: function(funcName, thisp/*, arg1, arg2,...**/) {
-			return this.target[funcName].apply(thisp, z._slice(arguments, 2));
-		},
-		applyFn: function(funcName, thisp, args){ 
-			return this.target[funcName].apply(thisp, args);
-		},
-		wrap: function(wrapperName){
+		wrapWith: function(wrapperName){
 			$$(this, wrapperName);
 			return this;
 		},
@@ -1119,7 +1092,7 @@ $run(function() {
 		}
 	});
 
-	$.regist(MObject, Object);
+	$.regWrapper(MObject, Object);
 
 	z.IMObject = IMObject;
 	z.MObject = MObject;
@@ -1166,7 +1139,7 @@ $run(function() {
 		}
 	});
 
-	$.regist(MClass, Function, "toClass");
+	$.regWrapper(MClass, Function, "toClass");
 
 	z.IClass = IClass;
 
@@ -2052,7 +2025,7 @@ $run(function() {
 
 	z.MInspect = MInspect;
 
-	$.regist(MInspect, Object, "inspect");
+	$.regWrapper(MInspect, Object, "inspect");
 
 	/**
 	 * 检视对象，返回一个包含了MInspect模块的对象

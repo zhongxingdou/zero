@@ -28,40 +28,18 @@ $run(function(){
 			expect(spy).toHaveBeenCalledWith(param);
 		});
 
-		it("callFn()调用对象的方法", function(){
-			var spy = jasmine.createSpy();
-			var o = {method: spy};
-			
-			var param = {};
-			var thisp = {};
-			$(o).callFn("method", thisp, param);
-
-			expect(spy).toHaveBeenCalledWith(param);
-		});
-
-		it("applyFn()调用对象的方法", function(){
-			var spy = jasmine.createSpy();
-			var o = {method: spy};
-			
-			var param = {};
-			var thisp = {};
-			$(o).applyFn("method", thisp, [param]);
-
-			expect(spy).toHaveBeenCalledWith(param);
-		});
-
 		it("wrap()使用一个wrapper扩展对象", function(){
 			var o = {};
 			var wrapper = $module({method: function(){}});
 			var name  = "@mywrap";
 
-			$.regist(wrapper, Object, name);
+			$.regWrapper(wrapper, Object, name);
 
-			var $o = $(o).wrap(name);
+			var $o = $(o).wrapWith(name);
 
 			expect($o.method).toBeDefined();
 
-			$.unregist(Object, name);
+			$.removeWrapper(Object, name);
 		});
 	}); 
 });

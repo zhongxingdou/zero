@@ -7,28 +7,28 @@ $run(function() {
 		var spy = jasmine.createSpy("aw");
 
 		afterEach(function() {
-			$.unregist(type, name);
+			$.removeWrapper(type, name);
 			spy.reset();
 		});
 
 		it("注册和获取wrapper", function() {
-			$.regist(spy, type, name);
+			$.regWrapper(spy, type, name);
 			expect($.getWrapper(type, name)).toBe(spy);
 		});
 
 		it("反注册wrapper", function() {
-			$.regist(spy, type, name);
+			$.regWrapper(spy, type, name);
 
-			$.unregist(type, name);
+			$.removeWrapper(type, name);
 			expect($.getWrapper(type, name)).toBeUndefined();
 		});
 
 		it("包装值类型", function() {
 			var m = {
 				onIncluded: spy
-			}
+			};
 
-			$.regist(m, type, name);
+			$.regWrapper(m, type, name);
 			$(8, name);
 
 			//expect(spy).toHaveBeenCalledWith(8);
@@ -39,9 +39,9 @@ $run(function() {
 			type = Array;
 			var m = {
 				onIncluded: spy
-			}
+			};
 
-			$.regist(m, type, name);
+			$.regWrapper(m, type, name);
 
 			var a = [];
 			$(a, name);
@@ -54,9 +54,9 @@ $run(function() {
 
 			var m = {
 				onIncluded: spy
-			}
+			};
 
-			$.regist(m, type, name);
+			$.regWrapper(m, type, name);
 
 			var a = [];
 			$(a, name);
@@ -69,7 +69,7 @@ $run(function() {
 
 			expect(spy).toHaveBeenCalled();
 
-			$.unregist(type, name);
+			$.removeWrapper(type, name);
 			expect($.getWrapper(Array, name)).toBeUndefined();
 			expect($.getWrapper(String, name)).toBeUndefined();
 		});
@@ -77,7 +77,7 @@ $run(function() {
 
 	describe("$$()", function(){
 		it("$$()包装对象", function(){
-			$.regist({
+			$.regWrapper({
 				sayHello: function(){}
 			}, Object, "@myWrapper");
 
@@ -86,6 +86,6 @@ $run(function() {
 
 			expect(o.sayHello).toBeDefined();
 		});
-	}); 
+	});
 });
 

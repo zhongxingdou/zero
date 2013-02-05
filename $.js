@@ -15,14 +15,14 @@ $run(function(){
 			 * @param {Interface} protocol
 			 * @param {String} name
 			 */
-			regist: "function(wrapper, protocol, name)",
+			regWrapper: "function(wrapper, protocol, name)",
 
 			/**
 			 * 反注册一个wrapper
 			 * @param {Interface} protocol
 			 * @param {String} name
 			 */
-			unregist: "function(protocol, name)",
+			removeWrapper: "function(protocol, name)",
 
 			/**
 			 * 根据protocol获取一个wrapper
@@ -87,23 +87,7 @@ $run(function(){
 		//复制所有成员方法到代理对象上
 		if(!isProxy){
 			//复制原型上的方法到代理对象上，但并不能复制不能枚举的原型方法
-			/*
-			var firstProto = true;
-			z._traceProto(o, function(proto){
-				z._everyKey(proto, function(k, v){
-					if(typeof v == "function"){
-						if(proxy[k]){
-							if(firstProto){//overwrite
-								proxy[k] = v.bind(proxy.target);
-							}
-						}else{
-							proxy[k] = v.bind(proxy.target);
-						}
-					}
-				});
-				if(firstProto)firstProto = false;
-			});
-			*/
+	
 
 			z._everyKey(o, function(key, value) {
 				if(typeof value == "function"){
@@ -218,12 +202,12 @@ $run(function(){
 
 	$.__wrapper = {};
 
-	$.regist = function(wrapper, protocol, name) {
+	$.regWrapper = function(wrapper, protocol, name) {
 		name = name || DEFAULT;
 
 		if(protocol instanceof Array){
 			protocol.forEach(function(face){
-				$.regist(wrapper, face, name);
+				$.regWrapper(wrapper, face, name);
 			});
 		}else{
 			var map = this.__wrapper[protocol];
@@ -232,7 +216,7 @@ $run(function(){
 			}
 
 			if(this.__wrapper[protocol][name]){
-				throw "name '" + name + "' has been registed.";
+				throw "name '" + name + "' has been registered.";
 			}
 			this.__wrapper[protocol][name] = wrapper;
 		}
@@ -245,12 +229,12 @@ $run(function(){
 		}
 	};
 
-	$.unregist = function(protocol, name) {
+	$.removeWrapper = function(protocol, name) {
 		if(!(protocol && name))return;
 
 		if(protocol instanceof Array){
 			protocol.forEach(function(face){
-				$.unregist(face, name);
+				$.removeWrapper(face, name);
 			});
 		}else{
 			if(this.__wrapper[protocol][DEFAULT] ==  this.getWrapper(protocol, name)){
@@ -292,7 +276,32 @@ $run(function(){
 		return ws.reverse();
 	};
 
-	$.wrap = function(o, action, name){
+	$.make = function(o){
+		return {
+			can: function(name, fn){
+				if(typeof name == "string"){
+					_wrapWith(o, fn, name);
+				}else if(typeof name == "object"){
+					for(var action in name){
+						_wrapWith(o, name[action], action);
+					}
+				}
+				return this;
+			},
+			lose: function(name){
+				if(typeof name == "string"){
+					_unWrap(o, name);
+				}else if(typeof name == "object"){
+					for(var action in name){
+						_unWrap(o, action);
+					}
+				}
+				return this;
+			}
+		};
+	};
+
+	var  _wrapWith = function(o, action, name){
 		var name = name || action.name;
 		if(!name)return;
 
@@ -300,29 +309,37 @@ $run(function(){
 		if(!wrapper){
 			var m = {};
 			m[name] = action;
-			$.regist($module(m), o);
+			$.regWrapper(m, o);
 		}else{
 			wrapper[name] = action;
 		}
 	};
 
-	$.unwrap = function(o, name){
+	var _unWrap = function(o, name){
 		var wrapper = $.getWrapper(o, DEFAULT);
 		if(wrapper){
 			delete wrapper[name];
 		}
 	};
 
-	$.sandbox = function(o, action, name){
-		name = name || action.name;
+	$.createSandbox = function(o, wrapper){
 		var sandbox = function(fn){
 			if(!fn)return;
-			$.wrap(o, action, name);
-			var result = fn();
-			$.unwrap(o, name);
+			$.make(o).can(wrapper);
+			var result;
+			try{
+				result = fn();
+			}finally{
+				$.make(o).lose(wrapper);
+			}
 			return result;
 		};
 		return sandbox;
+	};
+
+	$.onceWrap = function(o, wrapper, fn){
+		var box = $.makeSandbox(o, wrapper);
+		return box(fn);
 	};
 
 	$implement(I$, $);
