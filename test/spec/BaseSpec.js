@@ -20,8 +20,8 @@ $run(function() {
 			var o = new z.Base();
 			var name = "";
 			o.property("name", {
-				get: function(){return name}, 
-				set: function(v){name = v + v}
+				get: function(){return name;},
+				set: function(v){name = v + v;}
 			});
 			o.name = "jim";
 			expect(o.name).toBe("jimjim");
@@ -46,7 +46,7 @@ $run(function() {
 			expect(o.name).toBeDefined();
 			expect(o.name).toBeDefined();
 		});
-	}); 
+	});
 
 
 	describe("z.Base.include()", function(){
@@ -69,14 +69,14 @@ $run(function() {
 
 			expect(o.sayHello).toBeDefined();
 		});
-	}); 
+	});
 
 	describe("z.Base.base()", function() {
 		it("调用父类的构造函数", function(){
 			var Class = jasmine.createSpy();
 			var Sub = function(){
 				this.base();
-			}
+			};
 			$class(Class).extend(z.Base);
 			$class(Sub).extend(Class);
 
@@ -85,13 +85,13 @@ $run(function() {
 		});
 
 		it("可以调用到父原型的同名方法并传递实例调用时提供的参数", function() {
-			var BaseBase = function() {}
+			var BaseBase = function() {};
 
-			var sayHi = jasmine.createSpy()
+			var sayHi = jasmine.createSpy();
 
 			BaseBase.prototype = {
 				sayHi: sayHi
-			}
+			};
 
 			$class(BaseBase).extend(z.Base);
 
@@ -101,7 +101,7 @@ $run(function() {
 				sayHi: function(){
 					this.base(param);
 				}
-			}
+			};
 			$class(Class).extend(BaseBase);
 
 			var ac = new Class();
@@ -112,13 +112,11 @@ $run(function() {
 
 
 		it("可以逐步向上的方式调用到原型链中的同名方法", function() {
-			var BaseBase = function() {}
+			var BaseBase = function() {};
 
-			var sayHi = jasmine.createSpy()
+			var sayHi = jasmine.createSpy();
 
-			BaseBase.prototype = {
-				sayHi: sayHi
-			}
+			BaseBase.prototype = {sayHi: sayHi };
 
 			$class(BaseBase).extend(z.Base);
 
@@ -130,7 +128,7 @@ $run(function() {
 				sayHi: function(){
 					this.base();
 				}
-			}
+			};
 			$class(Class).extend(Base);
 
 			var ac = new Class();
@@ -139,22 +137,42 @@ $run(function() {
 			expect(sayHi).toHaveBeenCalled();
 		});
 
+		it("多层次的调用base()", function(){
+			var A = function(){};
+			var aSayHi = jasmine.createSpy();
+			A.prototype.sayHi = aSayHi;
+
+			var B = function(){};
+			B.prototype.sayHi = function() { this.base(); };
+
+			var C = function(){};
+			C.prototype.sayHi = function() { this.base(); };
+
+			$class(A).extend(z.Base);
+			$class(B).extend(A);
+			$class(C).extend(B);
+
+			var c = new C();
+			c.sayHi();
+
+			expect(aSayHi).toHaveBeenCalled();
+		});
 
 		it("如果原型链中存在非方法的同名对象，会停止向更上级原型获取同名方法", function() {
-			var BaseBase = function() {}
+			var BaseBase = function() {};
 
-			var sayHi = jasmine.createSpy()
+			var sayHi = jasmine.createSpy();
 
 			BaseBase.prototype = {
 				sayHi: sayHi
-			}
+			};
 
 			$class(BaseBase).extend(z.Base);
 
 			var Base = function() {};
 			Base.prototype = {
 				sayHi: {}
-			}
+			};
 
 			$class(Base).extend(BaseBase);
 
@@ -163,7 +181,7 @@ $run(function() {
 				sayHi: function(){
 					this.base();
 				}
-			}
+			};
 			$class(Class).extend(Base);
 
 			var ac = new Class();
@@ -173,11 +191,11 @@ $run(function() {
 		});
 
 		it("在对象owner的同名方法中同样会调用父原型以上原型的同名方法，而不是原型的", function() {
-			var BaseBase = function() {}
-			var sayHi = jasmine.createSpy()
+			var BaseBase = function() {};
+			var sayHi = jasmine.createSpy();
 			BaseBase.prototype = {
 				sayHi: sayHi
-			}
+			};
 			$class(BaseBase).extend(z.Base);
 
 			var Class = function() {};
@@ -185,13 +203,13 @@ $run(function() {
 				sayHi: function(){
 					this.base();
 				}
-			}
+			};
 			$class(Class).extend(BaseBase);
 
 			var ac = new Class();
 			ac.sayHi = function(){
 				this.base();
-			}
+			};
 			ac.sayHi();
 
 			expect(sayHi).toHaveBeenCalledWith();
@@ -214,7 +232,7 @@ $run(function() {
 
 			expect(o.getImplns()).toContain(c);
 			expect(o.getImplns()).toContain(b);
-		})
+		});
 	});
 });
 
