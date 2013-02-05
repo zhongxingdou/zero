@@ -391,13 +391,12 @@ $run(function(){
     z._array = _array;
 	z._isPlainObject = _isPlainObject;
 
-    var vars = [];
-    vars.push("$implement", "$extend", "$callbase", "$include");
-    vars.push("$enum", "$property", "$fn");
-    vars.push("$fnself");
-
-    var name;
-    while (name = vars.pop()) {
-        $global(name, eval(name));
-    }
+    $global("$implement", $implement);
+    $global("$extend", $extend);
+    $global("$callbase", $callbase);
+    $global("$include", $include);
+    $global("$enum",  $enum);
+    $global("$property", $property);
+    $global("$fn",  $fn);
+    $global("$fnself", $fnself);
 });
