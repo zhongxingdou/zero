@@ -8,7 +8,7 @@ $run(function(){
 		un: "function(event, listener)",
 		getListerners: "function(event)",
 		fire: "function(event, args)"
-	}
+	};
 	
 	/**
 	 * 事件
@@ -22,6 +22,7 @@ $run(function(){
 			this.__listeners = {};
 			$implement(IEvent, this);
 		},
+		on: this.addListener,
 		/**
 		 * 添加监听者
 		 * @param {String} eventName 事件名
@@ -33,6 +34,7 @@ $run(function(){
 			all.push(listener);
 			return this;
 		},
+		un: this.removeListener,
 		/**
 		 * 移除监听者
 		 * @param {String} eventName 事件名
@@ -41,7 +43,7 @@ $run(function(){
 		removeListener: function(eventName, listener){
 			var all = this.__listeners[eventName];
 			if(!all)return;
-			this.__listeners[eventName] = all.filter(function(item){return item != listener});
+			this.__listeners[eventName] = all.filter(function(item){return item != listener;});
 			return this;
 		},
 		/**

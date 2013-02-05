@@ -9,12 +9,12 @@ $run(function() {
 			instanceOf: "[object]",
 
 			//原型链中包含哪些原型
-			prototypeOf: "[object]" 
-	}
+			prototypeOf: "[object]"
+	};
 	
 	/**
 	 * 解析ITypeSpec对象
-	 * @param {ITypeSpec} spec 
+	 * @param {ITypeSpec} spec
 	 */
 	function _parseTypeSpec(spec) {
 		var o = {};
@@ -77,7 +77,7 @@ $run(function() {
 	}
 
 	z.ITypeSpec = ITypeSpec;
-	z.parseTypeSpec = _parseTypeSpec; 
+	z.parseTypeSpec = _parseTypeSpec;
 
 	$global("$is", $is);
 });

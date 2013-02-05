@@ -11,7 +11,7 @@ $run(function() {
 			"__implns__": {type: "Array", required: false},
 			"__cls_implns__": {type: "Array", required: false}
 		}
-	}
+	};
 
 	/**
 	 * @module
@@ -47,7 +47,7 @@ $run(function() {
 	z.MClass = MClass;
 
 	function $class(m){
-		return $$(m).toClass();	
+		return $$(m).toClass();
 	}
 	$global("$class", $class);
 });
