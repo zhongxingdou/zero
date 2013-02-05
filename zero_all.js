@@ -1,7 +1,3 @@
-/**
-* @global
-*/
-// var z = {};
 (function(host) {
 	var IVariableMenager = {
 		type: "function(names, o)",
@@ -169,7 +165,7 @@
 			});
 			return "var " + code.join(",") + ";";
 		}
-	}
+	};
 
 
 	/**
@@ -210,6 +206,38 @@
         return thisObj;
     };
 })(this);
+$run(function(){
+    eval($global.all);
+
+    var $log = function(){};
+    $log.info = function(){};
+    $log.warn = function(){};
+    $log.debug = function(){};
+    $log.error = function(){};
+
+    if(typeof console != "undefined"){
+        if(typeof console.log == "function"){
+            $log = function(msg){
+                console.log(msg);
+            };
+        }
+
+        var types = ["info","warn","error","debug"];
+        var l = types.length;
+        while(l--){
+            var t = types[l-1];
+            if(typeof console[t] == "function"){
+                $log[t] = (function(type){
+                    return function(msg){
+                        console[type](msg);
+                    };
+                })(t);
+            }
+        }
+    }
+
+    $global("$log", $log);
+});
 $run(function(){
     eval($global.all);
 
@@ -603,15 +631,14 @@ $run(function(){
     z._array = _array;
 	z._isPlainObject = _isPlainObject;
 
-    var vars = [];
-    vars.push("$implement", "$extend", "$callbase", "$include");
-    vars.push("$enum", "$property", "$fn");
-    vars.push("$fnself");
-
-    var name;
-    while (name = vars.pop()) {
-        $global(name, eval(name));
-    }
+    $global("$implement", $implement);
+    $global("$extend", $extend);
+    $global("$callbase", $callbase);
+    $global("$include", $include);
+    $global("$enum",  $enum);
+    $global("$property", $property);
+    $global("$fn",  $fn);
+    $global("$fnself", $fnself);
 });
 $run(function(){
 	eval($global.all);
@@ -907,7 +934,32 @@ $run(function(){
 		return ws.reverse();
 	};
 
-	$.wrap = function(o, action, name){
+	$.make = function(o){
+		return {
+			can: function(name, fn){
+				if(typeof name == "string"){
+					_wrapWith(o, fn, name);
+				}else if(typeof name == "object"){
+					for(var action in name){
+						_wrapWith(o, name[action], action);
+					}
+				}
+				return this;
+			},
+			lose: function(name){
+				if(typeof name == "string"){
+					_unWrap(o, name);
+				}else if(typeof name == "object"){
+					for(var action in name){
+						_unWrap(o, action);
+					}
+				}
+				return this;
+			}
+		};
+	};
+
+	var  _wrapWith = function(o, action, name){
 		var name = name || action.name;
 		if(!name)return;
 
@@ -915,20 +967,20 @@ $run(function(){
 		if(!wrapper){
 			var m = {};
 			m[name] = action;
-			$.regist($module(m), o);
+			$.regist(m, o);
 		}else{
 			wrapper[name] = action;
 		}
 	};
 
-	$.unwrap = function(o, name){
+	var _unWrap = function(o, name){
 		var wrapper = $.getWrapper(o, DEFAULT);
 		if(wrapper){
 			delete wrapper[name];
 		}
 	};
 
-	$.sandbox = function(o, action, name){
+	$.sandbox = function(o, wrapper){ 
 		name = name || action.name;
 		var sandbox = function(fn){
 			if(!fn)return;
@@ -1085,7 +1137,7 @@ $run(function() {
 			"__implns__": {type: "Array", required: false},
 			"__cls_implns__": {type: "Array", required: false}
 		}
-	}
+	};
 
 	/**
 	 * @module
@@ -1121,7 +1173,7 @@ $run(function() {
 	z.MClass = MClass;
 
 	function $class(m){
-		return $$(m).toClass();	
+		return $$(m).toClass();
 	}
 	$global("$class", $class);
 });
@@ -1320,12 +1372,12 @@ $run(function() {
 			instanceOf: "[object]",
 
 			//原型链中包含哪些原型
-			prototypeOf: "[object]" 
-	}
+			prototypeOf: "[object]"
+	};
 	
 	/**
 	 * 解析ITypeSpec对象
-	 * @param {ITypeSpec} spec 
+	 * @param {ITypeSpec} spec
 	 */
 	function _parseTypeSpec(spec) {
 		var o = {};
@@ -1388,7 +1440,7 @@ $run(function() {
 	}
 
 	z.ITypeSpec = ITypeSpec;
-	z.parseTypeSpec = _parseTypeSpec; 
+	z.parseTypeSpec = _parseTypeSpec;
 
 	$global("$is", $is);
 });
@@ -1822,7 +1874,7 @@ $run(function(){
 		un: "function(event, listener)",
 		getListerners: "function(event)",
 		fire: "function(event, args)"
-	}
+	};
 	
 	/**
 	 * 事件
@@ -1836,6 +1888,7 @@ $run(function(){
 			this.__listeners = {};
 			$implement(IEvent, this);
 		},
+		on: this.addListener,
 		/**
 		 * 添加监听者
 		 * @param {String} eventName 事件名
@@ -1847,6 +1900,7 @@ $run(function(){
 			all.push(listener);
 			return this;
 		},
+		un: this.removeListener,
 		/**
 		 * 移除监听者
 		 * @param {String} eventName 事件名
@@ -1855,7 +1909,7 @@ $run(function(){
 		removeListener: function(eventName, listener){
 			var all = this.__listeners[eventName];
 			if(!all)return;
-			this.__listeners[eventName] = all.filter(function(item){return item != listener});
+			this.__listeners[eventName] = all.filter(function(item){return item != listener;});
 			return this;
 		},
 		/**
