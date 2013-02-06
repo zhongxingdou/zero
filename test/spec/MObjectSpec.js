@@ -28,16 +28,18 @@ $run(function(){
 			expect(spy).toHaveBeenCalledWith(param);
 		});
 
-		it("wrap()使用一个wrapper扩展对象", function(){
+		it("MObject.$()使用一个wrapper扩展对象", function(){
 			var o = {};
 			var wrapper = $module({method: function(){}});
 			var name  = "@mywrap";
 
 			$.regWrapper(wrapper, Object, name);
 
-			var $o = $(o).wrapWith(name);
+			var $o = $(o).$(name);
 
 			expect($o.method).toBeDefined();
+
+			expect(o.method).toBeUndefined();
 
 			$.removeWrapper(Object, name);
 		});

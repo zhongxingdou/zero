@@ -11,7 +11,7 @@ $run(function() {
 		 */
 		methods: function(){
 			var keys = this.allKeys();
-			var t = this.target;
+			var t = this;
 			return keys.filter(function(k){
 				return typeof t[k] == "function";
 			});
@@ -39,7 +39,7 @@ $run(function() {
 		 */
 		fields: function(){
 			var keys = this.allKeys();
-			var t = this.target;
+			var t = this;
 			return keys.filter(function(k){
 				return typeof t[k] != "function";
 			});
@@ -66,26 +66,26 @@ $run(function() {
 		 * 返回对象的非原型链上成员的名称
 		 */
 		keys: function(){
-			return Object.keys(this.target);
+			return Object.keys(this);
 		},
 		/**
 		 * 返回对象的所有成员的名称
 		 */
 		allKeys: function(){
-			return z._keys(this.target);
+			return z._keys(this);
 		},
 		/**
 		 * 返回对象的typeof值
 		 */
 		type: function(){
-			return typeof this.target;
+			return typeof this;
 		},
 		/**
 		 * 返回对象的原型链
 		 */
 		protoLink: function(){
 			var protos = [];
-			z._traceProto(this.target, function(p){
+			z._traceProto(this, function(p){
 				protos.push(p);
 			});
 			return protos;
@@ -94,7 +94,7 @@ $run(function() {
 		 * 返回对象的原型
 		 */
 		proto: function(){
-			var t = this.target;
+			var t = this;
 			var supportedProto = {}.__proto__ !== undefined;
 			return supportedProto ? t.__proto__ : t.constructor.prototype;
 		},
@@ -102,7 +102,7 @@ $run(function() {
 		 * 返回对象的constructor
 		 */
 		creator: function(){
-			return this.target.constructor;
+			return this.constructor;
 		},
 		/**
 		 * 返回对象已实现的接口
@@ -124,7 +124,7 @@ $run(function() {
 	 * @global
 	 */
 	function $inspect(o){
-		return $(o).wrapWith("MInspect");
+		return $(o).$("MInspect");
 	}
 
 	$global("$inspect", $inspect);

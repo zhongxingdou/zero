@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-     <script src="zero_all-min.js"></script>
+     <script src="zero_all.js"></script>
      <script>
         $run(function(){
             eval($global.all); //导出所有$global管理和"全局"变量，此"全局"变量只在此方法内可用
@@ -101,7 +101,7 @@
 
             var MMove = $module({
                 move: function(){
-                    return this.target.name + " is moving";
+                    return this.name + " is moving";
                 }
             });
 

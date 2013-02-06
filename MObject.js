@@ -45,25 +45,28 @@ $run(function() {
 			$implement(PMObject, this);
 		},
 		get: function(member) {
-			return this.target[member];
+			return this[member];
 		},
 		set: function(member, value) {
-			this.target[member] = value;
+			this[member] = value;
 			return this;
 		},
 		invoke: function(funcName, args){
-			return this.target[funcName].apply(this.target, args);
+			return this[funcName].apply(this, args);
 		},
-		wrapWith: function(wrapperName){
+		$: function(wrapperName){
+			return $(this, wrapperName);
+		},
+		$$: function(wrapperName){
 			$$(this, wrapperName);
 			return this;
 		},
 		implement: function(protocol){
-			$implement(protocol, this.target);
+			$implement(protocol, this);
 			return this;
 		},
 		include: function(module) {
-			$include(module, this.target);
+			$include(module, this);
 			return this;
 		}
 	});

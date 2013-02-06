@@ -22,7 +22,6 @@ $run(function(){
 			this.__listeners = {};
 			$implement(PEvent, this);
 		},
-		on: this.addListener,
 		/**
 		 * 添加监听者
 		 * @param {String} eventName 事件名
@@ -34,7 +33,6 @@ $run(function(){
 			all.push(listener);
 			return this;
 		},
-		un: this.removeListener,
 		/**
 		 * 移除监听者
 		 * @param {String} eventName 事件名
@@ -66,5 +64,7 @@ $run(function(){
 		}
 	});
 
+	$.regWrapper(MEvent, Object, "MEvent");
+	
 	z.MEvent = MEvent;
 });

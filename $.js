@@ -1,4 +1,4 @@
-$run(function(){
+$run(function() {
 	eval($global.all);
 
 
@@ -7,12 +7,13 @@ $run(function(){
 	 * @param {Object} o
 	 * @param {String} [name] 指定一个包装器
 	 */
-	function $(o /*, name*/) {
-		if(o === null)return;
+
+	function $(o /*, name*/ ) {
+		if(o === null) return;
 
 		var type = typeof o;
 
-		if(type != "object" && type != "function"){
+		if(type != "object" && type != "function") {
 			var clazz = eval(type.charAt(0).toUpperCase() + type.slice(1));
 			o = new clazz(o);
 		}
@@ -22,31 +23,84 @@ $run(function(){
 		var proxy = isProxy ? o : new $.Proxy(o);
 
 		//复制所有成员方法到代理对象上
-		if(!isProxy){
+		if(!isProxy) {
 			//复制原型上的方法到代理对象上，但并不能复制不能枚举的原型方法
-
 			z._everyKey(o, function(key, value) {
-				if(typeof value == "function"){
+				if(typeof value == "function") {
 					proxy[key] = value.bind(proxy.target);
 				}
 			});
 		}
 
 		//module中this.x＝xx不会设置到target上，要设置到target请使用this.set(x, xx);
-		$.findWrapper(proxy.target, name).forEach(function(wrapper){
-			$include(wrapper, proxy);
+		$.findWrapper(proxy.__target__, name).forEach(function(wrapper) {
+			// $include(wrapper, proxy);
+			_includeWrapperToProxy(wrapper, proxy);
 		});
 
 		return proxy;
 	}
 
-	$.Proxy = function(target){ this.target = target; };
+	function _includeWrapperToProxy(wrapper, proxy) {
+		var exclude = ["onIncluded", "__implns__"];
 
-	function _keysExcept(obj, except){
+		z._everyKey(wrapper, function(k, v) {
+			if(exclude.indexOf(k) == -1) {
+				var t = proxy.__target__;
+				if(typeof v == "function") {
+					proxy[k] = _makeSandboxFuncForProxy(wrapper, v, t);
+				} else {
+					t[k] = v;
+				}
+			}
+		});
+
+		if(wrapper.onIncluded) {
+			wrapper.onIncluded.call(proxy);
+		}
+	}
+
+	function _makeSandboxFuncForProxy(module, fn, obj) {
+		return function() {
+			var includes = _includeFnsExceptOnIncluded(module, obj);
+			var result;
+			try {
+				result = fn.apply(obj, arguments);
+			} finally {
+				if(includes.length) _removeIncludes(includes, obj);
+			}
+			return result;
+		};
+	}
+
+	function _removeIncludes(includes, fromObj) {
+		for(var i = 0, l = includes.length; i < l; i++) {
+			delete fromObj[includes[i]];
+		}
+	}
+
+	function _includeFnsExceptOnIncluded(module, toObj) {
+		var includes = [];
+		z._everyKey(module, function(k, v) {
+			if(typeof v == "function" && k !== "onIncluded") {
+				if(!toObj.hasOwnProperty(k)) {
+					toObj[k] = v;
+					includes.push(k);
+				}
+			}
+		});
+		return includes;
+	}
+
+	$.Proxy = function(target) {
+		this.__target__ = target;
+	};
+
+	function _keysExcept(obj, except) {
 		var ar = [];
-		for(var k in obj){
+		for(var k in obj) {
 			var m = obj[k];
-			if(except !== k){
+			if(except !== k) {
 				ar.push(k);
 			}
 		}
@@ -58,11 +112,11 @@ $run(function(){
 	 * @param {Interface} protocol
 	 * @param {String} exceptName
 	 */
-	$.getWrapperNamesExcept = function(protocol, exceptName){
+	$.getWrapperNamesExcept = function(protocol, exceptName) {
 		exceptName = exceptName || DEFAULT;
 		var map = this.__wrapper[protocol];
 		var ws = [];
-		if(map){
+		if(map) {
 			ws = _keysExcept(map, exceptName);
 		}
 		return ws;
@@ -73,26 +127,29 @@ $run(function(){
 	 * @param {Object} o
 	 * @param {String} [name] 指定一个包装器
 	 */
-	function $$(o /* ,name */){
-		if(o === null)return;
+
+	function $$(o /* ,name */ ) {
+		if(o === null) return;
 
 		var type = typeof o;
 
-		if(type != "object" && type != "function"){
+		if(type != "object" && type != "function") {
 			var clazz = eval(type.charAt(0).toUpperCase() + type.slice(1));
 			o = new clazz(o);
 		}
 
 		//备份扩展过程中要覆盖的成员
+		/*
 		var isProxy = o instanceof $.Proxy;
-		if(!isProxy){
-			if(o.target)o.originTarget = o.target;
+		if(!isProxy) {
+			if(o.target) o.originTarget = o.target;
 			o.target = o;
-		}
+		}*/
 
 		var name = arguments[1];
 		//当o是$.Proxy实例时，应该根据o.target即真实对象来查询扩展器
-		$.findWrapper(o.target, name).forEach(function(wrapper){
+		// $.findWrapper(o.target, name).forEach(function(wrapper) {
+		$.findWrapper(o, name).forEach(function(wrapper) {
 			$include(wrapper, o);
 		});
 
@@ -112,17 +169,19 @@ $run(function(){
 	$.regWrapper = function(wrapper, protocol, name) {
 		name = name || DEFAULT;
 
-		if(protocol instanceof Array){
-			protocol.forEach(function(face){
+		if(protocol instanceof Array) {
+			protocol.forEach(function(face) {
 				$.regWrapper(wrapper, face, name);
 			});
-		}else{
+		} else {
 			var map = this.__wrapper[protocol];
-			if(!map){
-				map = this.__wrapper[protocol] = {"default": null};
+			if(!map) {
+				map = this.__wrapper[protocol] = {
+					"default": null
+				};
 			}
 
-			if(this.__wrapper[protocol][name]){
+			if(this.__wrapper[protocol][name]) {
 				throw "name '" + name + "' has been registered.";
 			}
 			this.__wrapper[protocol][name] = wrapper;
@@ -134,9 +193,9 @@ $run(function(){
 	 * @param {Interface} protocol
 	 * @param {String} name
 	 */
-	$.setDefault = function(protocol, name){
+	$.setDefault = function(protocol, name) {
 		var wp = this.getWrapper(protocol, name);
-		if(wp){
+		if(wp) {
 			this.__wrapper[protocol][DEFAULT] = wp;
 		}
 	};
@@ -147,14 +206,14 @@ $run(function(){
 	 * @param {String} name
 	 */
 	$.removeWrapper = function(protocol, name) {
-		if(!(protocol && name))return;
+		if(!(protocol && name)) return;
 
-		if(protocol instanceof Array){
-			protocol.forEach(function(face){
+		if(protocol instanceof Array) {
+			protocol.forEach(function(face) {
 				$.removeWrapper(face, name);
 			});
-		}else{
-			if(this.__wrapper[protocol][DEFAULT] ==  this.getWrapper(protocol, name)){
+		} else {
+			if(this.__wrapper[protocol][DEFAULT] == this.getWrapper(protocol, name)) {
 				this.setDefault(protocol, null);
 			}
 			delete this.__wrapper[protocol][name];
@@ -169,7 +228,7 @@ $run(function(){
 	$.getWrapper = function(protocol, name) {
 		name = name || DEFAULT;
 		var map = this.__wrapper[protocol];
-		if(map){
+		if(map) {
 			return map[name];
 		}
 	};
@@ -183,18 +242,18 @@ $run(function(){
 		var type = typeof(o);
 		var ws = [];
 
-		if(type === "object" || type === "function"){
-			z._traceProto(o, function(proto){
+		if(type === "object" || type === "function") {
+			z._traceProto(o, function(proto) {
 				var clazz = proto.constructor;
 				var w = $.getWrapper(clazz, name);
-				if(w)z._uniqPush(ws, w);
+				if(w) z._uniqPush(ws, w);
 
 				var protocols = proto.__implns__;
-				if(protocols){
+				if(protocols) {
 					protocols = protocols.slice(0);
-					protocols.forEach(function(protocol){
+					protocols.forEach(function(protocol) {
 						w = $.getWrapper(protocol, name);
-						if(w)z._uniqPush(ws, w);
+						if(w) z._uniqPush(ws, w);
 					});
 				}
 			});
@@ -209,27 +268,27 @@ $run(function(){
 	 * @return {Object}
 	 * @example
 	 * $.make(String).can({"capitalize": function(){
-	 *     var o = this.target.valueOf();
+	 *     var o = this.valueOf();
 	 *     return o.charAt(0).toUpperCase() + o.slice(1);
 	 * }
 	 */
-	$.make = function(o){
+	$.make = function(o) {
 		return {
-			can: function(name, fn){
-				if(typeof name == "string"){
+			can: function(name, fn) {
+				if(typeof name == "string") {
 					_wrapWith(o, fn, name);
-				}else if(typeof name == "object"){
-					for(var action in name){
+				} else if(typeof name == "object") {
+					for(var action in name) {
 						_wrapWith(o, name[action], action);
 					}
 				}
 				return this;
 			},
-			lose: function(name){
-				if(typeof name == "string"){
+			lose: function(name) {
+				if(typeof name == "string") {
 					_unWrap(o, name);
-				}else if(typeof name == "object"){
-					for(var action in name){
+				} else if(typeof name == "object") {
+					for(var action in name) {
 						_unWrap(o, action);
 					}
 				}
@@ -238,26 +297,26 @@ $run(function(){
 		};
 	};
 
-	var  _wrapWith = function(o, action, name){
-		name = name || action.name;
-		if(!name)return;
+	var _wrapWith = function(o, action, name) {
+			name = name || action.name;
+			if(!name) return;
 
-		var wrapper = $.getWrapper(o, DEFAULT);
-		if(!wrapper){
-			var m = {};
-			m[name] = action;
-			$.regWrapper(m, o);
-		}else{
-			wrapper[name] = action;
-		}
-	};
+			var wrapper = $.getWrapper(o, DEFAULT);
+			if(!wrapper) {
+				var m = {};
+				m[name] = action;
+				$.regWrapper(m, o);
+			} else {
+				wrapper[name] = action;
+			}
+		};
 
-	var _unWrap = function(o, name){
-		var wrapper = $.getWrapper(o, DEFAULT);
-		if(wrapper){
-			delete wrapper[name];
-		}
-	};
+	var _unWrap = function(o, name) {
+			var wrapper = $.getWrapper(o, DEFAULT);
+			if(wrapper) {
+				delete wrapper[name];
+			}
+		};
 
 	/**
 	 * 创建一个扩展模块的沙箱
@@ -265,18 +324,18 @@ $run(function(){
 	 * @param  {Module} wrapper 扩展模块
 	 * @return {Function}         沙箱
 	 */
-	$.createSandbox = function(o, wrapper){
-		var sandbox = function(fn){
-			if(!fn)return;
-			$.make(o).can(wrapper);
-			var result;
-			try{
-				result = fn();
-			}finally{
-				$.make(o).lose(wrapper);
-			}
-			return result;
-		};
+	$.createSandbox = function(o, wrapper) {
+		var sandbox = function(fn) {
+				if(!fn) return;
+				$.make(o).can(wrapper);
+				var result;
+				try {
+					result = fn();
+				} finally {
+					$.make(o).lose(wrapper);
+				}
+				return result;
+			};
 		return sandbox;
 	};
 
@@ -287,7 +346,7 @@ $run(function(){
 	 * @param  {Function} fn      要运行的方法
 	 * @return {Object}           fn的返回结果
 	 */
-	$.onceWrap = function(o, wrapper, fn){
+	$.onceWrap = function(o, wrapper, fn) {
 		var box = $.makeSandbox(o, wrapper);
 		return box(fn);
 	};

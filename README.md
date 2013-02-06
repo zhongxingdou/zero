@@ -93,13 +93,13 @@ a JavaScript object oriented framework.
 		
 		var StringWrapper = $module({
 			capitalize: function(){
-				var o = this.target;
+				var o = this;
 				return o.charAt(0).toUpperCase() + o.slice(1);
 			}
 		});
 		
 		var NumberWrapper = $module({
-			next: function(){ return this.target.valueOf() + 1; }
+			next: function(){ return this.valueOf() + 1; }
 		});
 		
 		$.regWrapper(StringWrapper, String, "stringWrapper");

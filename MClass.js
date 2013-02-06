@@ -19,24 +19,24 @@ $run(function() {
 	var MClass = $module({
 		onIncluded: function() {
 			this.__cls_implns__ = [];
-			this.implement(PClass);
+			$implement(PClass, this);
 		},
 		/**
 		 * 继承一个类
 		 * @param {Object} base
 		 */
 		extend: function(base){
-			$extend(this.target, base);
+			$extend(this, base);
 			delete this.extend; //防止多继承,只能用一次
 			return this;
 		},
 		classImplement: function(protocol){
-			if(!this.target.__cls_implns__)this.target.__cls_implns__ = [];
-			z._uniqPush(this.target.__cls_implns__, protocol);
-			return this.target;
+			if(!this.__cls_implns__)this.__cls_implns__ = [];
+			z._uniqPush(this.__cls_implns__, protocol);
+			return this;
 		},
 		getClassImplns: function() {
-			return this.target.__cls_implns__;
+			return this.__cls_implns__;
 		}
 	});
 
@@ -47,7 +47,7 @@ $run(function() {
 	z.MClass = MClass;
 
 	function $class(m){
-		return $(m).wrapWith("MClass");
+		return $$(m,"MClass");
 	}
 	$global("$class", $class);
 });

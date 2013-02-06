@@ -1,7 +1,7 @@
 $run(function() {
 	eval($global.all);
 
-	describe("Object@", function() {
+	describe("MInspect", function() {
 		it("反射简单对象", function() {
 			var obj = {
 				sayHi: function() {},
