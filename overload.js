@@ -2,7 +2,7 @@ $run(function() {
 	eval($global.all);
 
 
-	function $overload(/*fn1, fn2,{[String, Number]: fn3, [ITypeSpec, String]: fn4]} */){
+	function $overload(/*fn1, fn2,{[String, Number]: fn3, [PTypeSpec, String]: fn4]} */){
 		var main = function(){
 			var args = arguments;
 			var fn = _findFuncByParams(args.callee.fnMap, args);
@@ -84,7 +84,7 @@ $run(function() {
 	 */
 	function _matchParamType(type, param){
 		var pt = typeof param; //实际参数的类型
-		var tt = typeof type; //string: 值类型, function: IClass, object: ITypeSpec
+		var tt = typeof type; //string: 值类型, function: PClass, object: PTypeSpec
 
 		if(tt !== "string" || type === "object"){//形参声明为引用类型
 			if(pt === "object" || pt === "function"){//实参为引用类型

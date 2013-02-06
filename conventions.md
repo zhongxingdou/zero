@@ -13,7 +13,7 @@
 ### 各种对象命名
 * Class 类名（首字母大写）
 * MModule 模块以M＋模块名（首字母大写）
-* IInterface 接口以I+接口名（首字母大写）
+* PProtocol 协议以P+接口名（首字母大写）
 * $class 类关键字方法以$开头，名称全部小写（$protocol, $property, $class）
 
 

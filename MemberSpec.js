@@ -1,7 +1,7 @@
 $run(function() {
 	eval($global.all);
 
-	var IMemberSpec = {
+	var PMemberSpec = {
 		required: "boolean",
 		type: [Object, Array],
 		ownProperty: "boolean",
@@ -59,7 +59,7 @@ $run(function() {
 		return spec;
 	};
 
-	MemberSpec.prototype = $implement(IMemberSpec, {
+	MemberSpec.prototype = $implement(PMemberSpec, {
 		/**
 		 * 检查对象成员是否符合成员规格
 		 * @param {Object} o 成员的拥有者

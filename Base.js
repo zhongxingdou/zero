@@ -4,7 +4,7 @@ $run(function() {
 	/**
 	 * @protocol
 	 */
-	var IBase = {
+	var PBase = {
 		/**
 		 * 获取对象的成员
 		 * @param {String} name
@@ -57,7 +57,7 @@ $run(function() {
 		this.__implns__ = [];
 	}
 
-	Base.prototype = $implement(IBase, {
+	Base.prototype = $implement(PBase, {
 		property: function() {
 			$property.apply(this, [this].concat(z._slice(arguments)));
 			return this;
@@ -126,7 +126,7 @@ $run(function() {
 
 	$class(Base);
 
-	z.IBase = IBase;
+	z.PBase = PBase;
 
 	z.Base = Base;
 });

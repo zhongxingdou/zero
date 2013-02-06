@@ -1,7 +1,7 @@
 $run(function() {
 	eval($global.all);
 
-	var ITypeSpec = {
+	var PTypeSpec = {
 			//是值类型还是引用类型，是哪种值类型
 			typeOf: "[string]",
 
@@ -13,8 +13,8 @@ $run(function() {
 	};
 	
 	/**
-	 * 解析ITypeSpec对象
-	 * @param {ITypeSpec} spec
+	 * 解析PTypeSpec对象
+	 * @param {PTypeSpec} spec
 	 */
 	function _parseTypeSpec(spec) {
 		var o = {};
@@ -33,7 +33,7 @@ $run(function() {
 				break;
 		}
 
-		$implement(ITypeSpec, o);
+		$implement(PTypeSpec, o);
 
 		return o;
 	}
@@ -46,7 +46,7 @@ $run(function() {
 	function $is(type, o) {
 		if(type === null)return type === o; // 检查对象是否为null
 
-		//确保type是ITypeSpec对象
+		//确保type是PTypeSpec对象
 		type = _parseTypeSpec(type);
 
 		//typeof 判断
@@ -76,7 +76,7 @@ $run(function() {
 		return true;
 	}
 
-	z.ITypeSpec = ITypeSpec;
+	z.PTypeSpec = PTypeSpec;
 	z.parseTypeSpec = _parseTypeSpec;
 
 	$global("$is", $is);

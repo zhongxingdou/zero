@@ -2,14 +2,14 @@ $run(function() {
 	eval($global.all);
 
 	describe("$protocol()", function() {
-		it("创建protocol符合IInterface接口", function() {
+		it("创建protocol符合PProtocol接口", function() {
 			var option = {
 				member: {},
 				type: Object
 			};
 
 			var face = $protocol(option);
-			expect($support(z.IInterface, face)).toBeTruthy();
+			expect($support(z.PProtocol, face)).toBeTruthy();
 		});
 
 		it("使用普通对象创建protocol", function(){

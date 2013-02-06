@@ -1,7 +1,7 @@
 $run(function(){
 	eval($global.all);
 
-	var IEvent = {
+	var PEvent = {
 		addListener: "function(event, listener)",
 		on: "function(event, listener)",
 		removeListener: "function(event, listener)",
@@ -20,7 +20,7 @@ $run(function(){
 		 */
 		onIncluded: function(){
 			this.__listeners = {};
-			$implement(IEvent, this);
+			$implement(PEvent, this);
 		},
 		on: this.addListener,
 		/**

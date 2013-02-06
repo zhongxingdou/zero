@@ -148,7 +148,7 @@ a JavaScript object oriented framework.
 	接口并不需要一定使用$protocol来声明,符合IInteface接口的普通对象也可
 
 		
-		var IBase = $protocol({
+		var PBase = $protocol({
 			member: {
 				prop: String, //声明此成员的类型
 				method: "function(p1, p2)", //声明此成员的类型为function,其后签名只起文档的作用
@@ -170,7 +170,7 @@ a JavaScript object oriented framework.
 		})
 		
 		//如果只定义member和type,可以用更简单的写法
-		var IBase = $protocol({
+		var PBase = $protocol({
 			prop: String,
 			method: "function(p1,p2)"
 		}, Object)

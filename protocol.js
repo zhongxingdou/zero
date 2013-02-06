@@ -5,11 +5,11 @@ $run(function() {
 	 * 接口对象的接口
 	 * 定义了instanceOf的时候
 	 */
-	var IInterface = $protocol({
+	var PProtocol = $protocol({
 		member: {
 			base: "[object]",
 			member: "[object]",
-			type: z.ITypeSpec,
+			type: z.PTypeSpec,
 			freeze: "[boolean]"
 		}
 	});
@@ -27,7 +27,7 @@ $run(function() {
 		o.type = type || Object; //type可以为Object或Function，如是其它的，可以通过base来指定
 		o.member = member;
 
-		// $implement(IInterface, o);
+		// $implement(PProtocol, o);
 
 		if(member.member){//说明为hash形式的参数
 			z._copy(member, o);
@@ -63,7 +63,7 @@ $run(function() {
 	 */
 	function $protocol(member, type) {
 		var o = parseInterface(member, type);
-		$implement(IInterface, o);
+		$implement(PProtocol, o);
 		return o;
 	}
 
@@ -73,7 +73,7 @@ $run(function() {
 	 * @param {Object} o 被检测的对象
 	 */
 	function $support(spec, o) {
-		if(!spec.__implns__ || spec.__implns__.indexOf(IInterface) == -1){
+		if(!spec.__implns__ || spec.__implns__.indexOf(PProtocol) == -1){
 			spec = $protocol(spec);
 		}
 
@@ -102,7 +102,7 @@ $run(function() {
 		return true;
 	}
 
-	z.IInterface = IInterface;
+	z.PProtocol = PProtocol;
 
 	$global("$protocol", $protocol);
 

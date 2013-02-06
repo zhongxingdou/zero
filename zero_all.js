@@ -967,7 +967,7 @@ $run(function() {
 	/**
 	 * Object的默认包装器
 	 */
-	var IMObject = {
+	var PMObject = {
 		target: 'object',
 		/**
 		 * 返回对象的成员
@@ -998,14 +998,14 @@ $run(function() {
 		include: "function(module)",
 		/**
 		 * 声明对象实现了指定接口
-		 * @param {IInterface|IInterface[]} 接口
+		 * @param {PProtocol|PProtocol[]} 接口
 		 */
 		implement: 'function(protocol)'
 	};
 
 	var MObject = $module({
 		onIncluded: function(){
-			$implement(IMObject, this);
+			$implement(PMObject, this);
 		},
 		get: function(member) {
 			return this.target[member];
@@ -1033,7 +1033,7 @@ $run(function() {
 
 	$.regWrapper(MObject, Object);
 
-	z.IMObject = IMObject;
+	z.PMObject = PMObject;
 	z.MObject = MObject;
 });
 $run(function() {
@@ -1042,7 +1042,7 @@ $run(function() {
 	/**
 	* @protocol
 	*/
-	var IClass = {
+	var PClass = {
 		type: "function",
 		member: {
 			"baseProto": {type: "object", required: false},
@@ -1057,7 +1057,7 @@ $run(function() {
 	var MClass = $module({
 		onIncluded: function() {
 			this.__cls_implns__ = [];
-			this.implement(IClass);
+			this.implement(PClass);
 		},
 		/**
 		 * 继承一个类
@@ -1080,7 +1080,7 @@ $run(function() {
 
 	$.regWrapper(MClass, Function, "MClass");
 
-	z.IClass = IClass;
+	z.PClass = PClass;
 
 	z.MClass = MClass;
 
@@ -1095,7 +1095,7 @@ $run(function() {
 	/**
 	 * @protocol
 	 */
-	var IBase = {
+	var PBase = {
 		/**
 		 * 获取对象的成员
 		 * @param {String} name
@@ -1148,7 +1148,7 @@ $run(function() {
 		this.__implns__ = [];
 	}
 
-	Base.prototype = $implement(IBase, {
+	Base.prototype = $implement(PBase, {
 		property: function() {
 			$property.apply(this, [this].concat(z._slice(arguments)));
 			return this;
@@ -1217,13 +1217,13 @@ $run(function() {
 
 	$class(Base);
 
-	z.IBase = IBase;
+	z.PBase = PBase;
 
 	z.Base = Base;
 });$run(function() {
 	eval($global.all);
 
-	var ITypeSpec = {
+	var PTypeSpec = {
 			//是值类型还是引用类型，是哪种值类型
 			typeOf: "[string]",
 
@@ -1235,8 +1235,8 @@ $run(function() {
 	};
 	
 	/**
-	 * 解析ITypeSpec对象
-	 * @param {ITypeSpec} spec
+	 * 解析PTypeSpec对象
+	 * @param {PTypeSpec} spec
 	 */
 	function _parseTypeSpec(spec) {
 		var o = {};
@@ -1255,7 +1255,7 @@ $run(function() {
 				break;
 		}
 
-		$implement(ITypeSpec, o);
+		$implement(PTypeSpec, o);
 
 		return o;
 	}
@@ -1268,7 +1268,7 @@ $run(function() {
 	function $is(type, o) {
 		if(type === null)return type === o; // 检查对象是否为null
 
-		//确保type是ITypeSpec对象
+		//确保type是PTypeSpec对象
 		type = _parseTypeSpec(type);
 
 		//typeof 判断
@@ -1298,7 +1298,7 @@ $run(function() {
 		return true;
 	}
 
-	z.ITypeSpec = ITypeSpec;
+	z.PTypeSpec = PTypeSpec;
 	z.parseTypeSpec = _parseTypeSpec;
 
 	$global("$is", $is);
@@ -1307,7 +1307,7 @@ $run(function() {
 $run(function() {
 	eval($global.all);
 
-	var IMemberSpec = {
+	var PMemberSpec = {
 		required: "boolean",
 		type: [Object, Array],
 		ownProperty: "boolean",
@@ -1365,7 +1365,7 @@ $run(function() {
 		return spec;
 	};
 
-	MemberSpec.prototype = $implement(IMemberSpec, {
+	MemberSpec.prototype = $implement(PMemberSpec, {
 		/**
 		 * 检查对象成员是否符合成员规格
 		 * @param {Object} o 成员的拥有者
@@ -1414,11 +1414,11 @@ $run(function() {
 	 * 接口对象的接口
 	 * 定义了instanceOf的时候
 	 */
-	var IInterface = $protocol({
+	var PProtocol = $protocol({
 		member: {
 			base: "[object]",
 			member: "[object]",
-			type: z.ITypeSpec,
+			type: z.PTypeSpec,
 			freeze: "[boolean]"
 		}
 	});
@@ -1436,7 +1436,7 @@ $run(function() {
 		o.type = type || Object; //type可以为Object或Function，如是其它的，可以通过base来指定
 		o.member = member;
 
-		// $implement(IInterface, o);
+		// $implement(PProtocol, o);
 
 		if(member.member){//说明为hash形式的参数
 			z._copy(member, o);
@@ -1472,7 +1472,7 @@ $run(function() {
 	 */
 	function $protocol(member, type) {
 		var o = parseInterface(member, type);
-		$implement(IInterface, o);
+		$implement(PProtocol, o);
 		return o;
 	}
 
@@ -1482,7 +1482,7 @@ $run(function() {
 	 * @param {Object} o 被检测的对象
 	 */
 	function $support(spec, o) {
-		if(!spec.__implns__ || spec.__implns__.indexOf(IInterface) == -1){
+		if(!spec.__implns__ || spec.__implns__.indexOf(PProtocol) == -1){
 			spec = $protocol(spec);
 		}
 
@@ -1511,7 +1511,7 @@ $run(function() {
 		return true;
 	}
 
-	z.IInterface = IInterface;
+	z.PProtocol = PProtocol;
 
 	$global("$protocol", $protocol);
 
@@ -1543,7 +1543,7 @@ $run(function() {
 	/**
 	 * 合并参数
 	 * @param {Object} params 手动指定对象作为key/value参数，此参数通常从方法参数获取
-	 * @param {IInterface} paramSpec 手动指定方法的参数的接口，此参数通过从方法的option属性获取
+	 * @param {PProtocol} paramSpec 手动指定方法的参数的接口，此参数通过从方法的option属性获取
 	 */
 	function $option(/*params, paramSpec*/) {
 		var args       = arguments,
@@ -1582,7 +1582,7 @@ $run(function() {
 	eval($global.all);
 
 
-	function $overload(/*fn1, fn2,{[String, Number]: fn3, [ITypeSpec, String]: fn4]} */){
+	function $overload(/*fn1, fn2,{[String, Number]: fn3, [PTypeSpec, String]: fn4]} */){
 		var main = function(){
 			var args = arguments;
 			var fn = _findFuncByParams(args.callee.fnMap, args);
@@ -1664,7 +1664,7 @@ $run(function() {
 	 */
 	function _matchParamType(type, param){
 		var pt = typeof param; //实际参数的类型
-		var tt = typeof type; //string: 值类型, function: IClass, object: ITypeSpec
+		var tt = typeof type; //string: 值类型, function: PClass, object: PTypeSpec
 
 		if(tt !== "string" || type === "object"){//形参声明为引用类型
 			if(pt === "object" || pt === "function"){//实参为引用类型
@@ -1726,7 +1726,7 @@ $run(function() {
 $run(function(){
 	eval($global.all);
 
-	var IEvent = {
+	var PEvent = {
 		addListener: "function(event, listener)",
 		on: "function(event, listener)",
 		removeListener: "function(event, listener)",
@@ -1745,7 +1745,7 @@ $run(function(){
 		 */
 		onIncluded: function(){
 			this.__listeners = {};
-			$implement(IEvent, this);
+			$implement(PEvent, this);
 		},
 		on: this.addListener,
 		/**

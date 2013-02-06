@@ -4,7 +4,7 @@ $run(function() {
 	/**
 	 * Object的默认包装器
 	 */
-	var IMObject = {
+	var PMObject = {
 		target: 'object',
 		/**
 		 * 返回对象的成员
@@ -35,14 +35,14 @@ $run(function() {
 		include: "function(module)",
 		/**
 		 * 声明对象实现了指定接口
-		 * @param {IInterface|IInterface[]} 接口
+		 * @param {PProtocol|PProtocol[]} 接口
 		 */
 		implement: 'function(protocol)'
 	};
 
 	var MObject = $module({
 		onIncluded: function(){
-			$implement(IMObject, this);
+			$implement(PMObject, this);
 		},
 		get: function(member) {
 			return this.target[member];
@@ -70,6 +70,6 @@ $run(function() {
 
 	$.regWrapper(MObject, Object);
 
-	z.IMObject = IMObject;
+	z.PMObject = PMObject;
 	z.MObject = MObject;
 });

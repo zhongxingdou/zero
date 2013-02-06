@@ -4,7 +4,7 @@ $run(function() {
 	/**
 	* @protocol
 	*/
-	var IClass = {
+	var PClass = {
 		type: "function",
 		member: {
 			"baseProto": {type: "object", required: false},
@@ -19,7 +19,7 @@ $run(function() {
 	var MClass = $module({
 		onIncluded: function() {
 			this.__cls_implns__ = [];
-			this.implement(IClass);
+			this.implement(PClass);
 		},
 		/**
 		 * 继承一个类
@@ -42,7 +42,7 @@ $run(function() {
 
 	$.regWrapper(MClass, Function, "MClass");
 
-	z.IClass = IClass;
+	z.PClass = PClass;
 
 	z.MClass = MClass;
 
