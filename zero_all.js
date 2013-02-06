@@ -369,7 +369,7 @@ $run(function(){
      */
     if (SUPPORTED_PROTO) {
         function _traceProto(o, fn, thisp) {
-            return _trace(o.__proto__, '__proto__', fn, thisp);
+            return $trace(o.__proto__, '__proto__', fn, thisp);
         }
     } else {
         function _traceProto(o, fn, thisp) {
