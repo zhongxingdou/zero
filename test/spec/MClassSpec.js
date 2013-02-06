@@ -3,7 +3,7 @@ $run(function() {
 
 	describe("$class()", function() {
 		it("创建类后构造函数的原有prototype没变", function() {
-			function Clazz() {};
+			function Clazz() {}
 			Clazz.prototype = {
 				a1: {}
 			};
@@ -15,7 +15,7 @@ $run(function() {
 		});
 
 		it("创建类后构造函数的原有静态成员还在", function() {
-			function Clazz() {};
+			function Clazz() {}
 			Clazz.Abc = {
 				a1: {}
 			};
@@ -25,10 +25,10 @@ $run(function() {
 		});
 
 		it("类的原型包含原型声明中的成员", function() {
-			function Clazz() {};
+			function Clazz() {}
 			var proto = {
 				m1: "m1"
-			}
+			};
 			Clazz.prototype = proto;
 			/*$class(Clazz, {
 				prototype: proto
@@ -38,15 +38,15 @@ $run(function() {
 		});
 
 		it("子类的实例包含父prototype中的成员,父类的prototype是子类实例的原型之一", function() {
-			function Base() {};
+			function Base() {}
 			Base.prototype = {
 					baseM1: {}
-			}
+			};
 
-			function Clazz() {};
+			function Clazz() {}
 			var proto = {
 				m1: "m1"
-			}
+			};
 			Clazz.prototype = proto;
 			$class(Clazz).extend(Base);
 
@@ -76,7 +76,7 @@ $run(function() {
 			expect(C.prototype).toBe(proto);
 
 			var B = function() {};
-			B.prototype = proto; 
+			B.prototype = proto;
 
 			var ab = new C();
 			expect(proto.isPrototypeOf(ab)).toBeTruthy();

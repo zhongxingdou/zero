@@ -1,77 +1,14 @@
 $run(function(){
 	eval($global.all);
 
+
 	/**
-	 * 将源对象包装成增强的对象，并且不污染源对象
+	 * 根据对象的类，原型以及实现的协议，使用对象相应的扩展模块包装对象的代理
 	 * @param {Object} o
 	 * @param {String} [name] 指定一个包装器
 	 */
-	var I$ = {
-		type: "function(o)",
-		member: {
-			/**
-			 * 注册一个wrapper
-			 * @param {Module} wrapper
-			 * @param {Interface} protocol
-			 * @param {String} name
-			 */
-			regWrapper: "function(wrapper, protocol, name)",
-
-			/**
-			 * 反注册一个wrapper
-			 * @param {Interface} protocol
-			 * @param {String} name
-			 */
-			removeWrapper: "function(protocol, name)",
-
-			/**
-			 * 根据protocol获取一个wrapper
-			 * @param {Interface} protocol
-			 * @param {String} name
-			 */
-			getWrapper: "function(protocol, name)",
-
-			/**
-			 * 查找对象的wrapper
-			 * @param {Object} o
-			 * @param {String} name
-			 */
-			findWrapper: "function(o, name)",
-
-			/**
-			 * 设置某个接口的默认wrapper
-			 * @param {Interface} protocol
-			 * @param {String} name
-			 */
-			setDefault: "function(protocol, name)",
-
-			/**
-			 * 查找除exceptName外的对象的所有wrapper
-			 * @param {Object} o
-			 * @param {String} exceptName
-			 */
-			findWrapperNamesExcept: "function(o, exceptName)",
-
-			/**
-			 * 根据protocol获取exceptName外的所有wrapper
-			 * @param {Interface} protocol
-			 * @param {String} exceptName
-			 */
-			getWrapperNamesExcept: "function(protocol, exceptName)"
-		}
-	};
-
-	/**
-	 * 将源对象包装成增强的对象
-	 * @param {Object} o
-	 * @param {String} [name] 指定一个包装器
-	 */
-	var I$$ = {
-		type: "function(o)"
-	};
-
-	function $(o /*, name, isProxy*/) {
-		if(o == null)return;
+	function $(o /*, name*/) {
+		if(o === null)return;
 
 		var type = typeof o;
 
@@ -81,13 +18,12 @@ $run(function(){
 		}
 
 		var name = arguments[1];
-		var isProxy = arguments[2] === true;
-		var proxy = isProxy ? o : {target: o};
+		var isProxy = o instanceof $.Proxy;
+		var proxy = isProxy ? o : new $.Proxy(o);
 
 		//复制所有成员方法到代理对象上
 		if(!isProxy){
 			//复制原型上的方法到代理对象上，但并不能复制不能枚举的原型方法
-	
 
 			z._everyKey(o, function(key, value) {
 				if(typeof value == "function"){
@@ -97,24 +33,14 @@ $run(function(){
 		}
 
 		//module中this.x＝xx不会设置到target上，要设置到target请使用this.set(x, xx);
-		$.findWrapper(o, name).forEach(function(wrapper){
+		$.findWrapper(proxy.target, name).forEach(function(wrapper){
 			$include(wrapper, proxy);
 		});
 
-		if(!name){
-			$.findWrapperNamesExcept(o, name).forEach(function(wrapperName){
-				//不要覆盖对象的原有成员，要wrap还可以通过o.wrap(wrapperName)来实现
-				if(!proxy[wrapperName]){
-					proxy[wrapperName] = function(){
-						$(proxy, wrapperName, true);
-						return proxy;
-					};
-				}
-			});
-		}
-
 		return proxy;
 	}
+
+	$.Proxy = function(target){ this.target = target; };
 
 	function _keysExcept(obj, except){
 		var ar = [];
@@ -127,6 +53,11 @@ $run(function(){
 		return ar;
 	}
 
+	/**
+	 * 根据protocol获取exceptName外的所有wrapper
+	 * @param {Interface} protocol
+	 * @param {String} exceptName
+	 */
 	$.getWrapperNamesExcept = function(protocol, exceptName){
 		exceptName = exceptName || DEFAULT;
 		var map = this.__wrapper[protocol];
@@ -137,33 +68,13 @@ $run(function(){
 		return ws;
 	};
 
-	$.findWrapperNamesExcept = function(o, exceptName){
-		exceptName = exceptName || DEFAULT;
-		var type = typeof(o);
-		var ws = [];
-
-		if(type === "object" || type === "function"){
-			z._traceProto(o, function(proto){
-				var clazz = proto.constructor;
-				var w = $.getWrapperNamesExcept(clazz, exceptName);
-				z._uniqPush(ws, w);
-
-				var protocols = proto.__implns__;
-				if(protocols){
-					protocols = protocols.slice(0);
-					protocols.forEach(function(protocol){
-						w = $.getWrapperNamesExcept(protocol, exceptName);
-						z._uniqPush(ws, w);
-					});
-				}
-			});
-		}
-		return ws.reverse();
-	};
-
-
+	/**
+	 * 根据对象的类，原型以及实现的协议，使用对象相应的扩展模块包装对象
+	 * @param {Object} o
+	 * @param {String} [name] 指定一个包装器
+	 */
 	function $$(o /* ,name */){
-		if(o == null)return;
+		if(o === null)return;
 
 		var type = typeof o;
 
@@ -173,27 +84,17 @@ $run(function(){
 		}
 
 		//备份扩展过程中要覆盖的成员
-		if(o.target)o.originTarget = o.target; 
-
-		o.target = o;
+		var isProxy = o instanceof $.Proxy;
+		if(!isProxy){
+			if(o.target)o.originTarget = o.target;
+			o.target = o;
+		}
 
 		var name = arguments[1];
-		$.findWrapper(o, name).forEach(function(wrapper){
+		//当o是$.Proxy实例时，应该根据o.target即真实对象来查询扩展器
+		$.findWrapper(o.target, name).forEach(function(wrapper){
 			$include(wrapper, o);
 		});
-
-
-		if(!name){
-			$.findWrapperNamesExcept(o, name).forEach(function(wrapperName){
-				//不要覆盖对象的原有成员，要wrap还可以通过o.wrap(wrapperName)来实现
-				if(!o[wrapperName]){
-					o[wrapperName] = function(){
-						$$(o, wrapperName);
-						return o;
-					};
-				}
-			});
-		}
 
 		return o;
 	}
@@ -202,6 +103,12 @@ $run(function(){
 
 	$.__wrapper = {};
 
+	/**
+	 * 注册一个wrapper
+	 * @param {Module} wrapper
+	 * @param {Interface} protocol
+	 * @param {String} name
+	 */
 	$.regWrapper = function(wrapper, protocol, name) {
 		name = name || DEFAULT;
 
@@ -222,6 +129,11 @@ $run(function(){
 		}
 	};
 
+	/**
+	 * 设置某个接口的默认wrapper
+	 * @param {Interface} protocol
+	 * @param {String} name
+	 */
 	$.setDefault = function(protocol, name){
 		var wp = this.getWrapper(protocol, name);
 		if(wp){
@@ -229,6 +141,11 @@ $run(function(){
 		}
 	};
 
+	/**
+	 * 反注册一个wrapper
+	 * @param {Interface} protocol
+	 * @param {String} name
+	 */
 	$.removeWrapper = function(protocol, name) {
 		if(!(protocol && name))return;
 
@@ -244,6 +161,11 @@ $run(function(){
 		}
 	};
 
+	/**
+	 * 根据protocol获取一个wrapper
+	 * @param {Interface} protocol
+	 * @param {String} name
+	 */
 	$.getWrapper = function(protocol, name) {
 		name = name || DEFAULT;
 		var map = this.__wrapper[protocol];
@@ -252,6 +174,11 @@ $run(function(){
 		}
 	};
 
+	/**
+	 * 查找对象的wrapper
+	 * @param {Object} o
+	 * @param {String} name
+	 */
 	$.findWrapper = function(o, name) {
 		var type = typeof(o);
 		var ws = [];
@@ -260,14 +187,14 @@ $run(function(){
 			z._traceProto(o, function(proto){
 				var clazz = proto.constructor;
 				var w = $.getWrapper(clazz, name);
-				w && z._uniqPush(ws, w);
+				if(w)z._uniqPush(ws, w);
 
 				var protocols = proto.__implns__;
 				if(protocols){
 					protocols = protocols.slice(0);
 					protocols.forEach(function(protocol){
-						w= $.getWrapper(protocol, name);
-						w && z._uniqPush(ws, w);
+						w = $.getWrapper(protocol, name);
+						if(w)z._uniqPush(ws, w);
 					});
 				}
 			});
@@ -276,6 +203,16 @@ $run(function(){
 		return ws.reverse();
 	};
 
+	/**
+	 * 注册扩展器的一种DSL
+	 * @param  {Protocol|Class|Prototype} o 要扩展的目标
+	 * @return {Object}
+	 * @example
+	 * $.make(String).can({"capitalize": function(){
+	 *     var o = this.target.valueOf();
+	 *     return o.charAt(0).toUpperCase() + o.slice(1);
+	 * }
+	 */
 	$.make = function(o){
 		return {
 			can: function(name, fn){
@@ -302,7 +239,7 @@ $run(function(){
 	};
 
 	var  _wrapWith = function(o, action, name){
-		var name = name || action.name;
+		name = name || action.name;
 		if(!name)return;
 
 		var wrapper = $.getWrapper(o, DEFAULT);
@@ -322,6 +259,12 @@ $run(function(){
 		}
 	};
 
+	/**
+	 * 创建一个扩展模块的沙箱
+	 * @param  {Protocol|Class|Prototype} o       扩展目标
+	 * @param  {Module} wrapper 扩展模块
+	 * @return {Function}         沙箱
+	 */
 	$.createSandbox = function(o, wrapper){
 		var sandbox = function(fn){
 			if(!fn)return;
@@ -337,13 +280,17 @@ $run(function(){
 		return sandbox;
 	};
 
+	/**
+	 * 创建一个沙箱并立即在沙箱中运行方法
+	 * @param  {Protocol|Class|Prototype}   o       扩展目标
+	 * @param  {Module}   wrapper 扩展模块
+	 * @param  {Function} fn      要运行的方法
+	 * @return {Object}           fn的返回结果
+	 */
 	$.onceWrap = function(o, wrapper, fn){
 		var box = $.makeSandbox(o, wrapper);
 		return box(fn);
 	};
-
-	$implement(I$, $);
-	$implement(I$$, $$);
 
 	$global("$", $);
 	$global("$$", $$);

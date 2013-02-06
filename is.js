@@ -55,7 +55,7 @@ $run(function() {
 			if(t.indexOf("function") != -1){ //function的声明可以写成function(p1, p2)的形式，这种形式一律视为function
 				t = "function";
 			}
-			if(!(typeof(o) === t))return false;
+			if(typeof(o) !== t)return false;
 		}
 
 		//instanceof 判断

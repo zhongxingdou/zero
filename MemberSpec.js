@@ -7,7 +7,7 @@ $run(function() {
 		ownProperty: "boolean",
 		check: "function(o, name)",
 		value: Object
-	}
+	};
 
 	/**
 	 * 对象的成员规格
@@ -37,7 +37,7 @@ $run(function() {
 		required: true, //字符串表达式可用[]括住的表示非必须required=false
 		type: null, //字符表达式可用|分隔多种不同的类型
 		ownProperty: false
-	}
+	};
 
 	/**
 	 * 解析成员规格字符表达式
@@ -57,7 +57,7 @@ $run(function() {
 			spec.type = exp;
 		}
 		return spec;
-	}
+	};
 
 	MemberSpec.prototype = $implement(IMemberSpec, {
 		/**
@@ -68,7 +68,7 @@ $run(function() {
 		check: function(o, name) {
 			var v = o[name];
 
-			if(v == null){
+			if(v === null || v === undefined){
 				return !this.required;
 			}
 

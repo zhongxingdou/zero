@@ -45,10 +45,10 @@ $run(function() {
 			var o = {
 				a: {},
 				k: {}
-			}
+			};
 
-			man.set("a", o.a); 
-			man.set("k", o.k); 
+			man.set("a", o.a);
+			man.set("k", o.k);
 
 			man.run(function(a, k){
 				expect(a).toBe(o.a);
@@ -60,10 +60,10 @@ $run(function() {
 			var o = {
 				a: {},
 				k: {}
-			}
+			};
 
-			man.set("a", o.a); 
-			man.set("k", o.k); 
+			man.set("a", o.a);
+			man.set("k", o.k);
 
 			man.run(function(){
 				expect(a).toBeDefined();

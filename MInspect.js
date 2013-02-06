@@ -116,7 +116,7 @@ $run(function() {
 
 	z.MInspect = MInspect;
 
-	$.regWrapper(MInspect, Object, "inspect");
+	$.regWrapper(MInspect, Object, "MInspect");
 
 	/**
 	 * 检视对象，返回一个包含了MInspect模块的对象
@@ -124,7 +124,7 @@ $run(function() {
 	 * @global
 	 */
 	function $inspect(o){
-		return $(o).inspect();
+		return $(o).wrapWith("MInspect");
 	}
 
 	$global("$inspect", $inspect);

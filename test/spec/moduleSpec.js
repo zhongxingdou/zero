@@ -34,7 +34,7 @@ $run(function() {
 		it("$include()时不会把onIncluded()也放进toObj里去了", function(){
 			var m = {
 				onIncluded: function(){}
-			}
+			};
 
 			var toObj = {};
 			$include(m, toObj);

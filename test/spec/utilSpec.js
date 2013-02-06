@@ -20,7 +20,7 @@ $run(function() {
 			var o = {
 				key1: "key1",
 				key2: "key2"
-			}
+			};
 
 			var keys = [];
 			var values = [];
@@ -41,7 +41,7 @@ $run(function() {
 				key1: "key1",
 				key2: "key2",
 				key3: "key3"
-			}
+			};
 
 			var keys = [];
 			var values = [];
@@ -55,7 +55,7 @@ $run(function() {
 			expect(values).toNotContain("key3");
 		});
 
-		it("z._trace", function() {
+		it("$trace", function() {
 			var a = {
 				name: 'a'
 			};
@@ -68,7 +68,7 @@ $run(function() {
 				parent: b
 			};
 			var names = [];
-			z._trace(c, 'parent', function(item) {
+			$trace(c, 'parent', function(item) {
 				names.push(item.name);
 			});
 
@@ -79,12 +79,12 @@ $run(function() {
 		});
 
 		it("z._traceProto", function() {
-			function A() {};
+			function A() {}
 			A.prototype = {
 				a1: {}
 			};
 
-			function B() {};
+			function B() {}
 			B.prototype.b1 = {};
 			$extend(B, A);
 
@@ -171,7 +171,6 @@ $run(function() {
 			expect(b.p1).toBe("pb");
 		});
 
-		/*
 		it("$clone", function() {
 			var obj = {
 				key1: {},
@@ -180,31 +179,30 @@ $run(function() {
 					key22: "key22"
 				},
 				key3: "key3"
-			}
+			};
 
 			var obj2 = $clone(obj);
 			expect(obj).toEqual(obj2);
 			expect(obj).toNotBe(obj2);
 		});
-		*/
 
 		it("z._keys", function() {
-			var o = {a: 'a', b: 'b'}
-			var ms = z._keys(o)
+			var o = {a: 'a', b: 'b'};
+			var ms = z._keys(o);
 			expect(ms).toContain('a');
 			expect(ms).toContain('b');
 		});
 
 		it("$property", function() {});
 
-		it("$callbase(this)将调用父原型的构造函数", function() {
+		it("$base(this)将调用父原型的构造函数", function() {
 			var i = 0;
 			function A() {
 				i++;
 			}
 
 			function B() {
-				$callbase(this);
+				$base(this);
 			}
 			$extend(B, A);
 
@@ -212,24 +210,24 @@ $run(function() {
 			expect(i).toBe(1);
 		});
 
-		it("$callbase(this)将调用父原型的方法", function() {
+		it("$base(this)将调用父原型的方法", function() {
 			function A() {}
 
 			var spy = jasmine.createSpy();
 
 			A.prototype = {
 				action: spy
-			}
+			};
 
 			function B() {
-				$callbase(this);
+				$base(this);
 			}
 
 			B.prototype = {
 				action: function() {
-					$callbase(this);
+					$base(this);
 				}
-			}
+			};
 
 			$extend(B, A);
 
@@ -247,12 +245,14 @@ $run(function() {
 
 		});
 
-		it("$fnself()", function(){
-			var fn = function(){
-				expect($fnself()).toBe(fn);
-			}
+		it("$fn()调用方法自身", function(){
+			var fn = function(x, n){
+				if(n===0)return 1;
+				x *= $fn(x, --n);
+				return x;
+			};
 
-			fn();
+			expect(fn(2, 4)).toBe(16);
 		});
 
 		it("z._containsAll()", function(){
@@ -269,7 +269,6 @@ $run(function() {
 
 		it("z._isPlainObject()", function(){
 			expect(z._isPlainObject({})).toBeTruthy();
-			expect(z._isPlainObject(new Object)).toBeTruthy();
 
 			expect(z._isPlainObject(window)).toBeFalsy();
 
@@ -277,14 +276,14 @@ $run(function() {
 
 			expect(z._isPlainObject([])).toBeFalsy();
 
-			var fn = new Function;
-			expect(z._isPlainObject(new fn)).toBeFalsy();
+			var fn = new Function();
+			expect(z._isPlainObject(new fn())).toBeFalsy();
 
-			expect(z._isPlainObject(new Date)).toBeFalsy();
+			expect(z._isPlainObject(new Date())).toBeFalsy();
 
-			expect(z._isPlainObject(new Boolean)).toBeFalsy();
+			expect(z._isPlainObject(new Boolean())).toBeFalsy();
 
-			expect(z._isPlainObject(new Array)).toBeFalsy();
+			expect(z._isPlainObject([])).toBeFalsy();
 
 			expect(z._isPlainObject("object")).toBeFalsy();
 		});

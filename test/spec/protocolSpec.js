@@ -6,7 +6,7 @@ $run(function() {
 			var option = {
 				member: {},
 				type: Object
-			}
+			};
 
 			var face = $protocol(option);
 			expect($support(z.IInterface, face)).toBeTruthy();
@@ -15,7 +15,7 @@ $run(function() {
 		it("使用普通对象创建protocol", function(){
 			var face = $protocol({
 				m1: {}
-			})
+			});
 			expect(face.member.m1).toBeDefined();
 		});
 	});
@@ -26,7 +26,7 @@ $run(function() {
 				name: "Lily",
 				score: 85,
 				birthday: new Date("1988/3/1")
-			}
+			};
 
 			var face = $protocol({
 				name: "string",
@@ -57,7 +57,7 @@ $run(function() {
 		});
 
 		it("验证[]是Array和Object的实例", function() {
-			var baseFace = $protocol({}, Object); 
+			var baseFace = $protocol({}, Object);
 			var face = $protocol({
 				base: baseFace,
 				type: {
@@ -72,7 +72,7 @@ $run(function() {
 				type: Array,
 				base: { type: Object, member: {} },
 				member: {}
-			}
+			};
 
 			expect($support(face2, [])).toBeTruthy();
 		});

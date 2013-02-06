@@ -1,32 +1,4 @@
 (function(host) {
-	var IVariableMenager = {
-		type: "function(names, o)",
-		member: {
-			//注册一个变量
-			set: "function(name, o)",
-
-			//返回一个变量
-			get: "function(name):Object",
-
-			//列举所有的全局变量
-			list: "function():Array",
-
-			//导出指定变量到某个对象上
-			exportTo: "function(list, target)",
-			
-			//提供一个沙箱运行环境，确保所执行的代码引用到的是被管理的变量
-			run: "function(fn)",
-
-			//删除一个变量
-			destroy: "function(name)",
-
-			//一个用于eval(string)方式声明被管理变量的表达式字符串
-			all: "string"
-		}
-	};
-
-
-
 	/**
 	 * 变量管理类
 	 * @constructor

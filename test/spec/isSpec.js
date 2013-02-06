@@ -25,7 +25,7 @@ $run(function() {
 			expect($is('object', {})).toBeTruthy();
 			expect($is(Object, {})).toBeTruthy();
 
-			expect($is(Date, new Date)).toBeTruthy();
+			expect($is(Date, new Date())).toBeTruthy();
 
 			expect($is(RegExp, /abc/)).toBeTruthy();
 
@@ -60,24 +60,24 @@ $run(function() {
 		});
 
 		it("$is()检验带base的type", function() {
-			function A() {};
+			function A() {}
 
-			function B() {};
+			function B() {}
 			B.prototype = new A();
 			B.prototype.constructor = B();
 
 			var t = {
 				"instanceOf": B,
 				"prototypeOf": Object.prototype
-			}
+			};
 
-			expect($is(t, new B)).toBeTruthy();
+			expect($is(t, new B())).toBeTruthy();
 		});
 
 		it("$is()检验原型链", function(){
-			function A() {};
+			function A() {}
 
-			function B() {};
+			function B() {}
 			B.prototype = new A();
 			B.prototype.constructor = B();
 

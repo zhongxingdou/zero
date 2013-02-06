@@ -6,13 +6,13 @@ $run(function() {
             var fnWithOne = jasmine.createSpy();
             fnWithOne.option = {
                 name: 'string'
-            }
+            };
 
             var fnWithTwo = jasmine.createSpy();
             fnWithTwo.option = {
                 name: 'string',
                 interest: 'string'
-            }
+            };
 
             var fn = $overload(fnWithOne, fnWithTwo);
 
@@ -35,13 +35,13 @@ $run(function() {
             fnWithStringAndNumber.option = {
                 name: 'string',
                 age: 'number'
-            }
+            };
 
             var fnWithTwoString = jasmine.createSpy();
             fnWithTwoString.option = {
                 name: 'string',
                 interest: 'string'
-            }
+            };
 
             var fn = $overload(fnWithStringAndNumber, fnWithTwoString);
 

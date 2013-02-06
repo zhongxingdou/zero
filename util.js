@@ -20,11 +20,11 @@ $run(function(){
 
     /**
      * 包含一个module到对象
-     * @param {IModule} module 
-     * @param {Object} toObj 
+     * @param {IModule} module
+     * @param {Object} toObj
      */
     function $include(module, toObj, exclude) {
-        var exclude = exclude || [];
+        exclude = exclude || [];
         exclude = exclude.concat("onIncluded", "__implns__");
 
         z._everyKey(module, function(k, v) {
@@ -59,7 +59,6 @@ $run(function(){
         clazz.baseProto = base.prototype;
     }
 
-
     /**
      * 声明对象实现了某接口，并将接口存入__implns__中
      */
@@ -72,6 +71,7 @@ $run(function(){
         }
         return o;
     }
+
     /**
      * 将一个或一组对象压入目标数组，并且确保目标数组中不包含压入对象
      * @param {Array} ar 要压入对象的数组
@@ -90,9 +90,9 @@ $run(function(){
                 ar.push(o);
             }
         } else {
-            var l = ar.length;
-            while (l--) {
-                if (ar[l] == o) return;
+            var k = ar.length;
+            while (k--) {
+                if (ar[k] == o) return;
             }
             ar.push(o);
         }
@@ -113,9 +113,8 @@ $run(function(){
         return true;
     }
 
-
     /**
-     * 遍历对象的可遍历成员 
+     * 遍历对象的可遍历成员
      * @param {Object} o 对象
      * @param {Function} fn(key, value) 处理函数
      * @param {Object} thisp 让处理函数执行时this指向它
@@ -124,7 +123,7 @@ $run(function(){
     function _everyKey(o, fn, thisp) {
         if (typeof fn != "function") return false;
 
-        for (p in o) {
+        for (var p in o) {
             if (fn.apply(thisp, [p, o[p]]) === false) return false;
         }
 
@@ -139,7 +138,7 @@ $run(function(){
      * @param {Object} thisp 让处理函数执行时this指向它
      * @return Boolean
      */
-    function _trace(o, prop, fn, thisp) {
+    function $trace(o, prop, fn, thisp) {
         var a = o;
         while (a) {
             if (fn.apply(thisp, [a]) === false) return false;
@@ -181,7 +180,7 @@ $run(function(){
     /**
      * 分割集合对象
      * @param {Object} items 集合对象
-     * @param {Object} start=0 从第几项开始转换 
+     * @param {Object} start=0 从第几项开始转换
      * @return Array
      */
     function _slice(items, start) {
@@ -196,7 +195,6 @@ $run(function(){
     function _array(items) {
         return Array.prototype.slice.call(items, 0);
     }
-
 
     /**
      * 复制对象成员到另一个对象
@@ -229,7 +227,6 @@ $run(function(){
 
         return to;
     }
-
 
     /**
      * 获取对象可枚举的所有成员名
@@ -271,30 +268,47 @@ $run(function(){
      * @param {Object} o
      * @param {Array} args 参数
      */
-    function $callbase(obj, args) {
-        var caller = $callbase.caller;
-        //此处不能用caller.name，因为caller.name可能不是它在对象中的key
-        var fnName = (caller == obj.constructor) ? "constructor" : undefined;
-        if (!fnName) {
-            z._everyKey(obj, function(k) {
-                if (obj[k] == caller) {
-                    fnName = k;
+    function $base(obj, args, caller) {
+        // !!!此处不能用caller.name，因为caller.name可能不是它在对象中的key
+        var self = obj;
+        caller = caller || arguments.callee.caller;
+        var currProto = null;
+        var funcName = null;
+
+        if(!funcName) {
+            //尝试从当前对象本身获取方法名
+            z._everyKey(self, function(k) {
+                if(self[k] == caller) {
+                    funcName = k;
+                    currProto = self.constructor.baseProto;
+                    return false;
                 }
-            }, obj);
+            });
+
+            //尝试从原型链上获取方法名
+            if(!funcName){
+                z._traceProto(self, function(proto){
+                    z._everyKey(proto, function(k){
+                        if(proto.hasOwnProperty(k) && proto[k] == caller){
+                            currProto = proto.constructor.baseProto;
+                            funcName = k;
+                            return false;
+                        }
+                    });
+                    if(proto.constructor == caller){
+                        funcName = "constructor";
+                        currProto = proto.constructor.baseProto;
+                    }
+                    if(currProto)return false;
+                });
+            }
         }
 
-
-        var protoFn = null;
-        _traceProto(obj.__proto__ || obj.constructor.prototype, function(proto) {
-            var o = proto[fnName];
-            if (o) {
-                protoFn = o;
-                return false; //break;
+        if(funcName && currProto){
+            var fn = currProto[funcName];
+            if(fn && typeof fn == "function"){
+                return fn.apply(self, args);
             }
-        });
-
-        if (typeof protoFn == "function") {
-            return protoFn.apply(obj, args || caller.arguments);
         }
     }
 
@@ -338,20 +352,8 @@ $run(function(){
     /**
      * 在方法内部调用，返回方法自身，避免使用方法名来引用自身
      */
-    function $fnself() {
-        return $fnself.caller;
-    }
-
-    /**
-     * 把option添加到指定的fn上
-     * @param {Function} fn 
-     * @param {Object} option
-     */
-    function $fn(fn, option) {
-        if (option) {
-            fn.option = option;
-        }
-        return fn;
+    function $fn() {
+        return $fn.caller.apply(this, arguments);
     }
 
     /**
@@ -377,7 +379,6 @@ $run(function(){
     z._every = _every;
     z._everyKey = _everyKey;
 
-    z._trace = _trace;
     z._traceProto = _traceProto;
 
     z._uniqPush = _uniqPush;
@@ -391,12 +392,31 @@ $run(function(){
     z._array = _array;
 	z._isPlainObject = _isPlainObject;
 
+    var $clone = function(obj) {
+        var objClone;
+        if ( obj.constructor == Object ) objClone = new obj.constructor();
+        else objClone = new this.constructor(obj.valueOf());
+        for ( var key in obj ) {
+            if ( objClone[key] != obj[key] ) {
+                if ( typeof(obj[key]) == 'object' ) {
+                    objClone[key] = $fn(obj[key]);
+                } else {
+                    objClone[key] = obj[key];
+                }
+            }
+        }
+        objClone.toString = obj.toString;
+        objClone.valueOf = obj.valueOf;
+        return objClone;
+     };
+
     $global("$implement", $implement);
     $global("$extend", $extend);
-    $global("$callbase", $callbase);
+    $global("$base", $base);
     $global("$include", $include);
     $global("$enum",  $enum);
     $global("$property", $property);
     $global("$fn",  $fn);
-    $global("$fnself", $fnself);
+    $global("$clone", $clone);
+    $global("$trace", $trace);
 });

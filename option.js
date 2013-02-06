@@ -14,7 +14,7 @@ $run(function() {
 				option[k] = {
 					type: t,
 					required: false
-				}
+				};
 			}
 		}
 		return option;
@@ -27,7 +27,7 @@ $run(function() {
 	 */
 	function $option(/*params, paramSpec*/) {
 		var args       = arguments,
-			realFn     = $fnself().caller,
+			realFn     = arguments.callee.caller,
 			params     = args[0] || realFn.arguments[0] || {};
 
 		var option = args[1] || realFn.option;

@@ -8,7 +8,7 @@ $run(function() {
             fn = function(p1, p2) {
                 var option = $option();
                 return option;
-            }
+            };
             fn.option = {
                 key1: {
                     value: {}
@@ -16,14 +16,14 @@ $run(function() {
                 key2: {
                     value: {}
                 }
-            }
+            };
         });
 
         it("$option()", function() {
             var param = {
                 key1: "p1",
                 key2: "p2"
-            }
+            };
             var option = fn(param);
 
             expect(option).toBeDefined();
@@ -67,13 +67,13 @@ $run(function() {
         it("option.key={type: String}没有定义value时，值为undefined", function() {
             var fn = function() {
                     return $option();
-                }
+            };
 
             fn.option = {
                 key1: {
                     type: String
                 }
-            }
+            };
 
             var option = fn();
 

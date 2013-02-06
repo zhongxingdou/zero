@@ -53,8 +53,8 @@ $run(function() {
 	 * @description 对象系统的基础类，建议所有对象都以此类作为超类
 	 */
 	function Base() {
-		console.info("Base() callee");
-		//this.__implns__ = [];
+		// $log("Base callee");
+		this.__implns__ = [];
 	}
 
 	Base.prototype = $implement(IBase, {
@@ -89,47 +89,7 @@ $run(function() {
 			}
 		})(),
 		base: function() {
-			// !!!此处不能用caller.name，因为caller.name可能不是它在对象中的key
-			var self = this;
-			var caller = self.base.caller;
-			var currProto = null;
-			var funcName = null;
-
-			if(!funcName) {
-				//尝试从当前对象本身获取方法名
-				z._everyKey(self, function(k) {
-					if(self[k] == caller) {
-						funcName = k;
-						currProto = self.constructor.baseProto;
-						return false;
-					}
-				});
-
-				//尝试从原型链上获取方法名
-				if(!funcName){
-					z._traceProto(self, function(proto){
-						z._everyKey(proto, function(k){
-							if(proto.hasOwnProperty(k) && proto[k] == caller){
-								currProto = proto.constructor.baseProto;
-								funcName = k;
-								return false;
-							}
-						});
-						if(proto.constructor == caller){
-							funcName = "constructor";
-							currProto = proto.constructor.baseProto;
-						}
-						if(currProto)return false;
-					});
-				}
-			}
-
-			if(funcName && currProto){
-				var fn = currProto[funcName];
-				if(fn && typeof fn == "function"){
-					return fn.apply(self, arguments);
-				}
-			}
+			return $base(this, arguments, arguments.callee.caller);
 		},
 		implement: function(protocol) {
 			$implement(protocol, this);

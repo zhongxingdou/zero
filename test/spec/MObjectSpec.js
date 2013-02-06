@@ -13,7 +13,7 @@ $run(function(){
 			expect($(o).set).toBeDefined();
 
 			var p =  {};
-			$(o).set('p', p)
+			$(o).set('p', p);
 
 			expect(o.p).toBe(p);
 		});
@@ -41,5 +41,5 @@ $run(function(){
 
 			$.removeWrapper(Object, name);
 		});
-	}); 
+	});
 });

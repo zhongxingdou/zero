@@ -89,7 +89,7 @@ $run(function() {
 
 			if (spec.freeze) {
 				var allms = {};
-				z._trace(spec, 'base', function(base){
+				$trace(spec, 'base', function(base){
 					z._merge(base.member, allms);
 				});
 

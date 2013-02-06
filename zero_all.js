@@ -1,32 +1,4 @@
 (function(host) {
-	var IVariableMenager = {
-		type: "function(names, o)",
-		member: {
-			//注册一个变量
-			set: "function(name, o)",
-
-			//返回一个变量
-			get: "function(name):Object",
-
-			//列举所有的全局变量
-			list: "function():Array",
-
-			//导出指定变量到某个对象上
-			exportTo: "function(list, target)",
-			
-			//提供一个沙箱运行环境，确保所执行的代码引用到的是被管理的变量
-			run: "function(fn)",
-
-			//删除一个变量
-			destroy: "function(name)",
-
-			//一个用于eval(string)方式声明被管理变量的表达式字符串
-			all: "string"
-		}
-	};
-
-
-
 	/**
 	 * 变量管理类
 	 * @constructor
@@ -260,11 +232,11 @@ $run(function(){
 
     /**
      * 包含一个module到对象
-     * @param {IModule} module 
-     * @param {Object} toObj 
+     * @param {IModule} module
+     * @param {Object} toObj
      */
     function $include(module, toObj, exclude) {
-        var exclude = exclude || [];
+        exclude = exclude || [];
         exclude = exclude.concat("onIncluded", "__implns__");
 
         z._everyKey(module, function(k, v) {
@@ -299,7 +271,6 @@ $run(function(){
         clazz.baseProto = base.prototype;
     }
 
-
     /**
      * 声明对象实现了某接口，并将接口存入__implns__中
      */
@@ -312,6 +283,7 @@ $run(function(){
         }
         return o;
     }
+
     /**
      * 将一个或一组对象压入目标数组，并且确保目标数组中不包含压入对象
      * @param {Array} ar 要压入对象的数组
@@ -330,9 +302,9 @@ $run(function(){
                 ar.push(o);
             }
         } else {
-            var l = ar.length;
-            while (l--) {
-                if (ar[l] == o) return;
+            var k = ar.length;
+            while (k--) {
+                if (ar[k] == o) return;
             }
             ar.push(o);
         }
@@ -353,9 +325,8 @@ $run(function(){
         return true;
     }
 
-
     /**
-     * 遍历对象的可遍历成员 
+     * 遍历对象的可遍历成员
      * @param {Object} o 对象
      * @param {Function} fn(key, value) 处理函数
      * @param {Object} thisp 让处理函数执行时this指向它
@@ -364,7 +335,7 @@ $run(function(){
     function _everyKey(o, fn, thisp) {
         if (typeof fn != "function") return false;
 
-        for (p in o) {
+        for (var p in o) {
             if (fn.apply(thisp, [p, o[p]]) === false) return false;
         }
 
@@ -379,7 +350,7 @@ $run(function(){
      * @param {Object} thisp 让处理函数执行时this指向它
      * @return Boolean
      */
-    function _trace(o, prop, fn, thisp) {
+    function $trace(o, prop, fn, thisp) {
         var a = o;
         while (a) {
             if (fn.apply(thisp, [a]) === false) return false;
@@ -421,7 +392,7 @@ $run(function(){
     /**
      * 分割集合对象
      * @param {Object} items 集合对象
-     * @param {Object} start=0 从第几项开始转换 
+     * @param {Object} start=0 从第几项开始转换
      * @return Array
      */
     function _slice(items, start) {
@@ -436,7 +407,6 @@ $run(function(){
     function _array(items) {
         return Array.prototype.slice.call(items, 0);
     }
-
 
     /**
      * 复制对象成员到另一个对象
@@ -469,7 +439,6 @@ $run(function(){
 
         return to;
     }
-
 
     /**
      * 获取对象可枚举的所有成员名
@@ -511,30 +480,47 @@ $run(function(){
      * @param {Object} o
      * @param {Array} args 参数
      */
-    function $callbase(obj, args) {
-        var caller = $callbase.caller;
-        //此处不能用caller.name，因为caller.name可能不是它在对象中的key
-        var fnName = (caller == obj.constructor) ? "constructor" : undefined;
-        if (!fnName) {
-            z._everyKey(obj, function(k) {
-                if (obj[k] == caller) {
-                    fnName = k;
+    function $base(obj, args, caller) {
+        // !!!此处不能用caller.name，因为caller.name可能不是它在对象中的key
+        var self = obj;
+        caller = caller || arguments.callee.caller;
+        var currProto = null;
+        var funcName = null;
+
+        if(!funcName) {
+            //尝试从当前对象本身获取方法名
+            z._everyKey(self, function(k) {
+                if(self[k] == caller) {
+                    funcName = k;
+                    currProto = self.constructor.baseProto;
+                    return false;
                 }
-            }, obj);
+            });
+
+            //尝试从原型链上获取方法名
+            if(!funcName){
+                z._traceProto(self, function(proto){
+                    z._everyKey(proto, function(k){
+                        if(proto.hasOwnProperty(k) && proto[k] == caller){
+                            currProto = proto.constructor.baseProto;
+                            funcName = k;
+                            return false;
+                        }
+                    });
+                    if(proto.constructor == caller){
+                        funcName = "constructor";
+                        currProto = proto.constructor.baseProto;
+                    }
+                    if(currProto)return false;
+                });
+            }
         }
 
-
-        var protoFn = null;
-        _traceProto(obj.__proto__ || obj.constructor.prototype, function(proto) {
-            var o = proto[fnName];
-            if (o) {
-                protoFn = o;
-                return false; //break;
+        if(funcName && currProto){
+            var fn = currProto[funcName];
+            if(fn && typeof fn == "function"){
+                return fn.apply(self, args);
             }
-        });
-
-        if (typeof protoFn == "function") {
-            return protoFn.apply(obj, args || caller.arguments);
         }
     }
 
@@ -578,20 +564,8 @@ $run(function(){
     /**
      * 在方法内部调用，返回方法自身，避免使用方法名来引用自身
      */
-    function $fnself() {
-        return $fnself.caller;
-    }
-
-    /**
-     * 把option添加到指定的fn上
-     * @param {Function} fn 
-     * @param {Object} option
-     */
-    function $fn(fn, option) {
-        if (option) {
-            fn.option = option;
-        }
-        return fn;
+    function $fn() {
+        return $fn.caller.apply(this, arguments);
     }
 
     /**
@@ -617,7 +591,6 @@ $run(function(){
     z._every = _every;
     z._everyKey = _everyKey;
 
-    z._trace = _trace;
     z._traceProto = _traceProto;
 
     z._uniqPush = _uniqPush;
@@ -631,89 +604,45 @@ $run(function(){
     z._array = _array;
 	z._isPlainObject = _isPlainObject;
 
+    var $clone = function(obj) {
+        var objClone;
+        if ( obj.constructor == Object ) objClone = new obj.constructor();
+        else objClone = new this.constructor(obj.valueOf());
+        for ( var key in obj ) {
+            if ( objClone[key] != obj[key] ) {
+                if ( typeof(obj[key]) == 'object' ) {
+                    objClone[key] = $fn(obj[key]);
+                } else {
+                    objClone[key] = obj[key];
+                }
+            }
+        }
+        objClone.toString = obj.toString;
+        objClone.valueOf = obj.valueOf;
+        return objClone;
+     };
+
     $global("$implement", $implement);
     $global("$extend", $extend);
-    $global("$callbase", $callbase);
+    $global("$base", $base);
     $global("$include", $include);
     $global("$enum",  $enum);
     $global("$property", $property);
     $global("$fn",  $fn);
-    $global("$fnself", $fnself);
+    $global("$clone", $clone);
+    $global("$trace", $trace);
 });
 $run(function(){
 	eval($global.all);
 
+
 	/**
-	 * 将源对象包装成增强的对象，并且不污染源对象
+	 * 根据对象的类，原型以及实现的协议，使用对象相应的扩展模块包装对象的代理
 	 * @param {Object} o
 	 * @param {String} [name] 指定一个包装器
 	 */
-	var I$ = {
-		type: "function(o)",
-		member: {
-			/**
-			 * 注册一个wrapper
-			 * @param {Module} wrapper
-			 * @param {Interface} protocol
-			 * @param {String} name
-			 */
-			regWrapper: "function(wrapper, protocol, name)",
-
-			/**
-			 * 反注册一个wrapper
-			 * @param {Interface} protocol
-			 * @param {String} name
-			 */
-			removeWrapper: "function(protocol, name)",
-
-			/**
-			 * 根据protocol获取一个wrapper
-			 * @param {Interface} protocol
-			 * @param {String} name
-			 */
-			getWrapper: "function(protocol, name)",
-
-			/**
-			 * 查找对象的wrapper
-			 * @param {Object} o
-			 * @param {String} name
-			 */
-			findWrapper: "function(o, name)",
-
-			/**
-			 * 设置某个接口的默认wrapper
-			 * @param {Interface} protocol
-			 * @param {String} name
-			 */
-			setDefault: "function(protocol, name)",
-
-			/**
-			 * 查找除exceptName外的对象的所有wrapper
-			 * @param {Object} o
-			 * @param {String} exceptName
-			 */
-			findWrapperNamesExcept: "function(o, exceptName)",
-
-			/**
-			 * 根据protocol获取exceptName外的所有wrapper
-			 * @param {Interface} protocol
-			 * @param {String} exceptName
-			 */
-			getWrapperNamesExcept: "function(protocol, exceptName)"
-		}
-	};
-
-	/**
-	 * 将源对象包装成增强的对象
-	 * @param {Object} o
-	 * @param {String} [name] 指定一个包装器
-	 */
-	var I$$ = {
-		type: "function(o)"
-	};
-
-	function $(o /*, name, isProxy*/) {
-		if(o == null)return;
+	function $(o /*, name*/) {
+		if(o === null)return;
 
 		var type = typeof o;
 
@@ -723,13 +652,12 @@ $run(function(){
 		}
 
 		var name = arguments[1];
-		var isProxy = arguments[2] === true;
-		var proxy = isProxy ? o : {target: o};
+		var isProxy = o instanceof $.Proxy;
+		var proxy = isProxy ? o : new $.Proxy(o);
 
 		//复制所有成员方法到代理对象上
 		if(!isProxy){
 			//复制原型上的方法到代理对象上，但并不能复制不能枚举的原型方法
-	
 
 			z._everyKey(o, function(key, value) {
 				if(typeof value == "function"){
@@ -739,24 +667,14 @@ $run(function(){
 		}
 
 		//module中this.x＝xx不会设置到target上，要设置到target请使用this.set(x, xx);
-		$.findWrapper(o, name).forEach(function(wrapper){
+		$.findWrapper(proxy.target, name).forEach(function(wrapper){
 			$include(wrapper, proxy);
 		});
 
-		if(!name){
-			$.findWrapperNamesExcept(o, name).forEach(function(wrapperName){
-				//不要覆盖对象的原有成员，要wrap还可以通过o.wrap(wrapperName)来实现
-				if(!proxy[wrapperName]){
-					proxy[wrapperName] = function(){
-						$(proxy, wrapperName, true);
-						return proxy;
-					};
-				}
-			});
-		}
-
 		return proxy;
 	}
+
+	$.Proxy = function(target){ this.target = target; };
 
 	function _keysExcept(obj, except){
 		var ar = [];
@@ -769,6 +687,11 @@ $run(function(){
 		return ar;
 	}
 
+	/**
+	 * 根据protocol获取exceptName外的所有wrapper
+	 * @param {Interface} protocol
+	 * @param {String} exceptName
+	 */
 	$.getWrapperNamesExcept = function(protocol, exceptName){
 		exceptName = exceptName || DEFAULT;
 		var map = this.__wrapper[protocol];
@@ -779,33 +702,13 @@ $run(function(){
 		return ws;
 	};
 
-	$.findWrapperNamesExcept = function(o, exceptName){
-		exceptName = exceptName || DEFAULT;
-		var type = typeof(o);
-		var ws = [];
-
-		if(type === "object" || type === "function"){
-			z._traceProto(o, function(proto){
-				var clazz = proto.constructor;
-				var w = $.getWrapperNamesExcept(clazz, exceptName);
-				z._uniqPush(ws, w);
-
-				var protocols = proto.__implns__;
-				if(protocols){
-					protocols = protocols.slice(0);
-					protocols.forEach(function(protocol){
-						w = $.getWrapperNamesExcept(protocol, exceptName);
-						z._uniqPush(ws, w);
-					});
-				}
-			});
-		}
-		return ws.reverse();
-	};
-
-
+	/**
+	 * 根据对象的类，原型以及实现的协议，使用对象相应的扩展模块包装对象
+	 * @param {Object} o
+	 * @param {String} [name] 指定一个包装器
+	 */
 	function $$(o /* ,name */){
-		if(o == null)return;
+		if(o === null)return;
 
 		var type = typeof o;
 
@@ -815,27 +718,17 @@ $run(function(){
 		}
 
 		//备份扩展过程中要覆盖的成员
-		if(o.target)o.originTarget = o.target; 
-
-		o.target = o;
+		var isProxy = o instanceof $.Proxy;
+		if(!isProxy){
+			if(o.target)o.originTarget = o.target;
+			o.target = o;
+		}
 
 		var name = arguments[1];
-		$.findWrapper(o, name).forEach(function(wrapper){
+		//当o是$.Proxy实例时，应该根据o.target即真实对象来查询扩展器
+		$.findWrapper(o.target, name).forEach(function(wrapper){
 			$include(wrapper, o);
 		});
-
-
-		if(!name){
-			$.findWrapperNamesExcept(o, name).forEach(function(wrapperName){
-				//不要覆盖对象的原有成员，要wrap还可以通过o.wrap(wrapperName)来实现
-				if(!o[wrapperName]){
-					o[wrapperName] = function(){
-						$$(o, wrapperName);
-						return o;
-					};
-				}
-			});
-		}
 
 		return o;
 	}
@@ -844,6 +737,12 @@ $run(function(){
 
 	$.__wrapper = {};
 
+	/**
+	 * 注册一个wrapper
+	 * @param {Module} wrapper
+	 * @param {Interface} protocol
+	 * @param {String} name
+	 */
 	$.regWrapper = function(wrapper, protocol, name) {
 		name = name || DEFAULT;
 
@@ -864,6 +763,11 @@ $run(function(){
 		}
 	};
 
+	/**
+	 * 设置某个接口的默认wrapper
+	 * @param {Interface} protocol
+	 * @param {String} name
+	 */
 	$.setDefault = function(protocol, name){
 		var wp = this.getWrapper(protocol, name);
 		if(wp){
@@ -871,6 +775,11 @@ $run(function(){
 		}
 	};
 
+	/**
+	 * 反注册一个wrapper
+	 * @param {Interface} protocol
+	 * @param {String} name
+	 */
 	$.removeWrapper = function(protocol, name) {
 		if(!(protocol && name))return;
 
@@ -886,6 +795,11 @@ $run(function(){
 		}
 	};
 
+	/**
+	 * 根据protocol获取一个wrapper
+	 * @param {Interface} protocol
+	 * @param {String} name
+	 */
 	$.getWrapper = function(protocol, name) {
 		name = name || DEFAULT;
 		var map = this.__wrapper[protocol];
@@ -894,6 +808,11 @@ $run(function(){
 		}
 	};
 
+	/**
+	 * 查找对象的wrapper
+	 * @param {Object} o
+	 * @param {String} name
+	 */
 	$.findWrapper = function(o, name) {
 		var type = typeof(o);
 		var ws = [];
@@ -902,14 +821,14 @@ $run(function(){
 			z._traceProto(o, function(proto){
 				var clazz = proto.constructor;
 				var w = $.getWrapper(clazz, name);
-				w && z._uniqPush(ws, w);
+				if(w)z._uniqPush(ws, w);
 
 				var protocols = proto.__implns__;
 				if(protocols){
 					protocols = protocols.slice(0);
 					protocols.forEach(function(protocol){
-						w= $.getWrapper(protocol, name);
-						w && z._uniqPush(ws, w);
+						w = $.getWrapper(protocol, name);
+						if(w)z._uniqPush(ws, w);
 					});
 				}
 			});
@@ -918,6 +837,16 @@ $run(function(){
 		return ws.reverse();
 	};
 
+	/**
+	 * 注册扩展器的一种DSL
+	 * @param  {Protocol|Class|Prototype} o 要扩展的目标
+	 * @return {Object}
+	 * @example
+	 * $.make(String).can({"capitalize": function(){
+	 *     var o = this.target.valueOf();
+	 *     return o.charAt(0).toUpperCase() + o.slice(1);
+	 * }
+	 */
 	$.make = function(o){
 		return {
 			can: function(name, fn){
@@ -944,7 +873,7 @@ $run(function(){
 	};
 
 	var  _wrapWith = function(o, action, name){
-		var name = name || action.name;
+		name = name || action.name;
 		if(!name)return;
 
 		var wrapper = $.getWrapper(o, DEFAULT);
@@ -964,6 +893,12 @@ $run(function(){
 		}
 	};
 
+	/**
+	 * 创建一个扩展模块的沙箱
+	 * @param  {Protocol|Class|Prototype} o       扩展目标
+	 * @param  {Module} wrapper 扩展模块
+	 * @return {Function}         沙箱
+	 */
 	$.createSandbox = function(o, wrapper){
 		var sandbox = function(fn){
 			if(!fn)return;
@@ -979,13 +914,17 @@ $run(function(){
 		return sandbox;
 	};
 
+	/**
+	 * 创建一个沙箱并立即在沙箱中运行方法
+	 * @param  {Protocol|Class|Prototype}   o       扩展目标
+	 * @param  {Module}   wrapper 扩展模块
+	 * @param  {Function} fn      要运行的方法
+	 * @return {Object}           fn的返回结果
+	 */
 	$.onceWrap = function(o, wrapper, fn){
 		var box = $.makeSandbox(o, wrapper);
 		return box(fn);
 	};
-
-	$implement(I$, $);
-	$implement(I$$, $$);
 
 	$global("$", $);
 	$global("$$", $$);
@@ -999,7 +938,7 @@ $run(function(){
 	*/
 	var IObject = {
 		__implns__: Array
-	}
+	};
 
 	/**
 	 * IModule
@@ -1007,7 +946,7 @@ $run(function(){
 	 */
 	var IModule = {
 		onIncluded: "[function()]"
-	}
+	};
 
 
 	z.IObject = IObject;
@@ -1139,14 +1078,14 @@ $run(function() {
 		}
 	});
 
-	$.regWrapper(MClass, Function, "toClass");
+	$.regWrapper(MClass, Function, "MClass");
 
 	z.IClass = IClass;
 
 	z.MClass = MClass;
 
 	function $class(m){
-		return $$(m).toClass();
+		return $(m).wrapWith("MClass");
 	}
 	$global("$class", $class);
 });
@@ -1205,8 +1144,8 @@ $run(function() {
 	 * @description 对象系统的基础类，建议所有对象都以此类作为超类
 	 */
 	function Base() {
-		console.info("Base() callee");
-		//this.__implns__ = [];
+		// $log("Base callee");
+		this.__implns__ = [];
 	}
 
 	Base.prototype = $implement(IBase, {
@@ -1241,47 +1180,7 @@ $run(function() {
 			}
 		})(),
 		base: function() {
-			// !!!此处不能用caller.name，因为caller.name可能不是它在对象中的key
-			var self = this;
-			var caller = self.base.caller;
-			var currProto = null;
-			var funcName = null;
-
-			if(!funcName) {
-				//尝试从当前对象本身获取方法名
-				z._everyKey(self, function(k) {
-					if(self[k] == caller) {
-						funcName = k;
-						currProto = self.constructor.baseProto;
-						return false;
-					}
-				});
-
-				//尝试从原型链上获取方法名
-				if(!funcName){
-					z._traceProto(self, function(proto){
-						z._everyKey(proto, function(k){
-							if(proto.hasOwnProperty(k) && proto[k] == caller){
-								currProto = proto.constructor.baseProto;
-								funcName = k;
-								return false;
-							}
-						});
-						if(proto.constructor == caller){
-							funcName = "constructor";
-							currProto = proto.constructor.baseProto;
-						}
-						if(currProto)return false;
-					});
-				}
-			}
-
-			if(funcName && currProto){
-				var fn = currProto[funcName];
-				if(fn && typeof fn == "function"){
-					return fn.apply(self, arguments);
-				}
-			}
+			return $base(this, arguments, arguments.callee.caller);
 		},
 		implement: function(protocol) {
 			$implement(protocol, this);
@@ -1378,7 +1277,7 @@ $run(function() {
 			if(t.indexOf("function") != -1){ //function的声明可以写成function(p1, p2)的形式，这种形式一律视为function
 				t = "function";
 			}
-			if(!(typeof(o) === t))return false;
+			if(typeof(o) !== t)return false;
 		}
 
 		//instanceof 判断
@@ -1414,7 +1313,7 @@ $run(function() {
 		ownProperty: "boolean",
 		check: "function(o, name)",
 		value: Object
-	}
+	};
 
 	/**
 	 * 对象的成员规格
@@ -1444,7 +1343,7 @@ $run(function() {
 		required: true, //字符串表达式可用[]括住的表示非必须required=false
 		type: null, //字符表达式可用|分隔多种不同的类型
 		ownProperty: false
-	}
+	};
 
 	/**
 	 * 解析成员规格字符表达式
@@ -1464,7 +1363,7 @@ $run(function() {
 			spec.type = exp;
 		}
 		return spec;
-	}
+	};
 
 	MemberSpec.prototype = $implement(IMemberSpec, {
 		/**
@@ -1475,7 +1374,7 @@ $run(function() {
 		check: function(o, name) {
 			var v = o[name];
 
-			if(v == null){
+			if(v === null || v === undefined){
 				return !this.required;
 			}
 
@@ -1599,7 +1498,7 @@ $run(function() {
 
 			if (spec.freeze) {
 				var allms = {};
-				z._trace(spec, 'base', function(base){
+				$trace(spec, 'base', function(base){
 					z._merge(base.member, allms);
 				});
 
@@ -1635,7 +1534,7 @@ $run(function() {
 				option[k] = {
 					type: t,
 					required: false
-				}
+				};
 			}
 		}
 		return option;
@@ -1648,7 +1547,7 @@ $run(function() {
 	 */
 	function $option(/*params, paramSpec*/) {
 		var args       = arguments,
-			realFn     = $fnself().caller,
+			realFn     = arguments.callee.caller,
 			params     = args[0] || realFn.arguments[0] || {};
 
 		var option = args[1] || realFn.option;
@@ -2012,7 +1911,7 @@ $run(function() {
 
 	z.MInspect = MInspect;
 
-	$.regWrapper(MInspect, Object, "inspect");
+	$.regWrapper(MInspect, Object, "MInspect");
 
 	/**
 	 * 检视对象，返回一个包含了MInspect模块的对象
@@ -2020,7 +1919,7 @@ $run(function() {
 	 * @global
 	 */
 	function $inspect(o){
-		return $(o).inspect();
+		return $(o).wrapWith("MInspect");
 	}
 
 	$global("$inspect", $inspect);

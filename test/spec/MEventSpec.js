@@ -8,7 +8,7 @@ $run(function(){
 			$include(z.MEvent, btn);
 
 			var listener = function(){};
-			btn.addListener("click", listener); 
+			btn.addListener("click", listener);
 
 			var listeners = btn.getListerners("click");
 			expect(listeners).toContain(listener);
@@ -19,7 +19,7 @@ $run(function(){
 			$include(z.MEvent, btn);
 
 			var listener = function(){};
-			btn.addListener("click", listener); 
+			btn.addListener("click", listener);
 			btn.removeListener("click", listener);
 
 			var listeners = btn.getListerners("click");
@@ -31,12 +31,12 @@ $run(function(){
 			$include(z.MEvent, btn);
 
 			var listener = jasmine.createSpy();
-			btn.addListener("click", listener); 
+			btn.addListener("click", listener);
 
 			var param = [{}];
 			btn.fire("click", param);
 
 			expect(listener).toHaveBeenCalledWith(param);
 		});
-	}); 
+	});
 });

@@ -11,7 +11,7 @@ $run(function() {
 				scope: 85,
 				gender: 'boy',
 				__setName: function() {}
-			}
+			};
 
 			var ro = $inspect(obj);
 
@@ -38,7 +38,7 @@ $run(function() {
 			Base.prototype = {
 				baseName: 'base',
 				baseMethod: function(){}
-			}
+			};
 
 			var Class = function(){};
 			Class.prototype = {
@@ -49,7 +49,7 @@ $run(function() {
 				scope: 85,
 				gender: 'boy',
 				__setName: function() {}
-			}
+			};
 
 			$class(Class).extend(Base);
 
@@ -78,5 +78,5 @@ $run(function() {
 			expect(link).toContain(Base.prototype);
 			expect(link).toContain(Object.prototype);
 		});
-	})
+	});
 });

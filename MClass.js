@@ -40,14 +40,14 @@ $run(function() {
 		}
 	});
 
-	$.regWrapper(MClass, Function, "toClass");
+	$.regWrapper(MClass, Function, "MClass");
 
 	z.IClass = IClass;
 
 	z.MClass = MClass;
 
 	function $class(m){
-		return $$(m).toClass();
+		return $(m).wrapWith("MClass");
 	}
 	$global("$class", $class);
 });

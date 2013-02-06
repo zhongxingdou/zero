@@ -7,7 +7,7 @@ $run(function(){
 	*/
 	var IObject = {
 		__implns__: Array
-	}
+	};
 
 	/**
 	 * IModule
@@ -15,7 +15,7 @@ $run(function(){
 	 */
 	var IModule = {
 		onIncluded: "[function()]"
-	}
+	};
 
 
 	z.IObject = IObject;
