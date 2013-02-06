@@ -2,9 +2,9 @@ $run(function() {
 	eval($global.all);
 
 	describe("$module()", function() {
-		it("$module()创建的对象符合IModule接口", function() {
+		it("$module()创建的对象符合PModule接口", function() {
 			var m = $module({});
-			expect($support(z.IModule, m)).toBeTruthy();
+			expect($support(z.PModule, m)).toBeTruthy();
 		});
 
 		it("$include()", function() {

@@ -166,7 +166,7 @@ a JavaScript object oriented framework.
 			},
 			type: Object, //对象的类型
 			freeze: true, //是否冻结对象,即不让对象拥有member以外的成员
-			base: IObject //父接口
+			base: PObject //父接口
 		})
 		
 		//如果只定义member和type,可以用更简单的写法

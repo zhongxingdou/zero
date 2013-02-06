@@ -232,7 +232,7 @@ $run(function(){
 
     /**
      * 包含一个module到对象
-     * @param {IModule} module
+     * @param {PModule} module
      * @param {Object} toObj
      */
     function $include(module, toObj, exclude) {
@@ -369,7 +369,7 @@ $run(function(){
      */
     if (SUPPORTED_PROTO) {
         function _traceProto(o, fn, thisp) {
-            return _trace(o.__proto__, '__proto__', fn, thisp);
+            return $trace(o.__proto__, '__proto__', fn, thisp);
         }
     } else {
         function _traceProto(o, fn, thisp) {
@@ -933,28 +933,28 @@ $run(function(){
 	eval($global.all);
 
 	/**
-	* IObject
+	* PObject
 	* @protocol
 	*/
-	var IObject = {
+	var PObject = {
 		__implns__: Array
 	};
 
 	/**
-	 * IModule
+	 * PModule
 	 * @protocol
 	 */
-	var IModule = {
+	var PModule = {
 		onIncluded: "[function()]"
 	};
 
 
-	z.IObject = IObject;
+	z.PObject = PObject;
 
-	z.IModule = IModule;
+	z.PModule = PModule;
 
 	function $module(m){
-		$implement(IModule,m);
+		$implement(PModule,m);
 		return m;
 	}
 
