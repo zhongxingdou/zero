@@ -1,6 +1,8 @@
 #Zero 
 a JavaScript object oriented framework.
 
+# 已迁移。Repo was renamed to mayjs and moved to https://github.com/zhongxingdou/mayjs.
+
 欢迎加入QQ讨论群: 250988913
 
 ##features:
